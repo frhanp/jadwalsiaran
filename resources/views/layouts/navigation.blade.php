@@ -36,6 +36,39 @@
             </div>
         </div>
         @endif
+
+        @if(Auth::check() && Auth::user()->role === 'penyiar')
+        <div class="pt-4">
+            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Penyiar
+            </h3>
+            <div class="mt-2 space-y-2">
+                <x-nav-link :href="route('penyiar.jadwal.index')" :active="request()->routeIs('penyiar.jadwal.*', 'admin.items.*')">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 15.75h.008v.008H12v-.008Z" />
+                    </svg>
+                    <span>Jadwal Siaran Saya</span>
+                </x-nav-link>
+            </div>
+        </div>
+        @endif
+
+        @if(Auth::check() && in_array(Auth::user()->role, ['katim', 'kepsta']))
+        <div class="pt-4">
+            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Laporan
+            </h3>
+            <div class="mt-2 space-y-2">
+                <x-nav-link :href="route('laporan.jadwal.harian')" :active="request()->routeIs('laporan.jadwal.*')">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+                    </svg>
+                    <span>Jadwal Harian</span>
+                </x-nav-link>
+            </div>
+        </div>
+        @endif
         {{-- @endrole --}}
 
     </nav>

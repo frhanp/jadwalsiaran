@@ -3,13 +3,15 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             Kelola Sub-List untuk Materi: <span class="font-bold">{{ $item->materi }}</span>
         </h2>
-        <a href="{{ route('admin.sequences.items.index', $item->sequence_id) }}" class="text-sm text-indigo-600 hover:text-indigo-900 mt-1 block">&larr; Kembali ke Daftar Materi</a>
+        @php $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; @endphp
+        <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}" class="text-sm text-indigo-600 hover:text-indigo-900 mt-1 block">&larr; Kembali ke Daftar Materi</a>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+                    
                     @if (session('success'))
                         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
                             <span class="block sm:inline">{{ session('success') }}</span>
@@ -22,7 +24,7 @@
                     @endif
 
                     {{-- Form dinamis menggunakan Alpine.js --}}
-                    <form method="POST" action="{{ route('admin.items.materi-details.update-all', $item) }}"
+                    <form method="POST" action="{{ route($prefix.'items.materi-details.update-all', $item) }}"
                           x-data="{ details: {{ json_encode($item->materiDetails->pluck('isi')->all()) }} }">
                         @csrf
                         @method('PUT')
@@ -50,7 +52,7 @@
                         </div>
 
                         <div class="flex items-center justify-end mt-8 border-t pt-6">
-                            <a href="{{ route('admin.sequences.items.index', $item->sequence_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
                                 Batal
                             </a>
                             <x-primary-button>

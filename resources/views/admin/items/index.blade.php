@@ -5,9 +5,14 @@
                 <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                     Materi Siar untuk Sequence: <span class="font-bold">{{ $sequence->nama }}</span>
                 </h2>
-                <a href="{{ route('admin.programs.sequences.index', ['program' => $sequence->program_id]) }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Daftar Sequence</a>
+                @if (Auth::user()->role === 'admin')
+                    <a href="{{ route('admin.programs.sequences.index', ['program' => $sequence->program_id]) }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Daftar Sequence</a>
+                @else
+                    <a href="{{ route('penyiar.jadwal.index') }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Jadwal Saya</a>
+                @endif
             </div>
-            <a href="{{ route('admin.sequences.items.create', $sequence) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+            @php $createRoute = Auth::user()->role === 'admin' ? 'admin.sequences.items.create' : 'penyiar.sequences.items.create'; @endphp
+            <a href="{{ route($createRoute, $sequence) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
                 Tambah Materi
             </a>
         </div>
@@ -39,18 +44,17 @@
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $item->frame ?? '-' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $item->durasi ?? '-' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
-                                        {{-- AWAL MODIFIKASI --}}
+                                        @php $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; @endphp
                                         <div class="flex items-center space-x-3 text-xs">
-                                            <a href="{{ route('admin.items.materi-details.manage', $item) }}" class="text-green-600 hover:text-green-900">Sub-List</a>
-                                            <a href="{{ route('admin.items.item-details.manage', $item) }}" class="text-purple-600 hover:text-purple-900">ILM/Spot</a>
-                                            <a href="{{ route('admin.items.edit', $item) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                            <form action="{{ route('admin.items.destroy', $item) }}" method="POST" onsubmit="return confirm('Anda yakin?');">
+                                            <a href="{{ route($prefix . 'items.materi-details.manage', $item) }}" class="text-green-600 hover:text-green-900">Sub-List</a>
+                                            <a href="{{ route($prefix . 'items.item-details.manage', $item) }}" class="text-purple-600 hover:text-purple-900">ILM/Spot</a>
+                                            <a href="{{ route($prefix . 'items.edit', $item) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route($prefix . 'items.destroy', $item) }}" method="POST" onsubmit="return confirm('Anda yakin?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
                                             </form>
                                         </div>
-                                        {{-- AKHIR MODIFIKASI --}}
                                     </td>
                                 </tr>
                                 @empty

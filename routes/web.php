@@ -8,6 +8,8 @@ use App\Http\Controllers\Admin\SequenceController;
 use App\Http\Controllers\Admin\SequenceItemController;
 use App\Http\Controllers\Admin\MateriDetailController;
 use App\Http\Controllers\Admin\ItemDetailController;
+use App\Http\Controllers\Penyiar\JadwalController;
+use App\Http\Controllers\LaporanController;
 
 
 
@@ -39,12 +41,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Grup untuk Penyiar
     Route::middleware(['role:penyiar'])->name('penyiar.')->prefix('penyiar')->group(function () {
-        // Route untuk penyiar mengisi jadwal, dll.
+        Route::get('jadwal', [JadwalController::class, 'index'])->name('jadwal.index');
+        Route::resource('sequences.items', SequenceItemController::class)->except(['show'])->shallow();
+        Route::get('items/{item}/materi-details', [MateriDetailController::class, 'edit'])->name('items.materi-details.manage');
+        Route::put('items/{item}/materi-details', [MateriDetailController::class, 'update'])->name('items.materi-details.update-all');
+        Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
+        Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
     });
 
     // Grup untuk Kepsta dan Katim (hanya laporan)
-    Route::middleware(['role:kepsta,katim'])->group(function () {
-        // Route untuk melihat laporan
+    Route::middleware(['role:kepsta,katim'])->name('laporan.')->prefix('laporan')->group(function () {
+        Route::get('jadwal-harian', [LaporanController::class, 'index'])->name('jadwal.harian');
     });
 });
 
