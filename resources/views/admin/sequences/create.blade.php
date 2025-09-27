@@ -1,0 +1,66 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Tambah Sequence untuk: <span class="font-bold">{{ $program->nama }}</span>
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.programs.sequences.store', $program) }}">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="nama" :value="__('Nama Sequence')" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama')" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="host_id" :value="__('Host/Penyiar')" />
+                                <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">Pilih Penyiar</option>
+                                    @foreach ($penyiars as $penyiar)
+                                        <option value="{{ $penyiar->id }}" {{ old('host_id') == $penyiar->id ? 'selected' : '' }}>
+                                            {{ $penyiar->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('host_id')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="waktu" :value="__('Waktu Mulai (HH:MM)')" />
+                                <x-text-input id="waktu" class="block mt-1 w-full" type="time" name="waktu" :value="old('waktu')" required />
+                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
+                            </div>
+                            
+                            <div>
+                                <x-input-label for="durasi" :value="__('Durasi (menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi')" />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <x-input-label for="frame" :value="__('Frame (Live/Rekam/dll.)')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame')" />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.programs.sequences.index', $program) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>

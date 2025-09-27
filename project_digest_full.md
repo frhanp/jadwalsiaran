@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-09-27 12:10:19_
+_Generated: 2025-09-27 13:21:15_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -46,7 +46,10 @@ app\Http\Controllers\Auth
 app\Http\Controllers\Controller.php
 app\Http\Controllers\LaporanController.php
 app\Http\Controllers\ProfileController.php
-app\Http\Controllers\Admin\AcaraSiaranController.php
+app\Http\Controllers\Admin\MateriDetailController.php
+app\Http\Controllers\Admin\ProgramController.php
+app\Http\Controllers\Admin\SequenceController.php
+app\Http\Controllers\Admin\SequenceItemController.php
 app\Http\Controllers\Admin\UserController.php
 app\Http\Controllers\Auth\AuthenticatedSessionController.php
 app\Http\Controllers\Auth\ConfirmablePasswordController.php
@@ -61,7 +64,11 @@ app\Http\Middleware\RoleMiddleware.php
 app\Http\Requests\Auth
 app\Http\Requests\ProfileUpdateRequest.php
 app\Http\Requests\Auth\LoginRequest.php
-app\Models\AcaraSiaran.php
+app\Models\ItemDetail.php
+app\Models\MateriDetail.php
+app\Models\Program.php
+app\Models\Sequence.php
+app\Models\SequenceItem.php
 app\Models\User.php
 app\Providers\AppServiceProvider.php
 app\View\Components
@@ -92,8 +99,13 @@ database\factories\UserFactory.php
 database\migrations\0001_01_01_000000_create_users_table.php
 database\migrations\0001_01_01_000001_create_cache_table.php
 database\migrations\0001_01_01_000002_create_jobs_table.php
-database\migrations\2025_09_22_020525_create_acara_siarans_table.php
+database\migrations\2025_09_27_041320_create_programs_table.php
+database\migrations\2025_09_27_041322_create_sequences_table.php
+database\migrations\2025_09_27_041322_create_sequence_items_table.php
+database\migrations\2025_09_27_041323_create_materi_details_table.php
+database\migrations\2025_09_27_041324_create_item_details_table.php
 database\seeders\DatabaseSeeder.php
+database\seeders\ProgramSeeder.php
 database\seeders\UserSeeder.php
 public\build
 public\.htaccess
@@ -114,11 +126,23 @@ resources\views\layouts
 resources\views\profile
 resources\views\dashboard.blade.php
 resources\views\welcome.blade.php
-resources\views\admin\acara-siaran
+resources\views\admin\items
+resources\views\admin\materi-details
+resources\views\admin\programs
+resources\views\admin\sequences
 resources\views\admin\users
-resources\views\admin\acara-siaran\create.blade.php
-resources\views\admin\acara-siaran\edit.blade.php
-resources\views\admin\acara-siaran\index.blade.php
+resources\views\admin\items\create.blade.php
+resources\views\admin\items\edit.blade.php
+resources\views\admin\items\index.blade.php
+resources\views\admin\materi-details\create.blade.php
+resources\views\admin\materi-details\edit.blade.php
+resources\views\admin\materi-details\index.blade.php
+resources\views\admin\programs\create.blade.php
+resources\views\admin\programs\edit.blade.php
+resources\views\admin\programs\index.blade.php
+resources\views\admin\sequences\create.blade.php
+resources\views\admin\sequences\edit.blade.php
+resources\views\admin\sequences\index.blade.php
 resources\views\admin\users\create.blade.php
 resources\views\admin\users\edit.blade.php
 resources\views\admin\users\index.blade.php
@@ -172,6 +196,8 @@ storage\framework\sessions\.gitignore
 storage\framework\testing\.gitignore
 storage\framework\views\.gitignore
 storage\framework\views\035e08034bd2a9374e0b9a2a024a8dc0.php
+storage\framework\views\0adf6831ebea126648979baa7f7b22b2.php
+storage\framework\views\0b6d41b356f4b13b331e58b17b509a67.php
 storage\framework\views\0cff1b1b66097aaa2bfdc4f7fc08e9bd.php
 storage\framework\views\14a2d53d37acbea1231caae07ee00108.php
 storage\framework\views\154580fb5887853d9924ef43c1d736ea.php
@@ -189,6 +215,7 @@ storage\framework\views\418ce072e1d10293c00e01cd4c6c9cb7.php
 storage\framework\views\44c9f5a56a44e3850b8bd7acd0f394c8.php
 storage\framework\views\45a3fc020f34bb83ecdd9805dc7a126c.php
 storage\framework\views\45b61f44a49e78a969c38f320f6de079.php
+storage\framework\views\45eca80902b1a73207ef8f27834696be.php
 storage\framework\views\48d0a71e66e2c72f3941c0e0f31095cd.php
 storage\framework\views\495f4db45a9ce2ed9672af2d261c1da5.php
 storage\framework\views\53547a15944e5711fe3b8d6dd90393bd.php
@@ -197,6 +224,7 @@ storage\framework\views\57af163985f30bf03926a7ee9487a0e6.php
 storage\framework\views\5d13ae6b3b3b1da1548321fb35a7cbf8.php
 storage\framework\views\6dd1787a73a4a362a02cd21d33de6f03.php
 storage\framework\views\6f987950985d9147788673c4ddeb40b0.php
+storage\framework\views\7078c5e0c7ac23f6d58c9872e5a46ff1.php
 storage\framework\views\709a8a31d0615eb7ffb67664da9a47ef.php
 storage\framework\views\72bdbefa9eedcf5be213118603ade76c.php
 storage\framework\views\77ec844aad46f8a212ea3e9cc7396b50.php
@@ -210,14 +238,19 @@ storage\framework\views\85ed325697d24741b286434f3a1e93ba.php
 storage\framework\views\86b7c125649709e962c1e608445d1a0a.php
 storage\framework\views\894eda82901b49834942f01dd75b0671.php
 storage\framework\views\8c6a5e0d675ecd35d643eceb60b910ad.php
+storage\framework\views\8d41e98faa2f6eae64bab5ae7444f543.php
 storage\framework\views\8eaefbeef2877b88cd6f3fde4eed1180.php
 storage\framework\views\956a6eb56328307aaa2583b78ce3ce2f.php
+storage\framework\views\9740683addb575ade8749ba4067a8695.php
 storage\framework\views\979d5c9e1ec39bd60eefee3605768e59.php
 storage\framework\views\99179cd21570d22aff6bd027ea9435d2.php
+storage\framework\views\9aeea8f721404a367aa3f641ced83509.php
+storage\framework\views\9c486e65310f1a7ec5bf49caa682d4c5.php
 storage\framework\views\a38428fe0ca1a2d5793b9e5a060db05f.php
 storage\framework\views\a50999f3f2b7c6016126a5ed8ba8b419.php
 storage\framework\views\a5628588dddc08e3cec66f71564b050f.php
 storage\framework\views\a5dcebba30532fc3806c48626dd16750.php
+storage\framework\views\a91ae81c6b2d0df85d42ff91b0b9a1a0.php
 storage\framework\views\ae37206701858e6669bc717d07c42f21.php
 storage\framework\views\b25618829c4ed3181cc24ec47cee1413.php
 storage\framework\views\b2827d4107c5e292eda969b92cd383bb.php
@@ -236,6 +269,7 @@ storage\framework\views\caf0456962dc4b624331c7e069af6ba5.php
 storage\framework\views\cde089ae42ec946b7c618a9463fac7ce.php
 storage\framework\views\d621116e5999be378366c2e053a568d8.php
 storage\framework\views\db27ab924c3d74acb6ec1e7a1d53c940.php
+storage\framework\views\dbb919b6e35a7b018c383ce8537e4739.php
 storage\framework\views\e5d4165ba4b5fce64b8dbe66a86b8a6c.php
 storage\framework\views\eec69a543710c9f0b8f6bea13f251dbf.php
 storage\framework\views\ef11c019bd5db12b2c7e82619fe2ccdc.php
@@ -270,6 +304,7 @@ Branch:
 main
 
 Last 5 commits:
+859aea7 make migrasi dan seeder
 4437322 first commit
 ```
 
@@ -366,9 +401,13 @@ Artisan::command('inspire', function () {
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\AcaraSiaranController;
-use App\Http\Controllers\Penyiar\ProfilController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\ProgramController;
+use App\Http\Controllers\Admin\SequenceController;
+use App\Http\Controllers\Admin\SequenceItemController;
+use App\Http\Controllers\Admin\MateriDetailController;
+
+
 
 
 
@@ -386,9 +425,11 @@ Route::get('/dashboard', function () {
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
-        // UBAH BARIS INI
         Route::resource('users', UserController::class); 
-        Route::resource('acara-siaran', AcaraSiaranController::class);
+        Route::resource('programs', ProgramController::class);
+        Route::resource('programs.sequences', SequenceController::class)->except(['show'])->shallow();
+        Route::resource('sequences.items', SequenceItemController::class)->except(['show'])->shallow();
+        Route::resource('items.materi-details', MateriDetailController::class)->except(['show'])->shallow()->parameters(['materi-details' => 'detail']);
     });
 
     // Grup untuk Penyiar
@@ -421,13 +462,31 @@ require __DIR__ . '/auth.php';
 ```
 
   GET|HEAD        / ..................................................................................................... 
-  GET|HEAD        admin/acara-siaran ....................... admin.acara-siaran.index ΓÇ║ Admin\AcaraSiaranController@index
-  POST            admin/acara-siaran ....................... admin.acara-siaran.store ΓÇ║ Admin\AcaraSiaranController@store
-  GET|HEAD        admin/acara-siaran/create .............. admin.acara-siaran.create ΓÇ║ Admin\AcaraSiaranController@create
-  GET|HEAD        admin/acara-siaran/{acara_siaran} .......... admin.acara-siaran.show ΓÇ║ Admin\AcaraSiaranController@show
-  PUT|PATCH       admin/acara-siaran/{acara_siaran} ...... admin.acara-siaran.update ΓÇ║ Admin\AcaraSiaranController@update
-  DELETE          admin/acara-siaran/{acara_siaran} .... admin.acara-siaran.destroy ΓÇ║ Admin\AcaraSiaranController@destroy
-  GET|HEAD        admin/acara-siaran/{acara_siaran}/edit ..... admin.acara-siaran.edit ΓÇ║ Admin\AcaraSiaranController@edit
+  PUT|PATCH       admin/items/{item} ........................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          admin/items/{item} ......................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        admin/items/{item}/edit .......................... admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        admin/items/{item}/materi-details admin.items.materi-details.index ΓÇ║ Admin\MateriDetailController@index
+  POST            admin/items/{item}/materi-details admin.items.materi-details.store ΓÇ║ Admin\MateriDetailController@store
+  GET|HEAD        admin/items/{item}/materi-details/create admin.items.materi-details.create ΓÇ║ Admin\MateriDetailControlΓÇª
+  PUT|PATCH       admin/materi-details/{detail} ....... admin.materi-details.update ΓÇ║ Admin\MateriDetailController@update
+  DELETE          admin/materi-details/{detail} ..... admin.materi-details.destroy ΓÇ║ Admin\MateriDetailController@destroy
+  GET|HEAD        admin/materi-details/{detail}/edit ...... admin.materi-details.edit ΓÇ║ Admin\MateriDetailController@edit
+  GET|HEAD        admin/programs ................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
+  POST            admin/programs ................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
+  GET|HEAD        admin/programs/create .......................... admin.programs.create ΓÇ║ Admin\ProgramController@create
+  GET|HEAD        admin/programs/{program} ........................... admin.programs.show ΓÇ║ Admin\ProgramController@show
+  PUT|PATCH       admin/programs/{program} ....................... admin.programs.update ΓÇ║ Admin\ProgramController@update
+  DELETE          admin/programs/{program} ..................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
+  GET|HEAD        admin/programs/{program}/edit ...................... admin.programs.edit ΓÇ║ Admin\ProgramController@edit
+  GET|HEAD        admin/programs/{program}/sequences .... admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
+  POST            admin/programs/{program}/sequences .... admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
+  GET|HEAD        admin/programs/{program}/sequences/create admin.programs.sequences.create ΓÇ║ Admin\SequenceController@cΓÇª
+  PUT|PATCH       admin/sequences/{sequence} ................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
+  DELETE          admin/sequences/{sequence} ................. admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
+  GET|HEAD        admin/sequences/{sequence}/edit .................. admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
+  GET|HEAD        admin/sequences/{sequence}/items ..... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            admin/sequences/{sequence}/items ..... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        admin/sequences/{sequence}/items/create admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@crΓÇª
   GET|HEAD        admin/users ............................................ admin.users.index ΓÇ║ Admin\UserController@index
   POST            admin/users ............................................ admin.users.store ΓÇ║ Admin\UserController@store
   GET|HEAD        admin/users/create ................................... admin.users.create ΓÇ║ Admin\UserController@create
@@ -457,103 +516,290 @@ require __DIR__ . '/auth.php';
   GET|HEAD        verify-email ............................. verification.notice ΓÇ║ Auth\EmailVerificationPromptController
   GET|HEAD        verify-email/{id}/{hash} ............................. verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                      Showing [36] routes
+                                                                                                      Showing [54] routes
 
 ```
 
 
 ## Controllers Content
 ```
-===== app\Http\Controllers\Admin\AcaraSiaranController.php =====
+===== app\Http\Controllers\Admin\MateriDetailController.php =====
 <?php
 
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\AcaraSiaran;
-use App\Models\User;
+use App\Models\SequenceItem;
+use App\Models\MateriDetail;
+use Illuminate\Support\Facades\Auth;
 
-
-class AcaraSiaranController extends Controller
+class MateriDetailController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(SequenceItem $item)
     {
-        $acaraSiarans = AcaraSiaran::with('user')->latest()->paginate(10);
-        return view('admin.acara-siaran.index', compact('acaraSiarans'));
+        $details = $item->materiDetails()->latest()->paginate(10);
+        return view('admin.materi-details.index', compact('item', 'details'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    public function create(SequenceItem $item)
+    {
+        return view('admin.materi-details.create', compact('item'));
+    }
+
+    public function store(Request $request, SequenceItem $item)
+    {
+        $request->validate(['isi' => 'required|string']);
+
+        $item->materiDetails()->create($request->all() + ['dibuat_oleh' => Auth::id()]);
+
+        return redirect()->route('admin.materi-details.index', $item)
+            ->with('success', 'Detail materi berhasil ditambahkan.');
+    }
+
+    public function edit(MateriDetail $detail)
+    {
+        return view('admin.materi-details.edit', compact('detail'));
+    }
+
+    public function update(Request $request, MateriDetail $detail)
+    {
+        $request->validate(['isi' => 'required|string']);
+
+        $detail->update($request->all());
+
+        return redirect()->route('admin.materi-details.index', $detail->item_id)
+            ->with('success', 'Detail materi berhasil diperbarui.');
+    }
+
+    public function destroy(MateriDetail $detail)
+    {
+        $item = $detail->item;
+        $detail->delete();
+
+        return redirect()->route('admin.materi-details.index', $item)
+            ->with('success', 'Detail materi berhasil dihapus.');
+    }
+}
+
+===== app\Http\Controllers\Admin\ProgramController.php =====
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Program;
+use Illuminate\Support\Facades\Auth;
+
+class ProgramController extends Controller
+{public function index()
+    {
+        $programs = Program::with('pembuat')->latest()->paginate(10);
+        return view('admin.programs.index', compact('programs'));
+    }
+
     public function create()
     {
-        $penyiars = User::where('role', 'penyiar')->get();
-        return view('admin.acara-siaran.create', compact('penyiars'));
+        return view('admin.programs.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'waktu' => 'required|date',
-            'program' => 'required|string|max:255',
-            'frame' => 'required|string|max:255',
-            'durasi' => 'required|integer|min:1',
-            'keterangan' => 'nullable|string',
+            'nama' => 'required|string|max:255',
+            'alias' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
         ]);
 
-        AcaraSiaran::create($request->all());
+        Program::create($request->all() + ['dibuat_oleh' => Auth::id()]);
 
-        return redirect()->route('admin.acara-siaran.index')
-            ->with('success', 'Acara siaran berhasil ditambahkan.');
+        return redirect()->route('admin.programs.index')
+            ->with('success', 'Program siaran berhasil ditambahkan.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(AcaraSiaran $acaraSiaran)
+    public function show(Program $program)
     {
-        $penyiars = User::where('role', 'penyiar')->get();
-        return view('admin.acara-siaran.edit', compact('acaraSiaran', 'penyiars'));
+        // Redirect to sequence index for this program
+        return redirect()->route('admin.programs.sequences.index', $program);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, AcaraSiaran $acaraSiaran)
+    public function edit(Program $program)
+    {
+        return view('admin.programs.edit', compact('program'));
+    }
+
+    public function update(Request $request, Program $program)
     {
         $request->validate([
-            'user_id' => 'required|exists:users,id',
-            'waktu' => 'required|date',
-            'program' => 'required|string|max:255',
-            'frame' => 'required|string|max:255',
-            'durasi' => 'required|integer|min:1',
+            'nama' => 'required|string|max:255',
+            'alias' => 'nullable|string|max:255',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        $program->update($request->all());
+
+        return redirect()->route('admin.programs.index')
+            ->with('success', 'Program siaran berhasil diperbarui.');
+    }
+
+    public function destroy(Program $program)
+    {
+        $program->delete();
+
+        return redirect()->route('admin.programs.index')
+            ->with('success', 'Program siaran berhasil dihapus.');
+    }
+}
+
+===== app\Http\Controllers\Admin\SequenceController.php =====
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Program;
+use App\Models\Sequence;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+class SequenceController extends Controller
+{
+    public function index(Program $program)
+    {
+        $sequences = $program->sequences()->with('host')->latest()->paginate(10);
+        return view('admin.sequences.index', compact('program', 'sequences'));
+    }
+
+    public function create(Program $program)
+    {
+        $penyiars = User::where('role', 'penyiar')->get();
+        return view('admin.sequences.create', compact('program', 'penyiars'));
+    }
+
+    public function store(Request $request, Program $program)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'waktu' => 'required|date_format:H:i',
+            'host_id' => 'required|exists:users,id',
+            'frame' => 'nullable|string|max:255',
+            'durasi' => 'nullable|numeric|min:0',
+        ]);
+
+        $program->sequences()->create($request->all() + ['dibuat_oleh' => Auth::id()]);
+
+        return redirect()->route('admin.programs.sequences.index', $program)
+            ->with('success', 'Sequence berhasil ditambahkan.');
+    }
+
+    public function edit(Program $program, Sequence $sequence)
+    {
+        $penyiars = User::where('role', 'penyiar')->get();
+        return view('admin.sequences.edit', compact('program', 'sequence', 'penyiars'));
+    }
+
+    public function update(Request $request, Program $program, Sequence $sequence)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'waktu' => 'required|date_format:H:i',
+            'host_id' => 'required|exists:users,id',
+            'frame' => 'nullable|string|max:255',
+            'durasi' => 'nullable|numeric|min:0',
+        ]);
+
+        $sequence->update($request->all());
+
+        return redirect()->route('admin.programs.sequences.index', $sequence->program_id)
+            ->with('success', 'Sequence berhasil diperbarui.');
+    }
+
+    public function destroy(Program $program, Sequence $sequence)
+    {
+        $sequence->delete();
+
+        return redirect()->route('admin.programs.sequences.index', $program)
+            ->with('success', 'Sequence berhasil dihapus.');
+    }
+}
+
+===== app\Http\Controllers\Admin\SequenceItemController.php =====
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Sequence;
+use App\Models\SequenceItem;
+use Illuminate\Support\Facades\Auth;
+
+class SequenceItemController extends Controller
+{
+    public function index(Sequence $sequence)
+    {
+        // Program dan sequence bisa diakses melalui relasi
+        $program = $sequence->program;
+        $items = $sequence->items()->latest()->paginate(10);
+        return view('admin.items.index', compact('program', 'sequence', 'items'));
+    }
+
+    public function create(Sequence $sequence)
+    {
+        $program = $sequence->program;
+        return view('admin.items.create', compact('program', 'sequence'));
+    }
+
+    public function store(Request $request, Sequence $sequence)
+    {
+        $request->validate([
+            'materi' => 'required|string|max:255',
+            'frame' => 'nullable|string|max:255',
+            'durasi' => 'nullable|numeric|min:0',
             'keterangan' => 'nullable|string',
         ]);
 
-        $acaraSiaran->update($request->all());
+        $sequence->items()->create($request->all() + ['dibuat_oleh' => Auth::id()]);
 
-        return redirect()->route('admin.acara-siaran.index')
-            ->with('success', 'Acara siaran berhasil diperbarui.');
+        return redirect()->route('admin.sequences.items.index', $sequence)
+            ->with('success', 'Materi siar berhasil ditambahkan.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(AcaraSiaran $acaraSiaran)
+    // AWAL MODIFIKASI
+    public function edit(SequenceItem $item)
     {
-        $acaraSiaran->delete();
-        
-        return redirect()->route('admin.acara-siaran.index')
-            ->with('success', 'Acara siaran berhasil dihapus.');
+        // Kita bisa dapatkan sequence dan program dari relasi item
+        $sequence = $item->sequence;
+        $program = $sequence->program;
+        return view('admin.items.edit', compact('program', 'sequence', 'item'));
     }
+
+    public function update(Request $request, SequenceItem $item)
+    {
+        $request->validate([
+            'materi' => 'required|string|max:255',
+            'frame' => 'nullable|string|max:255',
+            'durasi' => 'nullable|numeric|min:0',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $item->update($request->all());
+
+        return redirect()->route('admin.items.index', $item->sequence_id)
+            ->with('success', 'Materi siar berhasil diperbarui.');
+    }
+
+    public function destroy(SequenceItem $item)
+    {
+        $sequence = $item->sequence;
+        $item->delete();
+
+        return redirect()->route('admin.sequences.items.index', $item->sequence_id)
+        ->with('success', 'Materi siar berhasil diperbarui.');
+    }
+    // AKHIR MODIFIKASI
 }
 
 ===== app\Http\Controllers\Admin\UserController.php =====
@@ -1125,7 +1371,7 @@ class ProfileController extends Controller
 
 ## Models Content
 ```
-===== app\Models\AcaraSiaran.php =====
+===== app\Models\ItemDetail.php =====
 <?php
 
 namespace App\Models;
@@ -1134,31 +1380,176 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class AcaraSiaran extends Model
+class ItemDetail extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'penyiar_id',
+        'item_id',
+        'jenis',
+        'isi',
+        'dibuat_oleh',
+    ];
+
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(SequenceItem::class, 'item_id');
+    }
+
+    public function pembuat(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+}
+
+===== app\Models\MateriDetail.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+class MateriDetail extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'item_id',
+        'isi',
+        'dibuat_oleh',
+    ];
+
+    public function item(): BelongsTo
+    {
+        return $this->belongsTo(SequenceItem::class, 'item_id');
+    }
+
+    public function pembuat(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+}
+
+===== app\Models\Program.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Program extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'nama',
+        'alias',
+        'deskripsi',
+        'dibuat_oleh',
+    ];
+
+    public function pembuat(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+
+    public function sequences(): HasMany
+    {
+        return $this->hasMany(Sequence::class);
+    }
+}
+
+===== app\Models\Sequence.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Sequence extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'program_id',
+        'nama',
         'waktu',
-        'program',
+        'host_id',
+        'frame',
+        'durasi',
+        'dibuat_oleh',
+    ];
+
+    public function program(): BelongsTo
+    {
+        return $this->belongsTo(Program::class);
+    }
+
+    public function host(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'host_id');
+    }
+
+    public function pembuat(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+
+    public function items(): HasMany
+    {
+        return $this->hasMany(SequenceItem::class);
+    }   
+}
+
+===== app\Models\SequenceItem.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class SequenceItem extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'sequence_id',
+        'materi',
         'frame',
         'durasi',
         'keterangan',
+        'dibuat_oleh',
     ];
 
-    protected function casts(): array
+    public function sequence(): BelongsTo
     {
-        return [
-            'waktu' => 'datetime',
-        ];
+        return $this->belongsTo(Sequence::class);
     }
 
-    public function penyiar(): BelongsTo
+    public function pembuat(): BelongsTo
     {
-        return $this->belongsTo(Penyiar::class);
+        return $this->belongsTo(User::class, 'dibuat_oleh');
     }
-    
+
+    public function materiDetails(): HasMany
+    {
+        return $this->hasMany(MateriDetail::class, 'item_id');
+    }
+
+    public function itemDetails(): HasMany
+    {
+        return $this->hasMany(ItemDetail::class, 'item_id');
+    }
 }
 
 ```
@@ -1166,11 +1557,11 @@ class AcaraSiaran extends Model
 
 ## Views & UI Files Content
 ```
-===== resources\views\admin\acara-siaran\create.blade.php =====
+===== resources\views\admin\items\create.blade.php =====
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Acara Siaran Baru') }}
+            Tambah Materi Siar untuk Sequence: <span class="font-bold">{{ $sequence->nama }}</span>
         </h2>
     </x-slot>
 
@@ -1178,61 +1569,36 @@ class AcaraSiaran extends Model
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('admin.acara-siaran.store') }}">
+                    <form method="POST" action="{{ route('admin.sequences.items.store', $sequence) }}">
                         @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Program -->
+                        <div class="space-y-6">
                             <div>
-                                <x-input-label for="program" :value="__('Nama Program')" />
-                                <x-text-input id="program" class="block mt-1 w-full" type="text" name="program" :value="old('program')" required autofocus />
-                                <x-input-error :messages="$errors->get('program')" class="mt-2" />
+                                <x-input-label for="materi" :value="__('Materi Siar')" />
+                                <x-text-input id="materi" class="block mt-1 w-full" type="text" name="materi" :value="old('materi')" required autofocus />
+                                <x-input-error :messages="$errors->get('materi')" class="mt-2" />
                             </div>
 
-                            <!-- Penyiar -->
                             <div>
-                                <x-input-label for="user_id" :value="__('Penyiar')" />
-                                <select id="user_id" name="user_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Pilih Penyiar</option>
-                                    @foreach ($penyiars as $penyiar)
-                                        <option value="{{ $penyiar->id }}" {{ old('user_id') == $penyiar->id ? 'selected' : '' }}>
-                                            {{ $penyiar->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('user_id')" class="mt-2" />
-                            </div>
-
-                            <!-- Waktu Siaran -->
-                            <div>
-                                <x-input-label for="waktu" :value="__('Waktu Siaran')" />
-                                <x-text-input id="waktu" class="block mt-1 w-full" type="datetime-local" name="waktu" :value="old('waktu')" required />
-                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
-                            </div>
-                            
-                            <!-- Frame -->
-                            <div>
-                                <x-input-label for="frame" :value="__('Frame')" />
-                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame')" required />
-                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
-                            </div>
-                            
-                            <!-- Durasi -->
-                            <div>
-                                <x-input-label for="durasi" :value="__('Durasi (dalam menit)')" />
-                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" name="durasi" :value="old('durasi')" required />
+                                <x-input-label for="durasi" :value="__('Durasi (menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi')" />
                                 <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
                             </div>
 
-                             <!-- Keterangan -->
-                            <div class="md:col-span-2">
+                            <div>
+                                <x-input-label for="frame" :value="__('Frame (Opsional override)')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame')" />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+
+                            <div>
                                 <x-input-label for="keterangan" :value="__('Keterangan')" />
-                                <textarea id="keterangan" name="keterangan" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan') }}</textarea>
+                                <textarea id="keterangan" name="keterangan" rows="3" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan') }}</textarea>
                                 <x-input-error :messages="$errors->get('keterangan')" class="mt-2" />
                             </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            <a href="{{ route('admin.acara-siaran.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            <a href="{{ route('admin.sequences.items.index', $sequence) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
                                 Batal
                             </a>
                             <x-primary-button>
@@ -1246,11 +1612,11 @@ class AcaraSiaran extends Model
     </div>
 </x-app-layout>
 
-===== resources\views\admin\acara-siaran\edit.blade.php =====
+===== resources\views\admin\items\edit.blade.php =====
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Edit Acara Siaran') }}
+            Edit Materi Siar: <span class="font-bold">{{ $item->materi }}</span>
         </h2>
     </x-slot>
 
@@ -1258,62 +1624,184 @@ class AcaraSiaran extends Model
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <form method="POST" action="{{ route('admin.acara-siaran.update', $acaraSiaran) }}">
+                    {{-- AWAL MODIFIKASI --}}
+                    <form method="POST" action="{{ route('admin.items.update', $item) }}">
+                    {{-- AKHIR MODIFIKASI --}}
                         @csrf
                         @method('PUT')
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Program -->
+                        <div class="space-y-6">
                             <div>
-                                <x-input-label for="program" :value="__('Nama Program')" />
-                                <x-text-input id="program" class="block mt-1 w-full" type="text" name="program" :value="old('program', $acaraSiaran->program)" required autofocus />
-                                <x-input-error :messages="$errors->get('program')" class="mt-2" />
+                                <x-input-label for="materi" :value="__('Materi Siar')" />
+                                <x-text-input id="materi" class="block mt-1 w-full" type="text" name="materi" :value="old('materi', $item->materi)" required autofocus />
+                                <x-input-error :messages="$errors->get('materi')" class="mt-2" />
                             </div>
 
-                            <!-- Penyiar -->
                             <div>
-                                <x-input-label for="user_id" :value="__('Penyiar')" />
-                                <select id="user_id" name="user_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="">Pilih Penyiar</option>
-                                    @foreach ($penyiars as $penyiar)
-                                        <option value="{{ $penyiar->id }}" @selected(old('user_id', $acaraSiaran->user_id) == $penyiar->id)>
-                                            {{ $penyiar->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('user_id')" class="mt-2" />
-                            </div>
-
-                            <!-- Waktu Siaran -->
-                            <div>
-                                <x-input-label for="waktu" :value="__('Waktu Siaran')" />
-                                <x-text-input id="waktu" class="block mt-1 w-full" type="datetime-local" name="waktu" :value="old('waktu', \Carbon\Carbon::parse($acaraSiaran->waktu)->format('Y-m-d\TH:i'))" required />
-                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
-                            </div>
-                            
-                            <!-- Frame -->
-                            <div>
-                                <x-input-label for="frame" :value="__('Frame')" />
-                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame', $acaraSiaran->frame)" required />
-                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
-                            </div>
-                            
-                            <!-- Durasi -->
-                            <div>
-                                <x-input-label for="durasi" :value="__('Durasi (dalam menit)')" />
-                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" name="durasi" :value="old('durasi', $acaraSiaran->durasi)" required />
+                                <x-input-label for="durasi" :value="__('Durasi (menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi', $item->durasi)" />
                                 <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
                             </div>
 
-                             <!-- Keterangan -->
-                            <div class="md:col-span-2">
+                            <div>
+                                <x-input-label for="frame" :value="__('Frame (Opsional override)')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame', $item->frame)" />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+
+                            <div>
                                 <x-input-label for="keterangan" :value="__('Keterangan')" />
-                                <textarea id="keterangan" name="keterangan" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan', $acaraSiaran->keterangan) }}</textarea>
+                                <textarea id="keterangan" name="keterangan" rows="3" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan', $item->keterangan) }}</textarea>
                                 <x-input-error :messages="$errors->get('keterangan')" class="mt-2" />
                             </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            <a href="{{ route('admin.acara-siaran.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            {{-- AWAL MODIFIKASI --}}
+                            <a href="{{ route('admin.sequences.items.index', $item->sequence_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            {{-- AKHIR MODIFIKASI --}}
+                            <x-primary-button>
+                                {{ __('Simpan Perubahan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\items\index.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Materi Siar untuk Sequence: <span class="font-bold">{{ $sequence->nama }}</span>
+                </h2>
+                <a href="{{ route('admin.programs.sequences.index', ['program' => $sequence->program_id]) }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Daftar Sequence</a>
+            </div>
+            {{-- AWAL MODIFIKASI --}}
+            <a href="{{ route('admin.sequences.items.create', $sequence) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Tambah Materi
+            </a>
+            {{-- AKHIR MODIFIKASI --}}
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    @if (session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                            <thead class="text-left">
+                                <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Materi</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Frame</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Durasi (Menit)</th>
+                                    <th class="px-4 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($items as $item)
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $item->materi }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $item->frame ?? '-' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $item->durasi ?? '-' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('admin.items.materi-details.index', $item) }}" class="text-green-600 hover:text-green-900">Sub-List</a>
+                                            <a href="{{ route('admin.items.edit', $item) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route('admin.items.destroy', $item) }}" method="POST" onsubmit="return confirm('Anda yakin?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-500">
+                                        Belum ada materi siar untuk sequence ini.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">{{ $items->links() }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\materi-details\create.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Tambah Detail untuk: <span class="font-bold">{{ $item->materi }}</span>
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.materi-details.store', $item) }}">
+                        @csrf
+                        <div>
+                            <x-input-label for="isi" :value="__('Isi Detail Materi')" />
+                            <textarea id="isi" name="isi" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required autofocus>{{ old('isi') }}</textarea>
+                            <x-input-error :messages="$errors->get('isi')" class="mt-2" />
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.materi-details.index', $item) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\materi-details\edit.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Edit Detail Materi
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.materi-details.update', $detail) }}">
+                        @csrf
+                        @method('PUT')
+                        <div>
+                            <x-input-label for="isi" :value="__('Isi Detail Materi')" />
+                            <textarea id="isi" name="isi" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required autofocus>{{ old('isi', $detail->isi) }}</textarea>
+                            <x-input-error :messages="$errors->get('isi')" class="mt-2" />
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.materi-details.index', $detail->item_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
                                 Batal
                             </a>
                             <x-primary-button>
@@ -1327,15 +1815,179 @@ class AcaraSiaran extends Model
     </div>
 </x-app-layout>
 
-===== resources\views\admin\acara-siaran\index.blade.php =====
+===== resources\views\admin\materi-details\index.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Sub-List untuk Materi: <span class="font-bold">{{ $item->materi }}</span>
+                </h2>
+                <a href="{{ route('admin.items.index', $item->sequence_id) }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Daftar Materi</a>
+            </div>
+            <a href="{{ route('admin.materi-details.create', $item) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Tambah Detail
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    @if (session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                            <thead class="text-left">
+                                <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Isi Detail Materi</th>
+                                    <th class="px-4 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($details as $detail)
+                                <tr>
+                                    <td class="px-4 py-2 text-gray-700">{{ $detail->isi }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 w-px">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('admin.materi-details.edit', $detail) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route('admin.materi-details.destroy', $detail) }}" method="POST" onsubmit="return confirm('Anda yakin?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="2" class="text-center py-4 text-gray-500">
+                                        Belum ada detail untuk materi ini.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">{{ $details->links() }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\programs\create.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Tambah Program Siaran Baru') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.programs.store') }}">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="nama" :value="__('Nama Program')" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama')" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="alias" :value="__('Alias (Singkatan)')" />
+                                <x-text-input id="alias" class="block mt-1 w-full" type="text" name="alias" :value="old('alias')" />
+                                <x-input-error :messages="$errors->get('alias')" class="mt-2" />
+                            </div>
+
+                             <div class="md:col-span-2">
+                                <x-input-label for="deskripsi" :value="__('Deskripsi')" />
+                                <textarea id="deskripsi" name="deskripsi" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('deskripsi') }}</textarea>
+                                <x-input-error :messages="$errors->get('deskripsi')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.programs.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\programs\edit.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Program Siaran') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.programs.update', $program) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="nama" :value="__('Nama Program')" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama', $program->nama)" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="alias" :value="__('Alias (Singkatan)')" />
+                                <x-text-input id="alias" class="block mt-1 w-full" type="text" name="alias" :value="old('alias', $program->alias)" />
+                                <x-input-error :messages="$errors->get('alias')" class="mt-2" />
+                            </div>
+
+                             <div class="md:col-span-2">
+                                <x-input-label for="deskripsi" :value="__('Deskripsi')" />
+                                <textarea id="deskripsi" name="deskripsi" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('deskripsi', $program->deskripsi) }}</textarea>
+                                <x-input-error :messages="$errors->get('deskripsi')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.programs.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan Perubahan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\programs\index.blade.php =====
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Kelola Acara Siaran') }}
+                {{ __('Kelola Program Siaran') }}
             </h2>
-            <a href="{{ route('admin.acara-siaran.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                Tambah Acara
+            <a href="{{ route('admin.programs.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Tambah Program
             </a>
         </div>
     </x-slot>
@@ -1355,24 +2007,242 @@ class AcaraSiaran extends Model
                         <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
                             <thead class="text-left">
                                 <tr>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Program</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Penyiar</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama Program</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Alias</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Dibuat Oleh</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Tanggal Dibuat</th>
+                                    <th class="px-4 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($programs as $program)
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->nama }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $program->alias ?? '-' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $program->pembuat->name ?? 'N/A' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $program->created_at->format('d M Y, H:i') }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2">
+                                        {{-- AWAL MODIFIKASI --}}
+                                        <div class="flex items-center space-x-4">
+                                            <a href="{{ route('admin.programs.sequences.index', $program) }}" class="text-indigo-600 hover:text-indigo-900">Kelola Sequence</a>
+                                            <a href="{{ route('admin.programs.edit', $program) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route('admin.programs.destroy', $program) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus program ini? Semua sequence di dalamnya juga akan terhapus.');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                            </form>
+                                        </div>
+                                        {{-- AKHIR MODIFIKASI --}}
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-gray-500">
+                                        Tidak ada data program siaran.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        {{ $programs->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\sequences\create.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Tambah Sequence untuk: <span class="font-bold">{{ $program->nama }}</span>
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.programs.sequences.store', $program) }}">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="nama" :value="__('Nama Sequence')" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama')" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="host_id" :value="__('Host/Penyiar')" />
+                                <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">Pilih Penyiar</option>
+                                    @foreach ($penyiars as $penyiar)
+                                        <option value="{{ $penyiar->id }}" {{ old('host_id') == $penyiar->id ? 'selected' : '' }}>
+                                            {{ $penyiar->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('host_id')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="waktu" :value="__('Waktu Mulai (HH:MM)')" />
+                                <x-text-input id="waktu" class="block mt-1 w-full" type="time" name="waktu" :value="old('waktu')" required />
+                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
+                            </div>
+                            
+                            <div>
+                                <x-input-label for="durasi" :value="__('Durasi (menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi')" />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <x-input-label for="frame" :value="__('Frame (Live/Rekam/dll.)')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame')" />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.programs.sequences.index', $program) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\sequences\edit.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            Edit Sequence: {{ $sequence->nama }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.sequences.update', $sequence) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="nama" :value="__('Nama Sequence')" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama', $sequence->nama)" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="host_id" :value="__('Host/Penyiar')" />
+                                <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">Pilih Penyiar</option>
+                                    @foreach ($penyiars as $penyiar)
+                                        <option value="{{ $penyiar->id }}" @selected(old('host_id', $sequence->host_id) == $penyiar->id)>
+                                            {{ $penyiar->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('host_id')" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <x-input-label for="waktu" :value="__('Waktu Mulai (HH:MM)')" />
+                                <x-text-input id="waktu" class="block mt-1 w-full" type="time" name="waktu" :value="old('waktu', \Carbon\Carbon::parse($sequence->waktu)->format('H:i'))" required />
+                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
+                            </div>
+                            
+                            <div>
+                                <x-input-label for="durasi" :value="__('Durasi (menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi', $sequence->durasi)" />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+                            </div>
+                            
+                            <div class="md:col-span-2">
+                                <x-input-label for="frame" :value="__('Frame (Live/Rekam/dll.)')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame', $sequence->frame)" />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.programs.sequences.index', $sequence->program_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan Perubahan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\sequences\index.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <div>
+                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                    Kelola Sequence untuk Program: <span class="font-bold">{{ $program->nama }}</span>
+                </h2>
+                <a href="{{ route('admin.programs.index') }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr; Kembali ke Daftar Program</a>
+            </div>
+            <a href="{{ route('admin.programs.sequences.create', $program) }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Tambah Sequence
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+
+                    @if (session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                            <thead class="text-left">
+                                <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama Sequence</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Waktu</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Host/Penyiar</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Durasi (Menit)</th>
                                     <th class="px-4 py-2"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
-                                @forelse ($acaraSiarans as $acara)
+                                @forelse ($sequences as $sequence)
                                 <tr>
-                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $acara->program }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $acara->user->name ?? 'N/A' }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ \Carbon\Carbon::parse($acara->waktu)->format('d M Y, H:i') }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $acara->durasi }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $sequence->nama }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $sequence->host->name ?? 'N/A' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $sequence->durasi ?? '-' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
                                         <div class="flex items-center space-x-2">
-                                            <a href="{{ route('admin.acara-siaran.edit', $acara) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                            <form action="{{ route('admin.acara-siaran.destroy', $acara) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                            {{-- AWAL MODIFIKASI --}}
+                                            <a href="{{ route('admin.sequences.items.index', $sequence) }}" class="text-blue-600 hover:text-blue-900">Isi Materi</a>
+                                            {{-- AKHIR MODIFIKASI --}}
+                                            <a href="{{ route('admin.sequences.edit', $sequence) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route('admin.sequences.destroy', $sequence) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus sequence ini?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
@@ -1383,7 +2253,7 @@ class AcaraSiaran extends Model
                                 @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-4 text-gray-500">
-                                        Tidak ada data acara siaran.
+                                        Belum ada sequence untuk program ini.
                                     </td>
                                 </tr>
                                 @endforelse
@@ -1391,7 +2261,7 @@ class AcaraSiaran extends Model
                         </table>
                     </div>
                     <div class="mt-4">
-                        {{ $acaraSiarans->links() }}
+                        {{ $sequences->links() }}
                     </div>
                 </div>
             </div>
@@ -2303,20 +3173,18 @@ $classes = ($active ?? false)
                 Admin
             </h3>
             <div class="mt-2 space-y-2">
-                {{-- UBAH BAGIAN INI --}}
                 <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                     </svg>
                     <span>Kelola Pengguna</span>
                 </x-nav-link>
-                <x-nav-link :href="route('admin.acara-siaran.index')" :active="request()->routeIs('admin.acara-siaran.*')">
+                <x-nav-link :href="route('admin.programs.index')" :active="request()->routeIs('admin.programs.*')">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
                     </svg>
-                    <span>Kelola Acara Siaran</span>
+                    <span>Kelola Program</span>
                 </x-nav-link>
-                 {{-- AKHIR PERUBAHAN --}}
             </div>
         </div>
         @endif

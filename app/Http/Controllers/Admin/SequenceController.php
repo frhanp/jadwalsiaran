@@ -4,62 +4,71 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Program;
+use App\Models\Sequence;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class SequenceController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Program $program)
     {
-        //
+        $sequences = $program->sequences()->with('host')->latest()->paginate(10);
+        return view('admin.sequences.index', compact('program', 'sequences'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function create(Program $program)
     {
-        //
+        $penyiars = User::where('role', 'penyiar')->get();
+        return view('admin.sequences.create', compact('program', 'penyiars'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function store(Request $request, Program $program)
     {
-        //
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'waktu' => 'required|date_format:H:i',
+            'host_id' => 'required|exists:users,id',
+            'frame' => 'nullable|string|max:255',
+            'durasi' => 'nullable|numeric|min:0',
+        ]);
+
+        $program->sequences()->create($request->all() + ['dibuat_oleh' => Auth::id()]);
+
+        return redirect()->route('admin.programs.sequences.index', $program)
+            ->with('success', 'Sequence berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // AWAL MODIFIKASI
+    public function edit(Sequence $sequence)
     {
-        //
+        $program = $sequence->program;
+        $penyiars = User::where('role', 'penyiar')->get();
+        return view('admin.sequences.edit', compact('program', 'sequence', 'penyiars'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function update(Request $request, Sequence $sequence)
     {
-        //
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'waktu' => 'required|date_format:H:i',
+            'host_id' => 'required|exists:users,id',
+            'frame' => 'nullable|string|max:255',
+            'durasi' => 'nullable|numeric|min:0',
+        ]);
+
+        $sequence->update($request->all());
+
+        return redirect()->route('admin.programs.sequences.index', $sequence->program_id)
+            ->with('success', 'Sequence berhasil diperbarui.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function destroy(Sequence $sequence)
     {
-        //
-    }
+        $program = $sequence->program;
+        $sequence->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return redirect()->route('admin.programs.sequences.index', $program)
+            ->with('success', 'Sequence berhasil dihapus.');
     }
 }
