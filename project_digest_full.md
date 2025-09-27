@@ -1,10 +1,11 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-09-22 09:52:09_
+_Generated: 2025-09-27 12:10:19_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
 ## Struktur Proyek (filtered, no depth limit)
 ```
+.git
 app
 bootstrap
 config
@@ -38,10 +39,15 @@ app\Models
 app\Providers
 app\View
 app\Http\Controllers
+app\Http\Middleware
 app\Http\Requests
+app\Http\Controllers\Admin
 app\Http\Controllers\Auth
 app\Http\Controllers\Controller.php
+app\Http\Controllers\LaporanController.php
 app\Http\Controllers\ProfileController.php
+app\Http\Controllers\Admin\AcaraSiaranController.php
+app\Http\Controllers\Admin\UserController.php
 app\Http\Controllers\Auth\AuthenticatedSessionController.php
 app\Http\Controllers\Auth\ConfirmablePasswordController.php
 app\Http\Controllers\Auth\EmailVerificationNotificationController.php
@@ -51,9 +57,11 @@ app\Http\Controllers\Auth\PasswordController.php
 app\Http\Controllers\Auth\PasswordResetLinkController.php
 app\Http\Controllers\Auth\RegisteredUserController.php
 app\Http\Controllers\Auth\VerifyEmailController.php
+app\Http\Middleware\RoleMiddleware.php
 app\Http\Requests\Auth
 app\Http\Requests\ProfileUpdateRequest.php
 app\Http\Requests\Auth\LoginRequest.php
+app\Models\AcaraSiaran.php
 app\Models\User.php
 app\Providers\AppServiceProvider.php
 app\View\Components
@@ -69,6 +77,7 @@ config\app.php
 config\auth.php
 config\cache.php
 config\database.php
+config\excel.php
 config\filesystems.php
 config\logging.php
 config\mail.php
@@ -83,7 +92,9 @@ database\factories\UserFactory.php
 database\migrations\0001_01_01_000000_create_users_table.php
 database\migrations\0001_01_01_000001_create_cache_table.php
 database\migrations\0001_01_01_000002_create_jobs_table.php
+database\migrations\2025_09_22_020525_create_acara_siarans_table.php
 database\seeders\DatabaseSeeder.php
+database\seeders\UserSeeder.php
 public\build
 public\.htaccess
 public\favicon.ico
@@ -96,12 +107,21 @@ resources\views
 resources\css\app.css
 resources\js\app.js
 resources\js\bootstrap.js
+resources\views\admin
 resources\views\auth
 resources\views\components
 resources\views\layouts
 resources\views\profile
 resources\views\dashboard.blade.php
 resources\views\welcome.blade.php
+resources\views\admin\acara-siaran
+resources\views\admin\users
+resources\views\admin\acara-siaran\create.blade.php
+resources\views\admin\acara-siaran\edit.blade.php
+resources\views\admin\acara-siaran\index.blade.php
+resources\views\admin\users\create.blade.php
+resources\views\admin\users\edit.blade.php
+resources\views\admin\users\index.blade.php
 resources\views\auth\confirm-password.blade.php
 resources\views\auth\forgot-password.blade.php
 resources\views\auth\login.blade.php
@@ -151,21 +171,35 @@ storage\framework\cache\data\.gitignore
 storage\framework\sessions\.gitignore
 storage\framework\testing\.gitignore
 storage\framework\views\.gitignore
+storage\framework\views\035e08034bd2a9374e0b9a2a024a8dc0.php
 storage\framework\views\0cff1b1b66097aaa2bfdc4f7fc08e9bd.php
 storage\framework\views\14a2d53d37acbea1231caae07ee00108.php
+storage\framework\views\154580fb5887853d9924ef43c1d736ea.php
+storage\framework\views\1c8a71a2d9199698b3a19314922f91b0.php
 storage\framework\views\1ca9e9fbf20ed0e068163f2c864d2cfe.php
+storage\framework\views\1f796bb69fa7f514a983b9d7899aff67.php
 storage\framework\views\25d27b4217d628ed13819a6a76dbfb57.php
 storage\framework\views\261ff914b65da2fc3d72c0bd41ad8f14.php
 storage\framework\views\2a9e2eebb8128e1a5de2b94cf066fb0a.php
+storage\framework\views\329f5b96f8ca0e543442f19e8f19afb5.php
 storage\framework\views\3bac30ba8c1fc90ba0aa219679a248c1.php
 storage\framework\views\3bb2fc9bf2db3cd3f6a608fcb66f1a26.php
 storage\framework\views\3c2ba3673319080d81bda26e38aff7cd.php
 storage\framework\views\418ce072e1d10293c00e01cd4c6c9cb7.php
 storage\framework\views\44c9f5a56a44e3850b8bd7acd0f394c8.php
+storage\framework\views\45a3fc020f34bb83ecdd9805dc7a126c.php
 storage\framework\views\45b61f44a49e78a969c38f320f6de079.php
 storage\framework\views\48d0a71e66e2c72f3941c0e0f31095cd.php
+storage\framework\views\495f4db45a9ce2ed9672af2d261c1da5.php
 storage\framework\views\53547a15944e5711fe3b8d6dd90393bd.php
 storage\framework\views\537667b33011396269e30deb5e78cbb3.php
+storage\framework\views\57af163985f30bf03926a7ee9487a0e6.php
+storage\framework\views\5d13ae6b3b3b1da1548321fb35a7cbf8.php
+storage\framework\views\6dd1787a73a4a362a02cd21d33de6f03.php
+storage\framework\views\6f987950985d9147788673c4ddeb40b0.php
+storage\framework\views\709a8a31d0615eb7ffb67664da9a47ef.php
+storage\framework\views\72bdbefa9eedcf5be213118603ade76c.php
+storage\framework\views\77ec844aad46f8a212ea3e9cc7396b50.php
 storage\framework\views\7c60c9908bbceab1821502b0ff153bce.php
 storage\framework\views\7d9159b2880d6c7b101e589c26b623c9.php
 storage\framework\views\7ee28aeb58bfb61176c4673b9eee062d.php
@@ -173,22 +207,32 @@ storage\framework\views\7f75d95895297bd3077883ccabd667bd.php
 storage\framework\views\819e8bb9081de1570a6cc1718ec12d59.php
 storage\framework\views\835cf87a6095cb561a89433fa5c25691.php
 storage\framework\views\85ed325697d24741b286434f3a1e93ba.php
+storage\framework\views\86b7c125649709e962c1e608445d1a0a.php
+storage\framework\views\894eda82901b49834942f01dd75b0671.php
 storage\framework\views\8c6a5e0d675ecd35d643eceb60b910ad.php
+storage\framework\views\8eaefbeef2877b88cd6f3fde4eed1180.php
 storage\framework\views\956a6eb56328307aaa2583b78ce3ce2f.php
+storage\framework\views\979d5c9e1ec39bd60eefee3605768e59.php
 storage\framework\views\99179cd21570d22aff6bd027ea9435d2.php
 storage\framework\views\a38428fe0ca1a2d5793b9e5a060db05f.php
 storage\framework\views\a50999f3f2b7c6016126a5ed8ba8b419.php
 storage\framework\views\a5628588dddc08e3cec66f71564b050f.php
+storage\framework\views\a5dcebba30532fc3806c48626dd16750.php
 storage\framework\views\ae37206701858e6669bc717d07c42f21.php
+storage\framework\views\b25618829c4ed3181cc24ec47cee1413.php
+storage\framework\views\b2827d4107c5e292eda969b92cd383bb.php
 storage\framework\views\b2f6c58031740453831980803c2675bc.php
 storage\framework\views\b6ed3e0f2844e865082d060281a3271e.php
 storage\framework\views\b74732fc91ae76c15b616706238ed6d2.php
 storage\framework\views\b91c34942c81ea1c0907a696538e3ae9.php
+storage\framework\views\bc2cf7dff4d580731da4f39a9f6b93f6.php
 storage\framework\views\c5adea323da972726f39bce473990041.php
 storage\framework\views\c6248e54e1dda208d55adea5c6cada1b.php
 storage\framework\views\c6913df7f00481a1499ed3a6a2b94740.php
 storage\framework\views\c9a859b1d55686455d3d1e9c1c231940.php
 storage\framework\views\c9f41955b8e5b0708cf3d957afac2c4a.php
+storage\framework\views\ca31f3dd677eef1d20d732c98dc6c488.php
+storage\framework\views\caf0456962dc4b624331c7e069af6ba5.php
 storage\framework\views\cde089ae42ec946b7c618a9463fac7ce.php
 storage\framework\views\d621116e5999be378366c2e053a568d8.php
 storage\framework\views\db27ab924c3d74acb6ec1e7a1d53c940.php
@@ -218,8 +262,15 @@ tests\Unit\ExampleTest.php
 
 ## Info Git
 ```
-Not a git repo
+Remote:
+origin	https://github.com/frhanp/jadwalsiaran.git (fetch)
+origin	https://github.com/frhanp/jadwalsiaran.git (push)
 
+Branch:
+main
+
+Last 5 commits:
+4437322 first commit
 ```
 
 
@@ -315,6 +366,13 @@ Artisan::command('inspire', function () {
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AcaraSiaranController;
+use App\Http\Controllers\Penyiar\ProfilController;
+use App\Http\Controllers\Admin\UserController;
+
+
+
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -324,13 +382,37 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
+        // UBAH BARIS INI
+        Route::resource('users', UserController::class); 
+        Route::resource('acara-siaran', AcaraSiaranController::class);
+    });
+
+    // Grup untuk Penyiar
+    Route::middleware(['role:penyiar'])->name('penyiar.')->prefix('penyiar')->group(function () {
+        // Route untuk penyiar mengisi jadwal, dll.
+    });
+
+    // Grup untuk Kepsta dan Katim (hanya laporan)
+    Route::middleware(['role:kepsta,katim'])->group(function () {
+        // Route untuk melihat laporan
+    });
+});
+
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+
+
+
+require __DIR__ . '/auth.php';
 
 ```
 
@@ -338,36 +420,260 @@ require __DIR__.'/auth.php';
 ## Routes (from command)
 ```
 
-  GET|HEAD  / ................................................................................................................................. 
-  GET|HEAD  confirm-password ....................................................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
-  POST      confirm-password ......................................................................... Auth\ConfirmablePasswordController@store
-  GET|HEAD  dashboard ............................................................................................................... dashboard
-  POST      email/verification-notification ............................ verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
-  GET|HEAD  forgot-password ........................................................ password.request ΓÇ║ Auth\PasswordResetLinkController@create
-  POST      forgot-password ........................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
-  GET|HEAD  login .......................................................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
-  POST      login ................................................................................... Auth\AuthenticatedSessionController@store
-  POST      logout ....................................................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
-  PUT       password ......................................................................... password.update ΓÇ║ Auth\PasswordController@update
-  GET|HEAD  profile ..................................................................................... profile.edit ΓÇ║ ProfileController@edit
-  PATCH     profile ................................................................................. profile.update ΓÇ║ ProfileController@update
-  DELETE    profile ............................................................................... profile.destroy ΓÇ║ ProfileController@destroy
-  GET|HEAD  register .......................................................................... register ΓÇ║ Auth\RegisteredUserController@create
-  POST      register ...................................................................................... Auth\RegisteredUserController@store
-  POST      reset-password .................................................................. password.store ΓÇ║ Auth\NewPasswordController@store
-  GET|HEAD  reset-password/{token} ......................................................... password.reset ΓÇ║ Auth\NewPasswordController@create
-  GET|HEAD  storage/{path} ...................................................................................................... storage.local
-  GET|HEAD  up ................................................................................................................................ 
-  GET|HEAD  verify-email ......................................................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
-  GET|HEAD  verify-email/{id}/{hash} ......................................................... verification.verify ΓÇ║ Auth\VerifyEmailController
+  GET|HEAD        / ..................................................................................................... 
+  GET|HEAD        admin/acara-siaran ....................... admin.acara-siaran.index ΓÇ║ Admin\AcaraSiaranController@index
+  POST            admin/acara-siaran ....................... admin.acara-siaran.store ΓÇ║ Admin\AcaraSiaranController@store
+  GET|HEAD        admin/acara-siaran/create .............. admin.acara-siaran.create ΓÇ║ Admin\AcaraSiaranController@create
+  GET|HEAD        admin/acara-siaran/{acara_siaran} .......... admin.acara-siaran.show ΓÇ║ Admin\AcaraSiaranController@show
+  PUT|PATCH       admin/acara-siaran/{acara_siaran} ...... admin.acara-siaran.update ΓÇ║ Admin\AcaraSiaranController@update
+  DELETE          admin/acara-siaran/{acara_siaran} .... admin.acara-siaran.destroy ΓÇ║ Admin\AcaraSiaranController@destroy
+  GET|HEAD        admin/acara-siaran/{acara_siaran}/edit ..... admin.acara-siaran.edit ΓÇ║ Admin\AcaraSiaranController@edit
+  GET|HEAD        admin/users ............................................ admin.users.index ΓÇ║ Admin\UserController@index
+  POST            admin/users ............................................ admin.users.store ΓÇ║ Admin\UserController@store
+  GET|HEAD        admin/users/create ................................... admin.users.create ΓÇ║ Admin\UserController@create
+  GET|HEAD        admin/users/{user} ....................................... admin.users.show ΓÇ║ Admin\UserController@show
+  PUT|PATCH       admin/users/{user} ................................... admin.users.update ΓÇ║ Admin\UserController@update
+  DELETE          admin/users/{user} ................................. admin.users.destroy ΓÇ║ Admin\UserController@destroy
+  GET|HEAD        admin/users/{user}/edit .................................. admin.users.edit ΓÇ║ Admin\UserController@edit
+  GET|HEAD        confirm-password ........................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
+  POST            confirm-password ............................................. Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard ................................................................................... dashboard
+  POST            email/verification-notification verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
+  GET|HEAD        forgot-password ............................ password.request ΓÇ║ Auth\PasswordResetLinkController@create
+  POST            forgot-password ............................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
+  GET|HEAD        login .............................................. login ΓÇ║ Auth\AuthenticatedSessionController@create
+  POST            login ....................................................... Auth\AuthenticatedSessionController@store
+  POST            logout ........................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  PUT             password ............................................. password.update ΓÇ║ Auth\PasswordController@update
+  GET|HEAD        profile ......................................................... profile.edit ΓÇ║ ProfileController@edit
+  PATCH           profile ..................................................... profile.update ΓÇ║ ProfileController@update
+  DELETE          profile ................................................... profile.destroy ΓÇ║ ProfileController@destroy
+  GET|HEAD        register .............................................. register ΓÇ║ Auth\RegisteredUserController@create
+  POST            register .......................................................... Auth\RegisteredUserController@store
+  POST            reset-password ...................................... password.store ΓÇ║ Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} ............................. password.reset ΓÇ║ Auth\NewPasswordController@create
+  GET|HEAD        storage/{path} .......................................................................... storage.local
+  GET|HEAD        up .................................................................................................... 
+  GET|HEAD        verify-email ............................. verification.notice ΓÇ║ Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} ............................. verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                                            Showing [22] routes
+                                                                                                      Showing [36] routes
 
 ```
 
 
 ## Controllers Content
 ```
+===== app\Http\Controllers\Admin\AcaraSiaranController.php =====
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\AcaraSiaran;
+use App\Models\User;
+
+
+class AcaraSiaranController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $acaraSiarans = AcaraSiaran::with('user')->latest()->paginate(10);
+        return view('admin.acara-siaran.index', compact('acaraSiarans'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        $penyiars = User::where('role', 'penyiar')->get();
+        return view('admin.acara-siaran.create', compact('penyiars'));
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'waktu' => 'required|date',
+            'program' => 'required|string|max:255',
+            'frame' => 'required|string|max:255',
+            'durasi' => 'required|integer|min:1',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        AcaraSiaran::create($request->all());
+
+        return redirect()->route('admin.acara-siaran.index')
+            ->with('success', 'Acara siaran berhasil ditambahkan.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(AcaraSiaran $acaraSiaran)
+    {
+        $penyiars = User::where('role', 'penyiar')->get();
+        return view('admin.acara-siaran.edit', compact('acaraSiaran', 'penyiars'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, AcaraSiaran $acaraSiaran)
+    {
+        $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'waktu' => 'required|date',
+            'program' => 'required|string|max:255',
+            'frame' => 'required|string|max:255',
+            'durasi' => 'required|integer|min:1',
+            'keterangan' => 'nullable|string',
+        ]);
+
+        $acaraSiaran->update($request->all());
+
+        return redirect()->route('admin.acara-siaran.index')
+            ->with('success', 'Acara siaran berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(AcaraSiaran $acaraSiaran)
+    {
+        $acaraSiaran->delete();
+        
+        return redirect()->route('admin.acara-siaran.index')
+            ->with('success', 'Acara siaran berhasil dihapus.');
+    }
+}
+
+===== app\Http\Controllers\Admin\UserController.php =====
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules;
+use Illuminate\Support\Facades\Auth;
+
+class UserController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $users = User::latest()->paginate(10);
+        return view('admin.users.index', compact('users'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('admin.users.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', Rule::in(['admin', 'penyiar', 'katim', 'kepsta'])],
+            'nik' => ['required_if:role,penyiar', 'nullable', 'string', 'max:16', 'unique:users,nik'],
+            'tempat_lahir' => ['required_if:role,penyiar', 'nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['required_if:role,penyiar', 'nullable', 'date'],
+            'agama' => ['required_if:role,penyiar', 'nullable', 'string'],
+            'jenis_kelamin' => ['required_if:role,penyiar', 'nullable', 'string'],
+            'no_telp' => ['required_if:role,penyiar', 'nullable', 'string', 'max:15'],
+        ]);
+
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'nik' => $request->nik,
+            'tempat_lahir' => $request->tempat_lahir,
+            'tanggal_lahir' => $request->tanggal_lahir,
+            'agama' => $request->agama,
+            'jenis_kelamin' => $request->jenis_kelamin,
+            'no_telp' => $request->no_telp,
+        ]);
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(User $user)
+    {
+        return view('admin.users.edit', compact('user'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', Rule::in(['admin', 'penyiar', 'katim', 'kepsta'])],
+            'nik' => ['required_if:role,penyiar', 'nullable', 'string', 'max:16', Rule::unique(User::class)->ignore($user->id)],
+            'tempat_lahir' => ['required_if:role,penyiar', 'nullable', 'string', 'max:100'],
+            'tanggal_lahir' => ['required_if:role,penyiar', 'nullable', 'date'],
+            'agama' => ['required_if:role,penyiar', 'nullable', 'string'],
+            'jenis_kelamin' => ['required_if:role,penyiar', 'nullable', 'string'],
+            'no_telp' => ['required_if:role,penyiar', 'nullable', 'string', 'max:15'],
+        ]);
+
+        $data = $request->except('password');
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(User $user)
+    {
+        // Optional: Tambahkan pengecekan agar user tidak bisa menghapus dirinya sendiri
+        if ($user->id === Auth::user()->id) {
+            return redirect()->route('admin.users.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        $user->delete();
+
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+    }
+}
+
 ===== app\Http\Controllers\Auth\AuthenticatedSessionController.php =====
 <?php
 
@@ -740,6 +1046,18 @@ abstract class Controller
     //
 }
 
+===== app\Http\Controllers\LaporanController.php =====
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class LaporanController extends Controller
+{
+    //
+}
+
 ===== app\Http\Controllers\ProfileController.php =====
 <?php
 
@@ -807,12 +1125,618 @@ class ProfileController extends Controller
 
 ## Models Content
 ```
-No files found for this section.
+===== app\Models\AcaraSiaran.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AcaraSiaran extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'penyiar_id',
+        'waktu',
+        'program',
+        'frame',
+        'durasi',
+        'keterangan',
+    ];
+
+    protected function casts(): array
+    {
+        return [
+            'waktu' => 'datetime',
+        ];
+    }
+
+    public function penyiar(): BelongsTo
+    {
+        return $this->belongsTo(Penyiar::class);
+    }
+    
+}
+
 ```
 
 
 ## Views & UI Files Content
 ```
+===== resources\views\admin\acara-siaran\create.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Tambah Acara Siaran Baru') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.acara-siaran.store') }}">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Program -->
+                            <div>
+                                <x-input-label for="program" :value="__('Nama Program')" />
+                                <x-text-input id="program" class="block mt-1 w-full" type="text" name="program" :value="old('program')" required autofocus />
+                                <x-input-error :messages="$errors->get('program')" class="mt-2" />
+                            </div>
+
+                            <!-- Penyiar -->
+                            <div>
+                                <x-input-label for="user_id" :value="__('Penyiar')" />
+                                <select id="user_id" name="user_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">Pilih Penyiar</option>
+                                    @foreach ($penyiars as $penyiar)
+                                        <option value="{{ $penyiar->id }}" {{ old('user_id') == $penyiar->id ? 'selected' : '' }}>
+                                            {{ $penyiar->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('user_id')" class="mt-2" />
+                            </div>
+
+                            <!-- Waktu Siaran -->
+                            <div>
+                                <x-input-label for="waktu" :value="__('Waktu Siaran')" />
+                                <x-text-input id="waktu" class="block mt-1 w-full" type="datetime-local" name="waktu" :value="old('waktu')" required />
+                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
+                            </div>
+                            
+                            <!-- Frame -->
+                            <div>
+                                <x-input-label for="frame" :value="__('Frame')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame')" required />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+                            
+                            <!-- Durasi -->
+                            <div>
+                                <x-input-label for="durasi" :value="__('Durasi (dalam menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" name="durasi" :value="old('durasi')" required />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+                            </div>
+
+                             <!-- Keterangan -->
+                            <div class="md:col-span-2">
+                                <x-input-label for="keterangan" :value="__('Keterangan')" />
+                                <textarea id="keterangan" name="keterangan" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan') }}</textarea>
+                                <x-input-error :messages="$errors->get('keterangan')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.acara-siaran.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\acara-siaran\edit.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Acara Siaran') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+                    <form method="POST" action="{{ route('admin.acara-siaran.update', $acaraSiaran) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Program -->
+                            <div>
+                                <x-input-label for="program" :value="__('Nama Program')" />
+                                <x-text-input id="program" class="block mt-1 w-full" type="text" name="program" :value="old('program', $acaraSiaran->program)" required autofocus />
+                                <x-input-error :messages="$errors->get('program')" class="mt-2" />
+                            </div>
+
+                            <!-- Penyiar -->
+                            <div>
+                                <x-input-label for="user_id" :value="__('Penyiar')" />
+                                <select id="user_id" name="user_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">Pilih Penyiar</option>
+                                    @foreach ($penyiars as $penyiar)
+                                        <option value="{{ $penyiar->id }}" @selected(old('user_id', $acaraSiaran->user_id) == $penyiar->id)>
+                                            {{ $penyiar->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('user_id')" class="mt-2" />
+                            </div>
+
+                            <!-- Waktu Siaran -->
+                            <div>
+                                <x-input-label for="waktu" :value="__('Waktu Siaran')" />
+                                <x-text-input id="waktu" class="block mt-1 w-full" type="datetime-local" name="waktu" :value="old('waktu', \Carbon\Carbon::parse($acaraSiaran->waktu)->format('Y-m-d\TH:i'))" required />
+                                <x-input-error :messages="$errors->get('waktu')" class="mt-2" />
+                            </div>
+                            
+                            <!-- Frame -->
+                            <div>
+                                <x-input-label for="frame" :value="__('Frame')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame', $acaraSiaran->frame)" required />
+                                <x-input-error :messages="$errors->get('frame')" class="mt-2" />
+                            </div>
+                            
+                            <!-- Durasi -->
+                            <div>
+                                <x-input-label for="durasi" :value="__('Durasi (dalam menit)')" />
+                                <x-text-input id="durasi" class="block mt-1 w-full" type="number" name="durasi" :value="old('durasi', $acaraSiaran->durasi)" required />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+                            </div>
+
+                             <!-- Keterangan -->
+                            <div class="md:col-span-2">
+                                <x-input-label for="keterangan" :value="__('Keterangan')" />
+                                <textarea id="keterangan" name="keterangan" rows="4" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan', $acaraSiaran->keterangan) }}</textarea>
+                                <x-input-error :messages="$errors->get('keterangan')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.acara-siaran.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan Perubahan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\acara-siaran\index.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Kelola Acara Siaran') }}
+            </h2>
+            <a href="{{ route('admin.acara-siaran.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Tambah Acara
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+
+                    @if (session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                            <thead class="text-left">
+                                <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Program</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Penyiar</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Waktu</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Durasi (Menit)</th>
+                                    <th class="px-4 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($acaraSiarans as $acara)
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $acara->program }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $acara->user->name ?? 'N/A' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ \Carbon\Carbon::parse($acara->waktu)->format('d M Y, H:i') }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $acara->durasi }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('admin.acara-siaran.edit', $acara) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route('admin.acara-siaran.destroy', $acara) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-gray-500">
+                                        Tidak ada data acara siaran.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        {{ $acaraSiarans->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\users\create.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Tambah Pengguna Baru') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900" x-data="{ role: '{{ old('role', 'penyiar') }}' }">
+                    <form method="POST" action="{{ route('admin.users.store') }}">
+                        @csrf
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Nama Lengkap -->
+                            <div>
+                                <x-input-label for="name" :value="__('Nama Lengkap')" />
+                                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <x-input-label for="email" :value="__('Email (untuk Login)')" />
+                                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <x-input-label for="password" :value="__('Password')" />
+                                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required />
+                                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                            </div>
+
+                             <!-- Konfirmasi Password -->
+                            <div>
+                                <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
+                                <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
+                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                            </div>
+
+                             <!-- Role -->
+                            <div>
+                                <x-input-label for="role" :value="__('Role')" />
+                                <select id="role" name="role" x-model="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="admin">Admin</option>
+                                    <option value="penyiar">Penyiar</option>
+                                    <option value="katim">Katim</option>
+                                    <option value="kepsta">Kepsta</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        {{-- Biodata Penyiar (muncul jika role adalah 'penyiar') --}}
+                        <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
+                             <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Penyiar</h3>
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- NIK -->
+                                <div>
+                                    <x-input-label for="nik" :value="__('NIK')" />
+                                    <x-text-input id="nik" class="block mt-1 w-full" type="text" name="nik" :value="old('nik')" />
+                                    <x-input-error :messages="$errors->get('nik')" class="mt-2" />
+                                </div>
+                                
+                                <!-- Tempat Lahir -->
+                                <div>
+                                    <x-input-label for="tempat_lahir" :value="__('Tempat Lahir')" />
+                                    <x-text-input id="tempat_lahir" class="block mt-1 w-full" type="text" name="tempat_lahir" :value="old('tempat_lahir')" />
+                                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
+                                </div>
+
+                                <!-- Tanggal Lahir -->
+                                <div>
+                                    <x-input-label for="tanggal_lahir" :value="__('Tanggal Lahir')" />
+                                    <x-text-input id="tanggal_lahir" class="block mt-1 w-full" type="date" name="tanggal_lahir" :value="old('tanggal_lahir')" />
+                                    <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
+                                </div>
+
+                                <!-- Agama -->
+                                <div>
+                                    <x-input-label for="agama" :value="__('Agama')" />
+                                    <select id="agama" name="agama" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                        <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
+                                        <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                                        <option value="Katolik" {{ old('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
+                                        <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                                        <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
+                                        <option value="Khonghucu" {{ old('agama') == 'Khonghucu' ? 'selected' : '' }}>Khonghucu</option>
+                                    </select>
+                                    <x-input-error :messages="$errors->get('agama')" class="mt-2" />
+                                </div>
+
+                                <!-- Jenis Kelamin -->
+                                <div>
+                                    <x-input-label for="jenis_kelamin" :value="__('Jenis Kelamin')" />
+                                    <select id="jenis_kelamin" name="jenis_kelamin" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                        <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
+                                </div>
+
+                                <!-- Nomor Telepon -->
+                                <div>
+                                    <x-input-label for="no_telp" :value="__('Nomor Telepon')" />
+                                    <x-text-input id="no_telp" class="block mt-1 w-full" type="text" name="no_telp" :value="old('no_telp')" />
+                                    <x-input-error :messages="$errors->get('no_telp')" class="mt-2" />
+                                </div>
+                             </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\users\edit.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Edit Pengguna: ') }} {{ $user->name }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900" x-data="{ role: '{{ old('role', $user->role) }}' }">
+                    <form method="POST" action="{{ route('admin.users.update', $user->id) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Nama Lengkap -->
+                            <div>
+                                <x-input-label for="name" :value="__('Nama Lengkap')" />
+                                <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $user->name)" required autofocus />
+                                <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <x-input-label for="email" :value="__('Email (untuk Login)')" />
+                                <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $user->email)" required />
+                                <x-input-error :messages="$errors->get('email')" class="mt-2" />
+                            </div>
+
+                            <!-- Password -->
+                            <div>
+                                <x-input-label for="password" :value="__('Password Baru (Opsional)')" />
+                                <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" />
+                                <x-input-error :messages="$errors->get('password')" class="mt-2" />
+                            </div>
+
+                             <!-- Konfirmasi Password -->
+                            <div>
+                                <x-input-label for="password_confirmation" :value="__('Konfirmasi Password Baru')" />
+                                <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" />
+                                <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
+                            </div>
+
+                             <!-- Role -->
+                            <div>
+                                <x-input-label for="role" :value="__('Role')" />
+                                <select id="role" name="role" x-model="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="admin" @selected(old('role', $user->role) == 'admin')>Admin</option>
+                                    <option value="penyiar" @selected(old('role', $user->role) == 'penyiar')>Penyiar</option>
+                                    <option value="katim" @selected(old('role', $user->role) == 'katim')>Katim</option>
+                                    <option value="kepsta" @selected(old('role', $user->role) == 'kepsta')>Kepsta</option>
+                                </select>
+                                <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        {{-- Biodata Penyiar (muncul jika role adalah 'penyiar') --}}
+                        <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
+                             <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Penyiar</h3>
+                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <!-- NIK -->
+                                <div>
+                                    <x-input-label for="nik" :value="__('NIK')" />
+                                    <x-text-input id="nik" class="block mt-1 w-full" type="text" name="nik" :value="old('nik', $user->nik)" />
+                                    <x-input-error :messages="$errors->get('nik')" class="mt-2" />
+                                </div>
+                                
+                                <!-- Tempat Lahir -->
+                                <div>
+                                    <x-input-label for="tempat_lahir" :value="__('Tempat Lahir')" />
+                                    <x-text-input id="tempat_lahir" class="block mt-1 w-full" type="text" name="tempat_lahir" :value="old('tempat_lahir', $user->tempat_lahir)" />
+                                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
+                                </div>
+
+                                <!-- Tanggal Lahir -->
+                                <div>
+                                    <x-input-label for="tanggal_lahir" :value="__('Tanggal Lahir')" />
+                                    <x-text-input id="tanggal_lahir" class="block mt-1 w-full" type="date" name="tanggal_lahir" :value="old('tanggal_lahir', $user->tanggal_lahir?->format('Y-m-d'))" />
+                                    <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
+                                </div>
+
+                                <!-- Agama -->
+                                <div>
+                                    <x-input-label for="agama" :value="__('Agama')" />
+                                    <select id="agama" name="agama" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                        <option value="Islam" {{ old('agama', $user->agama) == 'Islam' ? 'selected' : '' }}>Islam</option>
+                                        <option value="Kristen" {{ old('agama', $user->agama) == 'Kristen' ? 'selected' : '' }}>Kristen</option>
+                                        <option value="Katolik" {{ old('agama', $user->agama) == 'Katolik' ? 'selected' : '' }}>Katolik</option>
+                                        <option value="Hindu" {{ old('agama', $user->agama) == 'Hindu' ? 'selected' : '' }}>Hindu</option>
+                                        <option value="Buddha" {{ old('agama', $user->agama) == 'Buddha' ? 'selected' : '' }}>Buddha</option>
+                                        <option value="Khonghucu" {{ old('agama', $user->agama) == 'Khonghucu' ? 'selected' : '' }}>Khonghucu</option>
+                                    </select>
+                                    <x-input-error :messages="$errors->get('agama')" class="mt-2" />
+                                </div>
+
+                                <!-- Jenis Kelamin -->
+                                <div>
+                                    <x-input-label for="jenis_kelamin" :value="__('Jenis Kelamin')" />
+                                    <select id="jenis_kelamin" name="jenis_kelamin" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                        <option value="Laki-laki" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
+                                        <option value="Perempuan" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
+                                    </select>
+                                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
+                                </div>
+
+                                <!-- Nomor Telepon -->
+                                <div>
+                                    <x-input-label for="no_telp" :value="__('Nomor Telepon')" />
+                                    <x-text-input id="no_telp" class="block mt-1 w-full" type="text" name="no_telp" :value="old('no_telp', $user->no_telp)" />
+                                    <x-input-error :messages="$errors->get('no_telp')" class="mt-2" />
+                                </div>
+                             </div>
+                        </div>
+
+                        <div class="flex items-center justify-end mt-6">
+                            <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                                Batal
+                            </a>
+                            <x-primary-button>
+                                {{ __('Simpan Perubahan') }}
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\users\index.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Kelola Pengguna') }}
+            </h2>
+            <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                Tambah Pengguna
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+
+                    @if (session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+                     @if (session('error'))
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('error') }}</span>
+                        </div>
+                    @endif
+
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
+                            <thead class="text-left">
+                                <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Email</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Role</th>
+                                    <th class="px-4 py-2"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-200">
+                                @forelse ($users as $user)
+                                <tr>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $user->name }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $user->email }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">
+                                        <span class="inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700">
+                                          <p class="whitespace-nowrap text-sm">{{ Str::ucfirst($user->role) }}</p>
+                                        </span>
+                                    </td>
+                                    <td class="whitespace-nowrap px-4 py-2">
+                                        <div class="flex items-center space-x-2">
+                                            <a href="{{ route('admin.users.edit', $user) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-500">
+                                        Tidak ada data pengguna.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        {{ $users->links() }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
 ===== resources\views\auth\confirm-password.blade.php =====
 <x-guest-layout>
     <div class="mb-4 text-sm text-gray-600">
@@ -1357,13 +2281,11 @@ $classes = ($active ?? false)
 
 ===== resources\views\layouts\navigation.blade.php =====
 <aside class="h-full flex flex-col md:h-screen md:sticky md:top-0">
-    <!-- Logo -->
     <div class="p-6 border-b border-gray-200">
         <a href="{{ route('dashboard') }}" class="text-2xl font-bold text-gray-800">
             {{ config('app.name', 'MY APP') }}
         </a>
     </div>
-    <!-- Nav Links -->
     <nav class="flex-1 px-4 py-6 space-y-2">
         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
@@ -1371,11 +2293,36 @@ $classes = ($active ?? false)
                 <path stroke-linecap="round" stroke-linejoin="round"
                     d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
             </svg>
-
-            {{ __('Dashboard') }}
+            <span>{{ __('Dashboard') }}</span>
         </x-nav-link>
+
+        {{-- @role('admin') --}}
+        @if(Auth::check() && Auth::user()->role === 'admin')
+        <div class="pt-4">
+            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                Admin
+            </h3>
+            <div class="mt-2 space-y-2">
+                {{-- UBAH BAGIAN INI --}}
+                <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                    <span>Kelola Pengguna</span>
+                </x-nav-link>
+                <x-nav-link :href="route('admin.acara-siaran.index')" :active="request()->routeIs('admin.acara-siaran.*')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                    </svg>
+                    <span>Kelola Acara Siaran</span>
+                </x-nav-link>
+                 {{-- AKHIR PERUBAHAN --}}
+            </div>
+        </div>
+        @endif
+        {{-- @endrole --}}
+
     </nav>
-    <!-- User Dropdown -->
     <div x-data="{ open: false }" class="px-4 py-4 border-t border-gray-200">
         <button @click="open = !open"
             class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-left bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200">
