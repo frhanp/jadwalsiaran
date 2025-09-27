@@ -27,4 +27,9 @@ class Program extends Model
     {
         return $this->hasMany(Sequence::class);
     }
+
+    public function jadwalPetugas(): HasMany
+    {
+        return $this->hasMany(JadwalPetugas::class);
+    }
 }

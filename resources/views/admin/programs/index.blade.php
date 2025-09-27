@@ -42,6 +42,7 @@
                                     <td class="whitespace-nowrap px-4 py-2">
                                         {{-- AWAL MODIFIKASI --}}
                                         <div class="flex items-center space-x-4">
+                                            <a href="{{ route('admin.programs.petugas.index', $program) }}" class="text-green-600 hover:text-green-900">Petugas</a>
                                             <a href="{{ route('admin.programs.sequences.index', $program) }}" class="text-indigo-600 hover:text-indigo-900">Kelola Sequence</a>
                                             <a href="{{ route('admin.programs.edit', $program) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
                                             <form action="{{ route('admin.programs.destroy', $program) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus program ini? Semua sequence di dalamnya juga akan terhapus.');">

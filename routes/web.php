@@ -10,7 +10,7 @@ use App\Http\Controllers\Admin\MateriDetailController;
 use App\Http\Controllers\Admin\ItemDetailController;
 use App\Http\Controllers\Penyiar\JadwalController;
 use App\Http\Controllers\LaporanController;
-
+use App\Http\Controllers\Admin\JadwalPetugasController;
 
 
 
@@ -37,6 +37,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('items/{item}/materi-details', [MateriDetailController::class, 'update'])->name('items.materi-details.update-all');
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
+        Route::resource('programs.petugas', JadwalPetugasController::class)->parameters(['petugas' => 'jadwalPetugas']);
     });
 
     // Grup untuk Penyiar
@@ -52,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Grup untuk Kepsta dan Katim (hanya laporan)
     Route::middleware(['role:kepsta,katim'])->name('laporan.')->prefix('laporan')->group(function () {
         Route::get('jadwal-harian', [LaporanController::class, 'index'])->name('jadwal.harian');
+        Route::get('jadwal-harian/cetak', [LaporanController::class, 'cetak'])->name('jadwal.cetak');
     });
 });
 
