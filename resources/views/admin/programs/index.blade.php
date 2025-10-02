@@ -4,59 +4,80 @@
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 {{ __('Kelola Program Siaran') }}
             </h2>
-            <a href="{{ route('admin.programs.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                Tambah Program
+            <a href="{{ route('admin.programs.create') }}" 
+               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 
+                      border border-transparent rounded-lg font-semibold text-sm text-white 
+                      shadow hover:shadow-md hover:from-blue-700 hover:to-sky-600 
+                      transition ease-in-out duration-200">
+                + Tambah Program
             </a>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
                     @if (session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
+                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 
+                                    text-green-700 px-4 py-3 rounded-lg mb-4 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" 
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/>
+                            </svg>
+                            <span>{{ session('success') }}</span>
                         </div>
                     @endif
 
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                            <thead class="text-left">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-50">
                                 <tr>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama Program</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Alias</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Dibuat Oleh</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Tanggal Dibuat</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Nama Program</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Dibuat Oleh</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Tanggal Dibuat</th>
                                     <th class="px-4 py-2"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($programs as $program)
-                                <tr>
+                                <tr class="hover:bg-gray-50 transition">
                                     <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->nama }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $program->alias ?? '-' }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $program->pembuat->name ?? 'N/A' }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $program->created_at->format('d M Y, H:i') }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->alias ?? '-' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->pembuat->name ?? 'N/A' }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->created_at->format('d M Y, H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
-                                        {{-- AWAL MODIFIKASI --}}
-                                        <div class="flex items-center space-x-4">
-                                            <a href="{{ route('admin.programs.petugas.index', $program) }}" class="text-green-600 hover:text-green-900">Petugas</a>
-                                            <a href="{{ route('admin.programs.sequences.index', $program) }}" class="text-indigo-600 hover:text-indigo-900">Kelola Sequence</a>
-                                            <a href="{{ route('admin.programs.edit', $program) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                            <form action="{{ route('admin.programs.destroy', $program) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus program ini? Semua sequence di dalamnya juga akan terhapus.');">
+                                        <div class="flex flex-wrap gap-2">
+                                            <a href="{{ route('admin.programs.petugas.index', $program) }}" 
+                                               class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 hover:bg-green-200">
+                                                Petugas
+                                            </a>
+                                            <a href="{{ route('admin.programs.sequences.index', $program) }}" 
+                                               class="px-3 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">
+                                                Kelola Sequence
+                                            </a>
+                                            <a href="{{ route('admin.programs.edit', $program) }}" 
+                                               class="px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
+                                                Edit
+                                            </a>
+                                            <form action="{{ route('admin.programs.destroy', $program) }}" method="POST" 
+                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus program ini? Semua sequence di dalamnya juga akan terhapus.');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                <button type="submit" 
+                                                        class="px-3 py-1 text-xs font-medium rounded-full bg-red-100 text-red-700 hover:bg-red-200">
+                                                    Hapus
+                                                </button>
                                             </form>
                                         </div>
-                                        {{-- AKHIR MODIFIKASI --}}
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="5" class="text-center py-4 text-gray-500">
+                                    <td colspan="5" class="text-center py-6 text-gray-500">
                                         Tidak ada data program siaran.
                                     </td>
                                 </tr>
@@ -64,6 +85,7 @@
                             </tbody>
                         </table>
                     </div>
+
                     <div class="mt-4">
                         {{ $programs->links() }}
                     </div>

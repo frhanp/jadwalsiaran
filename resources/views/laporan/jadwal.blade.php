@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Laporan Jadwal Siaran Harian') }}
+            {{ __('Laporan Daftar Acara Siaran') }}
         </h2>
     </x-slot>
      <div class="py-12">
@@ -11,7 +11,7 @@
                 <div class="p-6 text-gray-900">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                            {{ __('Laporan Jadwal Siaran Harian') }}
+                            {{ __('Laporan Daftar Acara Siaran') }}
                         </h2>
                     </div>
                     <form method="GET" action="{{ route('laporan.jadwal.harian') }}" class="flex items-end space-x-4">
@@ -30,7 +30,7 @@
             {{-- Area ini yang akan dicetak --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg printable-area">
                 <div class="p-6 text-gray-900">
-                    <h3 class="text-center font-bold text-lg">JADWAL SIARAN</h3>
+                    <h3 class="text-center font-bold text-lg">DAFTAR ACARA SIARAN</h3>
                     <h4 class="text-center font-semibold text-md mb-4">{{ $tanggal->isoFormat('dddd, D MMMM Y') }}</h4>
 
                     <div class="overflow-x-auto">

@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\ItemDetailController;
 use App\Http\Controllers\Penyiar\JadwalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\Admin\JadwalPetugasController;
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Auth;
+
 
 
 
@@ -18,12 +21,14 @@ use App\Http\Controllers\Admin\JadwalPetugasController;
 
 
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect()->route('dashboard');
+    }
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])->name('dashboard');
 
 
 Route::middleware(['auth', 'verified'])->group(function () {

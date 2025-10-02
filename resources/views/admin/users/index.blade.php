@@ -2,64 +2,102 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Kelola Pengguna') }}
+                Kelola Pengguna
             </h2>
-            <a href="{{ route('admin.users.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                Tambah Pengguna
+            <a href="{{ route('admin.users.create') }}" 
+               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 
+                      border border-transparent rounded-lg font-semibold text-sm text-white 
+                      shadow hover:shadow-md hover:from-blue-700 hover:to-sky-600 
+                      transition ease-in-out duration-200">
+                + Tambah Pengguna
             </a>
         </div>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
+                    <!-- Flash Message -->
                     @if (session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
+                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 
+                                    text-green-700 px-4 py-3 rounded-lg mb-4 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" 
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/>
+                            </svg>
+                            <span>{{ session('success') }}</span>
                         </div>
                     @endif
-                     @if (session('error'))
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('error') }}</span>
+                    @if (session('error'))
+                        <div class="flex items-center gap-3 bg-red-50 border border-red-200 
+                                    text-red-700 px-4 py-3 rounded-lg mb-4 shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" 
+                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <span>{{ session('error') }}</span>
                         </div>
                     @endif
 
+                    <!-- Table -->
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                            <thead class="text-left">
+                        <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100 text-gray-700">
                                 <tr>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Email</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Role</th>
-                                    <th class="px-4 py-2"></th>
+                                    <th class="px-4 py-3 font-semibold text-left">Nama</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Email</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Role</th>
+                                    <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($users as $user)
-                                <tr>
-                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $user->name }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $user->email }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                        <span class="inline-flex items-center justify-center rounded-full bg-gray-100 px-2.5 py-0.5 text-gray-700">
-                                          <p class="whitespace-nowrap text-sm">{{ Str::ucfirst($user->role) }}</p>
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $user->name }}</td>
+                                    <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
+                                    <td class="px-4 py-3">
+                                        @php
+                                            $roleColors = [
+                                                'admin' => 'bg-purple-100 text-purple-700',
+                                                'penyiar' => 'bg-blue-100 text-blue-700',
+                                                'katim' => 'bg-green-100 text-green-700',
+                                                'kepsta' => 'bg-yellow-100 text-yellow-700',
+                                            ];
+                                        @endphp
+                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $roleColors[$user->role] ?? 'bg-gray-100 text-gray-700' }}">
+                                            {{ Str::ucfirst($user->role) }}
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-4 py-2">
-                                        <div class="flex items-center space-x-2">
-                                            <a href="{{ route('admin.users.edit', $user) }}" class="text-yellow-600 hover:text-yellow-900">Edit</a>
-                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
+                                    <td class="px-4 py-3">
+                                        <div class="flex flex-wrap gap-2">
+                                            <!-- Edit -->
+                                            <a href="{{ route('admin.users.edit', $user) }}" 
+                                               class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium 
+                                                      rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
+                                                ✏️ Edit
+                                            </a>
+
+                                            <!-- Hapus -->
+                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" 
+                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
+                                                <button type="submit" 
+                                                        class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium 
+                                                               rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                    🗑️ Hapus
+                                                </button>
                                             </form>
                                         </div>
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-gray-500">
+                                    <td colspan="4" class="text-center py-6 text-gray-500">
                                         Tidak ada data pengguna.
                                     </td>
                                 </tr>
@@ -67,7 +105,9 @@
                             </tbody>
                         </table>
                     </div>
-                    <div class="mt-4">
+
+                    <!-- Pagination -->
+                    <div class="mt-6">
                         {{ $users->links() }}
                     </div>
                 </div>
