@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Program;
 use App\Models\JadwalPetugas;
 use Carbon\Carbon;
+use App\Models\Sequence;
 
 
 class LaporanController extends Controller
@@ -16,11 +17,9 @@ class LaporanController extends Controller
         $validated = $request->validate(['tanggal' => 'nullable|date_format:Y-m-d']);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
 
-        // Ambil program yang memiliki sequence pada tanggal yang dipilih
+        // Ambil program dan urutkan berdasarkan waktu sequence paling awal
         $programs = Program::with([
-            'sequences' => function ($query) use ($tanggal) {
-                // Eager load hanya sequence yang relevan (meskipun tidak ada kolom tanggal di sequence, ini untuk relasi)
-                // Filter utama ada di whereHas
+            'sequences' => function ($query) {
                 $query->orderBy('waktu', 'asc');
             },
             'sequences.host',
@@ -30,14 +29,22 @@ class LaporanController extends Controller
             'sequences.items.materiDetails',
             'sequences.items.itemDetails'
         ])
-        ->whereHas('sequences') // Hanya program yang punya sequence
+        ->whereHas('jadwalPetugas', function ($query) use ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
+        })
+        ->orderBy(
+            Sequence::select('waktu')
+                ->whereColumn('program_id', 'programs.id')
+                ->orderBy('waktu', 'asc')
+                ->limit(1)
+        )
         ->get();
 
         // Ambil data petugas untuk semua program pada tanggal yang dipilih
         $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiarDinas')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()
-            ->keyBy('program_id'); // Jadikan program_id sebagai key untuk pencarian mudah di view
+            ->keyBy('program_id');
 
         return view('laporan.jadwal', compact('programs', 'jadwalPetugas', 'tanggal'));
     }
@@ -47,19 +54,27 @@ class LaporanController extends Controller
         // Logika pengambilan data sama persis dengan method index
         $validated = $request->validate(['tanggal' => 'nullable|date_format:Y-m-d']);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
-
+        
         $programs = Program::with([
             'sequences' => function ($query) { $query->orderBy('waktu', 'asc'); },
             'sequences.host', 'sequences.items' => function ($query) { $query->orderBy('id', 'asc'); },
             'sequences.items.materiDetails', 'sequences.items.itemDetails'
         ])
-        ->whereHas('sequences')->get();
+        ->whereHas('jadwalPetugas', function ($query) use ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
+        })
+        ->orderBy(
+            Sequence::select('waktu')
+                ->whereColumn('program_id', 'programs.id')
+                ->orderBy('waktu', 'asc')
+                ->limit(1)
+        )
+        ->get();
 
         $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiarDinas')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()->keyBy('program_id');
         
-        // Panggil view yang berbeda, yaitu jadwal_print
         return view('laporan.jadwal_print', compact('programs', 'jadwalPetugas', 'tanggal'));
     }
 }
