@@ -53,7 +53,7 @@
                         <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
                             <thead class="bg-gray-100 text-gray-700">
                                 <tr>
-                                    <th class="px-4 py-3 font-semibold text-left">Nama Sequence</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Nama Seqmen</th>
                                     <th class="px-4 py-3 font-semibold text-left">Waktu</th>
                                     <th class="px-4 py-3 font-semibold text-left">Host/Penyiar</th>
                                     <th class="px-4 py-3 font-semibold text-left">Durasi (Menit)</th>

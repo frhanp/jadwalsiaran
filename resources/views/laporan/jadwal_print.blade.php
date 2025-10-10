@@ -120,7 +120,7 @@
                         <tr>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                            <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
+                            <th class="border border-gray-300 px-4 py-2 w-2/12">Seqmen</th>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
                             <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
                             <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>

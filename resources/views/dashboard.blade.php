@@ -24,7 +24,7 @@
                                 <p class="text-2xl font-bold text-green-900">{{ $totalPrograms }}</p>
                             </div>
                             <div class="bg-yellow-100 p-4 rounded-lg">
-                                <p class="text-sm text-yellow-700">Total Sequence</p>
+                                <p class="text-sm text-yellow-700">Total Seqmen</p>
                                 <p class="text-2xl font-bold text-yellow-900">{{ $totalSequences }}</p>
                             </div>
                         </div>
