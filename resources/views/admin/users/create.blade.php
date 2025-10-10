@@ -54,7 +54,7 @@
                         </div>
 
                         {{-- Biodata Penyiar (muncul jika role adalah 'penyiar') --}}
-                        <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
+                        {{-- <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
                              <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Penyiar</h3>
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- NIK -->
@@ -109,7 +109,7 @@
                                     <x-input-error :messages="$errors->get('no_telp')" class="mt-2" />
                                 </div>
                              </div>
-                        </div>
+                        </div> --}}
 
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">

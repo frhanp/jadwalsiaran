@@ -14,6 +14,10 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        // Hapus data lama untuk menghindari duplikat email
+        User::query()->delete();
+
+        // User Admin
         User::create([
             'name' => 'Admin RRI',
             'email' => 'admin@gmail.com',
@@ -21,13 +25,13 @@ class UserSeeder extends Seeder
             'role' => 'admin',
         ]);
 
+        // User Pimpinan
         User::create([
             'name' => 'Kepsta RRI',
             'email' => 'kepsta@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'kepsta',
         ]);
-
         User::create([
             'name' => 'Katim RRI',
             'email' => 'katim@gmail.com',
@@ -35,9 +39,22 @@ class UserSeeder extends Seeder
             'role' => 'katim',
         ]);
 
+        // User Penyiar (lebih dari satu untuk contoh)
         User::create([
-            'name' => 'Penyiar RRI',
-            'email' => 'penyiar@gmail.com',
+            'name' => 'Penyiar 1',
+            'email' => 'penyiar1@gmail.com',
+            'password' => Hash::make('password'),
+            'role' => 'penyiar',
+        ]);
+        User::create([
+            'name' => 'Penyiar 2',
+            'email' => 'penyiar2@gmail.com',
+            'password' => Hash::make('password'),
+            'role' => 'penyiar',
+        ]);
+        User::create([
+            'name' => 'Penyiar 3',
+            'email' => 'penyiar3@gmail.com',
             'password' => Hash::make('password'),
             'role' => 'penyiar',
         ]);

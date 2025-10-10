@@ -14,6 +14,7 @@ class ProgramSeeder extends Seeder
      */
     public function run(): void
     {
+        Program::query()->delete();
         // Cari user admin pertama untuk dijadikan pembuat program
         $admin = User::where('role', 'admin')->first();
 
