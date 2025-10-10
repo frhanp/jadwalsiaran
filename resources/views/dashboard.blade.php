@@ -13,7 +13,7 @@
 
                     {{-- KONTEN UNTUK ADMIN --}}
                     @if (Auth::user()->role === 'admin')
-                        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Ringkasan Sistem</h3>
+                        {{-- <h3 class="text-lg font-semibold border-b pb-2 mb-4">Ringkasan Sistem</h3> --}}
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="bg-blue-100 p-4 rounded-lg">
                                 <p class="text-sm text-blue-700">Total Pengguna</p>
@@ -28,11 +28,11 @@
                                 <p class="text-2xl font-bold text-yellow-900">{{ $totalSequences }}</p>
                             </div>
                         </div>
-                        <div class="mt-6">
+                        {{-- <div class="mt-6">
                             <a href="{{ route('admin.programs.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
                                 &raquo; Kelola Program Siaran
                             </a>
-                        </div>
+                        </div> --}}
                     
                     {{-- KONTEN UNTUK PENYIAR --}}
                     @elseif (Auth::user()->role === 'penyiar')

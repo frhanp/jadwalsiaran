@@ -36,7 +36,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Nama Program</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th>
+                                    {{-- <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th> --}}
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Dibuat Oleh</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Tanggal Dibuat</th>
                                     <th class="px-4 py-2"></th>
@@ -46,7 +46,7 @@
                                 @forelse ($programs as $program)
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->nama }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->alias ?? '-' }}</td>
+                                    {{-- <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->alias ?? '-' }}</td> --}}
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->pembuat->name ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->created_at->format('d M Y, H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
@@ -57,7 +57,7 @@
                                             </a>
                                             <a href="{{ route('admin.programs.sequences.index', $program) }}" 
                                                class="px-3 py-1 text-xs font-medium rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200">
-                                                Kelola Sequence
+                                                Kelola Seqmen
                                             </a>
                                             <a href="{{ route('admin.programs.edit', $program) }}" 
                                                class="px-3 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200">
