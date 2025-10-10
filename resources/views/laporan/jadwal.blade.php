@@ -36,7 +36,7 @@
                                 <button @click="activeTab = {{ $program->id }}"
                                         :class="activeTab === {{ $program->id }} ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                         class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none">
-                                    {{  $program->nama }}
+                                    {{ $program->alias ?? $program->nama }}
                                 </button>
                             @endforeach
                         </nav>
@@ -53,10 +53,12 @@
                                         <table class="min-w-full border-collapse border border-gray-300 text-sm">
                                             <thead class="bg-gray-100 text-left">
                                                 <tr>
+                                                    {{-- PENYESUAIAN LEBAR KOLOM --}}
                                                     <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
                                                     <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
                                                     <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
-                                                    <th class="border border-gray-300 px-4 py-2 w-4/12">Materi Siar</th>
+                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Jumlah Pendengar</th> {{-- TAMBAHAN --}}
+                                                    <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
                                                     <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
                                                 </tr>
                                             </thead>
@@ -76,6 +78,12 @@
                                                         @if ($sequenceIndex > 0) <tr> @endif
                                                         <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                                                         <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">{{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host: {{ $sequence->host->name ?? 'N/A' }}</small></td>
+                                                        
+                                                        {{-- TAMBAHAN: Kolom Jumlah Pendengar --}}
+                                                        <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
+                                                            <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
+                                                        </td>
+
                                                         @forelse ($sequence->items as $itemIndex => $item)
                                                             @if ($itemIndex > 0) <tr> @endif
                                                             <td class="border border-gray-300 px-4 py-2 align-top">
@@ -122,6 +130,7 @@
                     </div>
                 </div>
             </div>
-            </div>
+
+        </div>
     </div>
 </x-app-layout>

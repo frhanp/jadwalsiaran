@@ -96,6 +96,7 @@
                     <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
                     <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
                     <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
+                    <th class="border border-gray-300 px-4 py-2 w-1/12">Jumlah Pendengar</th>
                     <th class="border border-gray-300 px-4 py-2 w-4/12">Materi Siar</th>
                     <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
                 </tr>
@@ -123,6 +124,9 @@
                 <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
                     {{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host:
                         {{ $sequence->host->name ?? 'N/A' }}</small></td>
+                <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
+                    <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
+                </td>
                 @forelse ($sequence->items as $itemIndex => $item)
                     @if ($itemIndex > 0)
                         <tr>
@@ -197,7 +201,7 @@
                                 </tr>
                                 <tr>
                                     <td>Penyiar</td>
-                                    <td>: {{ $petugas->penyiarDinas->name ?? '-' }}</td>
+                                    <td>: {{ $petugas->penyiars->isNotEmpty() ? $petugas->penyiars->pluck('name')->implode(', ') : '-' }}</td>
                                 </tr>
                             </table>
                             <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
@@ -206,7 +210,7 @@
                                 <div>
                                     Penyiar Dinas<br><br><br><br>
                                     <span
-                                        class="font-semibold underline">({{ $petugas->penyiarDinas->name ?? '____________________' }})</span>
+                                        class="font-semibold underline">({{ $petugas->penyiars->isNotEmpty() ? $petugas->penyiars->pluck('name')->implode(', ') : '____________________' }})</span>
                                 </div>
                                 <div>
                                     Pengelola Pro 2<br><br><br><br>

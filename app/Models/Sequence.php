@@ -19,6 +19,7 @@ class Sequence extends Model
         'frame',
         'durasi',
         'dibuat_oleh',
+        'jumlah_pendengar',
     ];
 
     public function program(): BelongsTo

@@ -41,7 +41,7 @@ class LaporanController extends Controller
         ->get();
 
         // Ambil data petugas untuk semua program pada tanggal yang dipilih
-        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiarDinas')
+        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()
             ->keyBy('program_id');
@@ -71,7 +71,7 @@ class LaporanController extends Controller
         )
         ->get();
 
-        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiarDinas')
+        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()->keyBy('program_id');
         

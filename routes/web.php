@@ -53,6 +53,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('items/{item}/materi-details', [MateriDetailController::class, 'update'])->name('items.materi-details.update-all');
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
+        Route::patch('sequences/{sequence}/pendengar', [SequenceController::class, 'updatePendengar'])->name('sequences.pendengar.update');
     });
 
     // Grup untuk Kepsta dan Katim (hanya laporan)

@@ -63,6 +63,24 @@ class SequenceController extends Controller
             ->with('success', 'Sequence berhasil diperbarui.');
     }
 
+    public function updatePendengar(Request $request, Sequence $sequence)
+    {
+        // Otorisasi: hanya host dari sequence ini yang boleh update
+        if (Auth::user()->role === 'penyiar' && $sequence->host_id != Auth::id()) {
+            abort(403, 'AKSES DITOLAK.');
+        }
+
+        $request->validate([
+            'jumlah_pendengar' => 'required|integer|min:0',
+        ]);
+
+        $sequence->update([
+            'jumlah_pendengar' => $request->jumlah_pendengar,
+        ]);
+
+        return back()->with('success', 'Jumlah pendengar berhasil disimpan.');
+    }
+
     public function destroy(Sequence $sequence)
     {
         $program = $sequence->program;

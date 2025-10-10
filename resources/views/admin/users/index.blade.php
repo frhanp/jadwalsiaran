@@ -48,6 +48,7 @@
                         <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
                             <thead class="bg-gray-100 text-gray-700">
                                 <tr>
+                                    <th class="px-4 py-3 font-semibold text-left">No</th>
                                     <th class="px-4 py-3 font-semibold text-left">Nama</th>
                                     <th class="px-4 py-3 font-semibold text-left">Email</th>
                                     <th class="px-4 py-3 font-semibold text-left">Role</th>
@@ -57,6 +58,7 @@
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($users as $user)
                                 <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ $user->name }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
                                     <td class="px-4 py-3">
