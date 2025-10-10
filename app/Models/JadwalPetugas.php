@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class JadwalPetugas extends Model
 {
@@ -19,7 +20,6 @@ class JadwalPetugas extends Model
         'pengelola_pep_id',
         'pengarah_acara_id',
         'petugas_lpu_id',
-        'penyiar_dinas_id',
         'dibuat_oleh',
     ];
 
@@ -48,9 +48,9 @@ class JadwalPetugas extends Model
         return $this->belongsTo(User::class, 'petugas_lpu_id');
     }
     
-    public function penyiarDinas(): BelongsTo
+    public function penyiars(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'penyiar_dinas_id');
+        return $this->belongsToMany(User::class, 'jadwal_penyiar', 'jadwal_petugas_id', 'penyiar_id');
     }
 
     public function pembuat(): BelongsTo

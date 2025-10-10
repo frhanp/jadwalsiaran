@@ -13,7 +13,6 @@
             'pengelola_pep_id' => 'Pengelola PEP',
             'pengarah_acara_id' => 'Pengarah Acara',
             'petugas_lpu_id' => 'Petugas LPU',
-            'penyiar_dinas_id' => 'Penyiar Dinas',
         ];
     @endphp
 
@@ -32,4 +31,18 @@
             <x-input-error :messages="$errors->get($field)" class="mt-2" />
         </div>
     @endforeach
+    <div class="md:col-span-2">
+        <x-input-label for="penyiars" value="Penyiar Bertugas (bisa pilih lebih dari satu)" />
+        <select id="penyiars" name="penyiars[]" multiple class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+            @php
+                $selectedPenyiars = old('penyiars', $jadwalPetugas->penyiars->pluck('id')->all() ?? []);
+            @endphp
+            @foreach($penyiars as $penyiar)
+                <option value="{{ $penyiar->id }}" @selected(in_array($penyiar->id, $selectedPenyiars))>
+                    {{ $penyiar->name }}
+                </option>
+            @endforeach
+        </select>
+        <x-input-error :messages="$errors->get('penyiars')" class="mt-2" />
+    </div>
 </div>
