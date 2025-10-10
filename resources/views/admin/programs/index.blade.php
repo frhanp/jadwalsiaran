@@ -35,6 +35,8 @@
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">No</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Studio</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Nama Program</th>
                                     {{-- <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th> --}}
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Dibuat Oleh</th>
@@ -45,8 +47,9 @@
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($programs as $program)
                                 <tr class="hover:bg-gray-50 transition">
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $loop->iteration + $programs->firstItem() - 1 }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->studio->nama }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->nama }}</td>
-                                    {{-- <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->alias ?? '-' }}</td> --}}
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->pembuat->name ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->created_at->format('d M Y, H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
