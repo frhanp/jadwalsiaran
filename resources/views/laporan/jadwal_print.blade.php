@@ -218,9 +218,7 @@
                     </tr>
                     <tr>
                         <td>Penyiar</td>
-                        <td>:
-                            {{ $petugas->penyiars->isNotEmpty() ? $petugas->penyiars->pluck('name')->implode(', ') : '-' }}
-                        </td>
+                        <td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td>
                     </tr>
                 </table>
                 <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
@@ -228,8 +226,7 @@
                 <div class="signature-grid">
                     <div>
                         Penyiar Dinas<br><br><br><br>
-                        <span
-                            class="font-semibold underline">({{ $petugas->penyiars->isNotEmpty() ? $petugas->penyiars->pluck('name')->implode(', ') : '____________________' }})</span>
+                        <span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span>
                     </div>
                     <div>
                         Pengelola Pro 2<br><br><br><br>

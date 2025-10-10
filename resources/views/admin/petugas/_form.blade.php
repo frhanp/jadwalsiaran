@@ -28,7 +28,7 @@
         <x-input-error :messages="$errors->get('petugas_lpu_nama')" class="mt-2" />
     </div>
     <div class="md:col-span-2">
-        <x-input-label for="penyiars" value="Penyiar Bertugas (bisa pilih lebih dari satu)" />
+        <x-input-label for="penyiars" value="Penyiar Bertugas" />
         <select id="penyiars" name="penyiars[]" multiple class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
             @php
                 $selectedPenyiars = old('penyiars', $jadwalPetugas->penyiars->pluck('id')->all() ?? []);
