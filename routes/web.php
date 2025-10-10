@@ -12,6 +12,7 @@ use App\Http\Controllers\Penyiar\JadwalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\Admin\JadwalPetugasController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -43,7 +44,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
         Route::resource('programs.petugas', JadwalPetugasController::class)->parameters(['petugas' => 'jadwalPetugas']);
-    });
+        Route::resource('studios', StudioController::class);
+        });
 
     // Grup untuk Penyiar
     Route::middleware(['role:penyiar'])->name('penyiar.')->prefix('penyiar')->group(function () {

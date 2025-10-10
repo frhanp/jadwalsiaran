@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Carbon\Carbon;
+use App\Models\Studio;
 
 class JadwalPetugasSeeder extends Seeder
 {
@@ -19,24 +20,31 @@ class JadwalPetugasSeeder extends Seeder
         JadwalPetugas::query()->delete();
 
         $admin = User::where('role', 'admin')->first();
-        $katim = User::where('role', 'katim')->first();
         $penyiars = User::where('role', 'penyiar')->get();
         $programs = Program::all();
 
-        // Jadwalkan semua 4 program untuk hari ini
+        if ($programs->isEmpty() || $penyiars->isEmpty()) {
+            $this->command->info('Pastikan data User dan Program sudah terisi sebelum menjalankan JadwalPetugasSeeder.');
+            return;
+        }
+
         foreach ($programs as $program) {
+            // AWAL MODIFIKASI
             $jadwal = JadwalPetugas::create([
                 'tanggal' => Carbon::today(),
                 'program_id' => $program->id,
-                'produser_id' => $admin->id,
-                'pengarah_acara_id' => $katim->id,
+                // 'studio_id' DIHAPUS DARI SINI
+                'produser_nama' => 'Nama Produser Manual',
+                'pengarah_acara_nama' => 'Nama Pengarah Acara Manual',
+                'pengelola_pep_nama' => 'Nama Pengelola PEP',
+                'petugas_lpu_nama' => 'Nama Petugas LPU',
                 'dibuat_oleh' => $admin->id,
             ]);
+            // AKHIR MODIFIKASI
 
-            // Tugaskan 1 atau 2 penyiar secara acak
-            $jadwal->penyiars()->attach(
-                $penyiars->random(rand(1, 2))->pluck('id')->toArray()
-            );
+            if ($penyiars->isNotEmpty()) {
+                $jadwal->penyiars()->attach($penyiars->random());
+            }
         }
     }
 }

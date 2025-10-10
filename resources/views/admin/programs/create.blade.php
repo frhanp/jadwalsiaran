@@ -23,6 +23,18 @@
                                 <x-text-input id="alias" class="block mt-1 w-full" type="text" name="alias" :value="old('alias')" />
                                 <x-input-error :messages="$errors->get('alias')" class="mt-2" />
                             </div>
+                            <div class="md:col-span-2">
+                                <x-input-label for="studio_id" value="Studio" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">-- Pilih Studio --</option>
+                                    @foreach($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(old('studio_id', $program->studio_id ?? '') == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
+                            </div>
 
                              <div class="md:col-span-2">
                                 <x-input-label for="deskripsi" :value="__('Deskripsi')" />

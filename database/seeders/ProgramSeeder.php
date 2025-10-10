@@ -6,6 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\User;
 use App\Models\Program;
+use App\Models\Studio;
 
 class ProgramSeeder extends Seeder
 {
@@ -15,7 +16,7 @@ class ProgramSeeder extends Seeder
     public function run(): void
     {
         Program::query()->delete();
-        
+        $studios = Studio::all();
         $admin = User::where('role', 'admin')->first();
 
         $programs = [
@@ -41,11 +42,12 @@ class ProgramSeeder extends Seeder
             ],
         ];
 
-        foreach ($programs as $program) {
+        foreach ($programs as $index => $program) {
             Program::create([
                 'nama' => $program['nama'],
                 'alias' => $program['alias'],
                 'deskripsi' => $program['deskripsi'],
+                'studio_id' => $studios->get($index % $studios->count())->id, // TETAPKAN STUDIO
                 'dibuat_oleh' => $admin->id,
             ]);
         }

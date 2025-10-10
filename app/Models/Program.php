@@ -16,7 +16,13 @@ class Program extends Model
         'alias',
         'deskripsi',
         'dibuat_oleh',
+        'studio_id',
     ];
+
+    public function studio(): BelongsTo
+    {
+        return $this->belongsTo(Studio::class);
+    }
 
     public function pembuat(): BelongsTo
     {
