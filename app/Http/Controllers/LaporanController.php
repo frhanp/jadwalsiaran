@@ -51,11 +51,21 @@ class LaporanController extends Controller
 
     public function cetak(Request $request)
     {
-        // Logika pengambilan data sama persis dengan method index
-        $validated = $request->validate(['tanggal' => 'nullable|date_format:Y-m-d']);
+        // AWAL MODIFIKASI: Tambah validasi dan logika filter program
+        $validated = $request->validate([
+            'tanggal' => 'nullable|date_format:Y-m-d',
+            'program' => 'nullable|exists:programs,id' // Validasi ID program
+        ]);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
         
-        $programs = Program::with([
+        $programQuery = Program::query();
+
+        // Jika ada request spesifik program, filter berdasarkan ID program tersebut
+        if (isset($validated['program'])) {
+            $programQuery->where('id', $validated['program']);
+        }
+
+        $programs = $programQuery->with([
             'sequences' => function ($query) { $query->orderBy('waktu', 'asc'); },
             'sequences.host', 'sequences.items' => function ($query) { $query->orderBy('id', 'asc'); },
             'sequences.items.materiDetails', 'sequences.items.itemDetails'
@@ -70,6 +80,7 @@ class LaporanController extends Controller
                 ->limit(1)
         )
         ->get();
+        // AKHIR MODIFIKASI
 
         $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
@@ -77,4 +88,6 @@ class LaporanController extends Controller
         
         return view('laporan.jadwal_print', compact('programs', 'jadwalPetugas', 'tanggal'));
     }
+
+
 }

@@ -21,32 +21,22 @@ class JadwalPetugasSeeder extends Seeder
         $admin = User::where('role', 'admin')->first();
         $katim = User::where('role', 'katim')->first();
         $penyiars = User::where('role', 'penyiar')->get();
-        $programSpada = Program::where('alias', 'SPADA')->first();
-        $programZodie = Program::where('alias', 'ZODIE')->first();
+        $programs = Program::all();
 
-        // Contoh jadwal hari ini dengan 2 penyiar
-        $jadwal1 = JadwalPetugas::create([
-            'tanggal' => Carbon::today(),
-            'program_id' => $programSpada->id,
-            'produser_id' => $admin->id,
-            'pengarah_acara_id' => $katim->id,
-            'dibuat_oleh' => $admin->id,
-        ]);
-        // Menugaskan 2 penyiar
-        $jadwal1->penyiars()->attach([
-            $penyiars->get(0)->id,
-            $penyiars->get(1)->id,
-        ]);
+        // Jadwalkan semua 4 program untuk hari ini
+        foreach ($programs as $program) {
+            $jadwal = JadwalPetugas::create([
+                'tanggal' => Carbon::today(),
+                'program_id' => $program->id,
+                'produser_id' => $admin->id,
+                'pengarah_acara_id' => $katim->id,
+                'dibuat_oleh' => $admin->id,
+            ]);
 
-        // Contoh jadwal besok dengan 1 penyiar
-        $jadwal2 = JadwalPetugas::create([
-            'tanggal' => Carbon::tomorrow(),
-            'program_id' => $programZodie->id,
-            'produser_id' => $admin->id,
-            'pengarah_acara_id' => $katim->id,
-            'dibuat_oleh' => $admin->id,
-        ]);
-        // Menugaskan 1 penyiar
-        $jadwal2->penyiars()->attach($penyiars->get(2)->id);
+            // Tugaskan 1 atau 2 penyiar secara acak
+            $jadwal->penyiars()->attach(
+                $penyiars->random(rand(1, 2))->pluck('id')->toArray()
+            );
+        }
     }
 }

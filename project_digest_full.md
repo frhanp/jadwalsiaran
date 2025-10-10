@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-09 01:55:16_
+_Generated: 2025-10-10 20:29:51_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -112,6 +112,8 @@ database\migrations\2025_09_27_041322_create_sequence_items_table.php
 database\migrations\2025_09_27_041323_create_materi_details_table.php
 database\migrations\2025_09_27_041324_create_item_details_table.php
 database\migrations\2025_09_27_074706_create_jadwal_petugas_table.php
+database\migrations\2025_10_10_003852_modify_penyiar_relationship_in_jadwal_petugas_table.php
+database\migrations\2025_10_10_115757_add_jumlah_pendengar_to_sequences_table.php
 database\seeders\DatabaseSeeder.php
 database\seeders\JadwalPetugasSeeder.php
 database\seeders\ProgramSeeder.php
@@ -120,6 +122,7 @@ database\seeders\UserSeeder.php
 public\build
 public\.htaccess
 public\favicon.ico
+public\hot
 public\index.php
 public\robots.txt
 resources\css
@@ -339,11 +342,11 @@ Branch:
 main
 
 Last 5 commits:
-26ee6c0 deploy
-c181510 perbagus tampilan v1
-11ab949 add print laporan
-2a6b6aa add laporan
-1441806 kerangka di admin
+29efbbf add jumlah pendengar
+c7ea1b7 revisi 1
+e628d3c add multi penyiar
+11f0757 change minor name
+6aa4d0e revisi tab DAS
 ```
 
 
@@ -490,6 +493,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('items/{item}/materi-details', [MateriDetailController::class, 'update'])->name('items.materi-details.update-all');
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
+        Route::patch('sequences/{sequence}/pendengar', [SequenceController::class, 'updatePendengar'])->name('sequences.pendengar.update');
     });
 
     // Grup untuk Kepsta dan Katim (hanya laporan)
@@ -517,86 +521,87 @@ require __DIR__ . '/auth.php';
 ## Routes (from command)
 ```
 
-  GET|HEAD        / ................................................................................................................................. 
-  GET|HEAD        _debugbar/assets/javascript ........................................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
-  GET|HEAD        _debugbar/assets/stylesheets ........................................ debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
-  DELETE          _debugbar/cache/{key}/{tags?} .................................. debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
-  GET|HEAD        _debugbar/clockwork/{id} ................................. debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
-  GET|HEAD        _debugbar/open ............................................ debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
-  POST            _debugbar/queries/explain ................................ debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
-  PUT|PATCH       admin/items/{item} ....................................................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          admin/items/{item} ..................................................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        admin/items/{item}/edit ...................................................... admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        admin/items/{item}/item-details ................................. admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             admin/items/{item}/item-details ........................... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
-  GET|HEAD        admin/items/{item}/materi-details ........................... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
-  PUT             admin/items/{item}/materi-details ..................... admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
-  GET|HEAD        admin/programs ............................................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
-  POST            admin/programs ............................................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
-  GET|HEAD        admin/programs/create ...................................................... admin.programs.create ΓÇ║ Admin\ProgramController@create
-  GET|HEAD        admin/programs/{program} ....................................................... admin.programs.show ΓÇ║ Admin\ProgramController@show
-  PUT|PATCH       admin/programs/{program} ................................................... admin.programs.update ΓÇ║ Admin\ProgramController@update
-  DELETE          admin/programs/{program} ................................................. admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
-  GET|HEAD        admin/programs/{program}/edit .................................................. admin.programs.edit ΓÇ║ Admin\ProgramController@edit
-  GET|HEAD        admin/programs/{program}/petugas ............................... admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
-  POST            admin/programs/{program}/petugas ............................... admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
-  GET|HEAD        admin/programs/{program}/petugas/create ...................... admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} ................. admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasController@show
-  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} ............. admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasController@update
-  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} ........... admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasController@destroy
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit ............ admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasController@edit
-  GET|HEAD        admin/programs/{program}/sequences ................................ admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
-  POST            admin/programs/{program}/sequences ................................ admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
-  GET|HEAD        admin/programs/{program}/sequences/create ....................... admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
-  PUT|PATCH       admin/sequences/{sequence} ............................................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
-  DELETE          admin/sequences/{sequence} ............................................. admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
-  GET|HEAD        admin/sequences/{sequence}/edit .............................................. admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
-  GET|HEAD        admin/sequences/{sequence}/items ................................. admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            admin/sequences/{sequence}/items ................................. admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        admin/sequences/{sequence}/items/create ........................ admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
-  GET|HEAD        admin/users ........................................................................ admin.users.index ΓÇ║ Admin\UserController@index
-  POST            admin/users ........................................................................ admin.users.store ΓÇ║ Admin\UserController@store
-  GET|HEAD        admin/users/create ............................................................... admin.users.create ΓÇ║ Admin\UserController@create
-  GET|HEAD        admin/users/{user} ................................................................... admin.users.show ΓÇ║ Admin\UserController@show
-  PUT|PATCH       admin/users/{user} ............................................................... admin.users.update ΓÇ║ Admin\UserController@update
-  DELETE          admin/users/{user} ............................................................. admin.users.destroy ΓÇ║ Admin\UserController@destroy
-  GET|HEAD        admin/users/{user}/edit .............................................................. admin.users.edit ΓÇ║ Admin\UserController@edit
-  GET|HEAD        confirm-password ....................................................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
-  POST            confirm-password ......................................................................... Auth\ConfirmablePasswordController@store
-  GET|HEAD        dashboard ................................................................................... dashboard ΓÇ║ DashboardController@index
-  POST            email/verification-notification ............................ verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
-  GET|HEAD        forgot-password ........................................................ password.request ΓÇ║ Auth\PasswordResetLinkController@create
-  POST            forgot-password ........................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
-  GET|HEAD        laporan/jadwal-harian ............................................................. laporan.jadwal.harian ΓÇ║ LaporanController@index
-  GET|HEAD        laporan/jadwal-harian/cetak ........................................................ laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
-  GET|HEAD        login .......................................................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
-  POST            login ................................................................................... Auth\AuthenticatedSessionController@store
-  POST            logout ....................................................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
-  PUT             password ......................................................................... password.update ΓÇ║ Auth\PasswordController@update
-  PUT|PATCH       penyiar/items/{item} ................................................... penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          penyiar/items/{item} ................................................. penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        penyiar/items/{item}/edit .................................................. penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        penyiar/items/{item}/item-details ............................. penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             penyiar/items/{item}/item-details ....................... penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
-  GET|HEAD        penyiar/items/{item}/materi-details ....................... penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
-  PUT             penyiar/items/{item}/materi-details ................. penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
-  GET|HEAD        penyiar/jadwal .............................................................. penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
-  GET|HEAD        penyiar/sequences/{sequence}/items ............................. penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            penyiar/sequences/{sequence}/items ............................. penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        penyiar/sequences/{sequence}/items/create .................... penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
-  GET|HEAD        profile ..................................................................................... profile.edit ΓÇ║ ProfileController@edit
-  PATCH           profile ................................................................................. profile.update ΓÇ║ ProfileController@update
-  DELETE          profile ............................................................................... profile.destroy ΓÇ║ ProfileController@destroy
-  GET|HEAD        register .......................................................................... register ΓÇ║ Auth\RegisteredUserController@create
-  POST            register ...................................................................................... Auth\RegisteredUserController@store
-  POST            reset-password .................................................................. password.store ΓÇ║ Auth\NewPasswordController@store
-  GET|HEAD        reset-password/{token} ......................................................... password.reset ΓÇ║ Auth\NewPasswordController@create
-  GET|HEAD        storage/{path} ...................................................................................................... storage.local
-  GET|HEAD        up ................................................................................................................................ 
-  GET|HEAD        verify-email ......................................................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
-  GET|HEAD        verify-email/{id}/{hash} ......................................................... verification.verify ΓÇ║ Auth\VerifyEmailController
+  GET|HEAD        / ........................................................................................................................... 
+  GET|HEAD        _debugbar/assets/javascript ..................................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
+  GET|HEAD        _debugbar/assets/stylesheets .................................. debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
+  DELETE          _debugbar/cache/{key}/{tags?} ............................ debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
+  GET|HEAD        _debugbar/clockwork/{id} ........................... debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
+  GET|HEAD        _debugbar/open ...................................... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
+  POST            _debugbar/queries/explain .......................... debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
+  PUT|PATCH       admin/items/{item} ................................................. admin.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          admin/items/{item} ............................................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        admin/items/{item}/edit ................................................ admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        admin/items/{item}/item-details ........................... admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             admin/items/{item}/item-details ..................... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        admin/items/{item}/materi-details ..................... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             admin/items/{item}/materi-details ............... admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
+  GET|HEAD        admin/programs ......................................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
+  POST            admin/programs ......................................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
+  GET|HEAD        admin/programs/create ................................................ admin.programs.create ΓÇ║ Admin\ProgramController@create
+  GET|HEAD        admin/programs/{program} ................................................. admin.programs.show ΓÇ║ Admin\ProgramController@show
+  PUT|PATCH       admin/programs/{program} ............................................. admin.programs.update ΓÇ║ Admin\ProgramController@update
+  DELETE          admin/programs/{program} ........................................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
+  GET|HEAD        admin/programs/{program}/edit ............................................ admin.programs.edit ΓÇ║ Admin\ProgramController@edit
+  GET|HEAD        admin/programs/{program}/petugas ......................... admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
+  POST            admin/programs/{program}/petugas ......................... admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
+  GET|HEAD        admin/programs/{program}/petugas/create ................ admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} ........... admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasController@show
+  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} ....... admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasController@update
+  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} ..... admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasController@destroy
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit ...... admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasController@edit
+  GET|HEAD        admin/programs/{program}/sequences .......................... admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
+  POST            admin/programs/{program}/sequences .......................... admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
+  GET|HEAD        admin/programs/{program}/sequences/create ................. admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
+  PUT|PATCH       admin/sequences/{sequence} ......................................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
+  DELETE          admin/sequences/{sequence} ....................................... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
+  GET|HEAD        admin/sequences/{sequence}/edit ........................................ admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
+  GET|HEAD        admin/sequences/{sequence}/items ........................... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            admin/sequences/{sequence}/items ........................... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        admin/sequences/{sequence}/items/create .................. admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  GET|HEAD        admin/users .................................................................. admin.users.index ΓÇ║ Admin\UserController@index
+  POST            admin/users .................................................................. admin.users.store ΓÇ║ Admin\UserController@store
+  GET|HEAD        admin/users/create ......................................................... admin.users.create ΓÇ║ Admin\UserController@create
+  GET|HEAD        admin/users/{user} ............................................................. admin.users.show ΓÇ║ Admin\UserController@show
+  PUT|PATCH       admin/users/{user} ......................................................... admin.users.update ΓÇ║ Admin\UserController@update
+  DELETE          admin/users/{user} ....................................................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
+  GET|HEAD        admin/users/{user}/edit ........................................................ admin.users.edit ΓÇ║ Admin\UserController@edit
+  GET|HEAD        confirm-password ................................................. password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
+  POST            confirm-password ................................................................... Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard ............................................................................. dashboard ΓÇ║ DashboardController@index
+  POST            email/verification-notification ...................... verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
+  GET|HEAD        forgot-password .................................................. password.request ΓÇ║ Auth\PasswordResetLinkController@create
+  POST            forgot-password ..................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
+  GET|HEAD        laporan/jadwal-harian ....................................................... laporan.jadwal.harian ΓÇ║ LaporanController@index
+  GET|HEAD        laporan/jadwal-harian/cetak .................................................. laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
+  GET|HEAD        login .................................................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
+  POST            login ............................................................................. Auth\AuthenticatedSessionController@store
+  POST            logout ................................................................. logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  PUT             password ................................................................... password.update ΓÇ║ Auth\PasswordController@update
+  PUT|PATCH       penyiar/items/{item} ............................................. penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          penyiar/items/{item} ........................................... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        penyiar/items/{item}/edit ............................................ penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        penyiar/items/{item}/item-details ....................... penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             penyiar/items/{item}/item-details ................. penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        penyiar/items/{item}/materi-details ................. penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             penyiar/items/{item}/materi-details ........... penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
+  GET|HEAD        penyiar/jadwal ........................................................ penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
+  GET|HEAD        penyiar/sequences/{sequence}/items ....................... penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            penyiar/sequences/{sequence}/items ....................... penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        penyiar/sequences/{sequence}/items/create .............. penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  PATCH           penyiar/sequences/{sequence}/pendengar ........ penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceController@updatePendengar
+  GET|HEAD        profile ............................................................................... profile.edit ΓÇ║ ProfileController@edit
+  PATCH           profile ........................................................................... profile.update ΓÇ║ ProfileController@update
+  DELETE          profile ......................................................................... profile.destroy ΓÇ║ ProfileController@destroy
+  GET|HEAD        register .................................................................... register ΓÇ║ Auth\RegisteredUserController@create
+  POST            register ................................................................................ Auth\RegisteredUserController@store
+  POST            reset-password ............................................................ password.store ΓÇ║ Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} ................................................... password.reset ΓÇ║ Auth\NewPasswordController@create
+  GET|HEAD        storage/{path} ................................................................................................ storage.local
+  GET|HEAD        up .......................................................................................................................... 
+  GET|HEAD        verify-email ................................................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} ................................................... verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                                                  Showing [78] routes
+                                                                                                                            Showing [79] routes
 
 ```
 
@@ -674,14 +679,15 @@ class JadwalPetugasController extends Controller
 {
     public function index(Program $program)
     {
-        $jadwalPetugas = $program->jadwalPetugas()->with('produser', 'pengarahAcara')->orderBy('tanggal', 'desc')->paginate(15);
+        $jadwalPetugas = $program->jadwalPetugas()->with('produser', 'pengarahAcara', 'penyiars')->orderBy('tanggal', 'desc')->paginate(15);
         return view('admin.petugas.index', compact('program', 'jadwalPetugas'));
     }
 
     public function create(Program $program)
     {
         $users = User::orderBy('name')->get();
-        return view('admin.petugas.create', compact('program', 'users'));
+        $penyiars = User::where('role', 'penyiar')->orderBy('name')->get();
+        return view('admin.petugas.create', compact('program', 'users', 'penyiars'));
     }
 
     public function store(Request $request, Program $program)
@@ -698,12 +704,15 @@ class JadwalPetugasController extends Controller
             'pengelola_pep_id' => 'nullable|exists:users,id',
             'pengarah_acara_id' => 'nullable|exists:users,id',
             'petugas_lpu_id' => 'nullable|exists:users,id',
-            'penyiar_dinas_id' => 'nullable|exists:users,id',
+            'penyiars' => 'nullable|array',
+            'penyiars.*' => 'exists:users,id',
         ], [
             'tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.',
         ]);
 
-        $program->jadwalPetugas()->create($request->all() + ['dibuat_oleh' => Auth::id()]);
+        $jadwalPetugas = $program->jadwalPetugas()->create($request->except('penyiars') + ['dibuat_oleh' => Auth::id()]);
+        $jadwalPetugas->penyiars()->sync($request->input('penyiars', []));
+        // AKHIR MODIFIKASI
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil ditambahkan.');
@@ -712,7 +721,9 @@ class JadwalPetugasController extends Controller
     public function edit(Program $program, JadwalPetugas $jadwalPetugas)
     {
         $users = User::orderBy('name')->get();
-        return view('admin.petugas.edit', compact('program', 'jadwalPetugas', 'users'));
+        $penyiars = User::where('role', 'penyiar')->orderBy('name')->get();
+        $jadwalPetugas->load('penyiars'); // Eager load penyiar untuk form edit
+        return view('admin.petugas.edit', compact('program', 'jadwalPetugas', 'users', 'penyiars'));
     }
 
     public function update(Request $request, Program $program, JadwalPetugas $jadwalPetugas)
@@ -729,12 +740,14 @@ class JadwalPetugasController extends Controller
             'pengelola_pep_id' => 'nullable|exists:users,id',
             'pengarah_acara_id' => 'nullable|exists:users,id',
             'petugas_lpu_id' => 'nullable|exists:users,id',
-            'penyiar_dinas_id' => 'nullable|exists:users,id',
+            'penyiars' => 'nullable|array',
+            'penyiars.*' => 'exists:users,id',
         ], [
             'tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.',
         ]);
-        
-        $jadwalPetugas->update($request->all());
+
+        $jadwalPetugas->update($request->except('penyiars'));
+        $jadwalPetugas->penyiars()->sync($request->input('penyiars', []));
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil diperbarui.');
@@ -942,6 +955,24 @@ class SequenceController extends Controller
             ->with('success', 'Sequence berhasil diperbarui.');
     }
 
+    public function updatePendengar(Request $request, Sequence $sequence)
+    {
+        // Otorisasi: hanya host dari sequence ini yang boleh update
+        if (Auth::user()->role === 'penyiar' && $sequence->host_id != Auth::id()) {
+            abort(403, 'AKSES DITOLAK.');
+        }
+
+        $request->validate([
+            'jumlah_pendengar' => 'required|integer|min:0',
+        ]);
+
+        $sequence->update([
+            'jumlah_pendengar' => $request->jumlah_pendengar,
+        ]);
+
+        return back()->with('success', 'Jumlah pendengar berhasil disimpan.');
+    }
+
     public function destroy(Sequence $sequence)
     {
         $program = $sequence->program;
@@ -1039,29 +1070,21 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $users = User::latest()->paginate(10);
         return view('admin.users.index', compact('users'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('admin.users.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $request->validate([
@@ -1069,12 +1092,6 @@ class UserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', Rule::in(['admin', 'penyiar', 'katim', 'kepsta'])],
-            'nik' => ['required_if:role,penyiar', 'nullable', 'string', 'max:16', 'unique:users,nik'],
-            'tempat_lahir' => ['required_if:role,penyiar', 'nullable', 'string', 'max:100'],
-            'tanggal_lahir' => ['required_if:role,penyiar', 'nullable', 'date'],
-            'agama' => ['required_if:role,penyiar', 'nullable', 'string'],
-            'jenis_kelamin' => ['required_if:role,penyiar', 'nullable', 'string'],
-            'no_telp' => ['required_if:role,penyiar', 'nullable', 'string', 'max:15'],
         ]);
 
         User::create([
@@ -1082,28 +1099,16 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'nik' => $request->nik,
-            'tempat_lahir' => $request->tempat_lahir,
-            'tanggal_lahir' => $request->tanggal_lahir,
-            'agama' => $request->agama,
-            'jenis_kelamin' => $request->jenis_kelamin,
-            'no_telp' => $request->no_telp,
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(User $user)
     {
         return view('admin.users.edit', compact('user'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -1111,12 +1116,6 @@ class UserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', Rule::in(['admin', 'penyiar', 'katim', 'kepsta'])],
-            'nik' => ['required_if:role,penyiar', 'nullable', 'string', 'max:16', Rule::unique(User::class)->ignore($user->id)],
-            'tempat_lahir' => ['required_if:role,penyiar', 'nullable', 'string', 'max:100'],
-            'tanggal_lahir' => ['required_if:role,penyiar', 'nullable', 'date'],
-            'agama' => ['required_if:role,penyiar', 'nullable', 'string'],
-            'jenis_kelamin' => ['required_if:role,penyiar', 'nullable', 'string'],
-            'no_telp' => ['required_if:role,penyiar', 'nullable', 'string', 'max:15'],
         ]);
 
         $data = $request->except('password');
@@ -1129,12 +1128,8 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(User $user)
     {
-        // Optional: Tambahkan pengecekan agar user tidak bisa menghapus dirinya sendiri
         if ($user->id === Auth::user()->id) {
             return redirect()->route('admin.users.index')->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
@@ -1600,6 +1595,7 @@ use Illuminate\Http\Request;
 use App\Models\Program;
 use App\Models\JadwalPetugas;
 use Carbon\Carbon;
+use App\Models\Sequence;
 
 
 class LaporanController extends Controller
@@ -1610,11 +1606,9 @@ class LaporanController extends Controller
         $validated = $request->validate(['tanggal' => 'nullable|date_format:Y-m-d']);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
 
-        // Ambil program yang memiliki sequence pada tanggal yang dipilih
+        // Ambil program dan urutkan berdasarkan waktu sequence paling awal
         $programs = Program::with([
-            'sequences' => function ($query) use ($tanggal) {
-                // Eager load hanya sequence yang relevan (meskipun tidak ada kolom tanggal di sequence, ini untuk relasi)
-                // Filter utama ada di whereHas
+            'sequences' => function ($query) {
                 $query->orderBy('waktu', 'asc');
             },
             'sequences.host',
@@ -1624,14 +1618,22 @@ class LaporanController extends Controller
             'sequences.items.materiDetails',
             'sequences.items.itemDetails'
         ])
-        ->whereHas('sequences') // Hanya program yang punya sequence
+        ->whereHas('jadwalPetugas', function ($query) use ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
+        })
+        ->orderBy(
+            Sequence::select('waktu')
+                ->whereColumn('program_id', 'programs.id')
+                ->orderBy('waktu', 'asc')
+                ->limit(1)
+        )
         ->get();
 
         // Ambil data petugas untuk semua program pada tanggal yang dipilih
-        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiarDinas')
+        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()
-            ->keyBy('program_id'); // Jadikan program_id sebagai key untuk pencarian mudah di view
+            ->keyBy('program_id');
 
         return view('laporan.jadwal', compact('programs', 'jadwalPetugas', 'tanggal'));
     }
@@ -1641,19 +1643,27 @@ class LaporanController extends Controller
         // Logika pengambilan data sama persis dengan method index
         $validated = $request->validate(['tanggal' => 'nullable|date_format:Y-m-d']);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
-
+        
         $programs = Program::with([
             'sequences' => function ($query) { $query->orderBy('waktu', 'asc'); },
             'sequences.host', 'sequences.items' => function ($query) { $query->orderBy('id', 'asc'); },
             'sequences.items.materiDetails', 'sequences.items.itemDetails'
         ])
-        ->whereHas('sequences')->get();
+        ->whereHas('jadwalPetugas', function ($query) use ($tanggal) {
+            $query->whereDate('tanggal', $tanggal);
+        })
+        ->orderBy(
+            Sequence::select('waktu')
+                ->whereColumn('program_id', 'programs.id')
+                ->orderBy('waktu', 'asc')
+                ->limit(1)
+        )
+        ->get();
 
-        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiarDinas')
+        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()->keyBy('program_id');
         
-        // Panggil view yang berbeda, yaitu jadwal_print
         return view('laporan.jadwal_print', compact('programs', 'jadwalPetugas', 'tanggal'));
     }
 }
@@ -1764,6 +1774,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class JadwalPetugas extends Model
 {
@@ -1778,7 +1789,6 @@ class JadwalPetugas extends Model
         'pengelola_pep_id',
         'pengarah_acara_id',
         'petugas_lpu_id',
-        'penyiar_dinas_id',
         'dibuat_oleh',
     ];
 
@@ -1807,9 +1817,9 @@ class JadwalPetugas extends Model
         return $this->belongsTo(User::class, 'petugas_lpu_id');
     }
     
-    public function penyiarDinas(): BelongsTo
+    public function penyiars(): BelongsToMany
     {
-        return $this->belongsTo(User::class, 'penyiar_dinas_id');
+        return $this->belongsToMany(User::class, 'jadwal_penyiar', 'jadwal_petugas_id', 'penyiar_id');
     }
 
     public function pembuat(): BelongsTo
@@ -1906,6 +1916,7 @@ class Sequence extends Model
         'frame',
         'durasi',
         'dibuat_oleh',
+        'jumlah_pendengar',
     ];
 
     public function program(): BelongsTo
@@ -2568,24 +2579,38 @@ class SequenceItem extends Model
             'pengelola_pep_id' => 'Pengelola PEP',
             'pengarah_acara_id' => 'Pengarah Acara',
             'petugas_lpu_id' => 'Petugas LPU',
-            'penyiar_dinas_id' => 'Penyiar Dinas',
         ];
     @endphp
 
-    @foreach($roles as $field => $label)
-    <div>
-        <x-input-label :for="$field" :value="$label" />
-        <select :id="$field" :name="$field" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-            <option value="">-- Pilih Petugas --</option>
-            @foreach($users as $user)
-                <option value="{{ $user->id }}" @selected(old($field, $jadwalPetugas->$field ?? '') == $user->id)>
-                    {{ $user->name }}
+    @foreach ($roles as $field => $label)
+        <div>
+            <x-input-label :for="$field" :value="$label" />
+            <select id="{{ $field }}" name="{{ $field }}"
+                class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                <option value="">-- Pilih Petugas --</option>
+                @foreach ($users as $user)
+                    <option value="{{ $user->id }}" @selected(old($field, $jadwalPetugas->$field ?? '') == $user->id)>
+                        {{ $user->name }}
+                    </option>
+                @endforeach
+            </select>
+            <x-input-error :messages="$errors->get($field)" class="mt-2" />
+        </div>
+    @endforeach
+    <div class="md:col-span-2">
+        <x-input-label for="penyiars" value="Penyiar Bertugas (bisa pilih lebih dari satu)" />
+        <select id="penyiars" name="penyiars[]" multiple class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+            @php
+                $selectedPenyiars = old('penyiars', $jadwalPetugas->penyiars->pluck('id')->all() ?? []);
+            @endphp
+            @foreach($penyiars as $penyiar)
+                <option value="{{ $penyiar->id }}" @selected(in_array($penyiar->id, $selectedPenyiars))>
+                    {{ $penyiar->name }}
                 </option>
             @endforeach
         </select>
-        <x-input-error :messages="$errors->get($field)" class="mt-2" />
+        <x-input-error :messages="$errors->get('penyiars')" class="mt-2" />
     </div>
-    @endforeach
 </div>
 
 ===== resources\views\admin\programs\create.blade.php =====
@@ -3112,7 +3137,7 @@ class SequenceItem extends Model
                         </div>
 
                         {{-- Biodata Penyiar (muncul jika role adalah 'penyiar') --}}
-                        <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
+                        {{-- <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
                              <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Penyiar</h3>
                              <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <!-- NIK -->
@@ -3167,7 +3192,7 @@ class SequenceItem extends Model
                                     <x-input-error :messages="$errors->get('no_telp')" class="mt-2" />
                                 </div>
                              </div>
-                        </div>
+                        </div> --}}
 
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
@@ -3195,43 +3220,38 @@ class SequenceItem extends Model
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900" x-data="{ role: '{{ old('role', $user->role) }}' }">
+                <div class="p-6 text-gray-900">
                     <form method="POST" action="{{ route('admin.users.update', $user->id) }}">
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Nama Lengkap -->
                             <div>
                                 <x-input-label for="name" :value="__('Nama Lengkap')" />
                                 <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $user->name)" required autofocus />
                                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
                             </div>
 
-                            <!-- Email -->
                             <div>
                                 <x-input-label for="email" :value="__('Email (untuk Login)')" />
                                 <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $user->email)" required />
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </div>
 
-                            <!-- Password -->
                             <div>
                                 <x-input-label for="password" :value="__('Password Baru (Opsional)')" />
                                 <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" />
                                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
                             </div>
 
-                             <!-- Konfirmasi Password -->
-                            <div>
+                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Konfirmasi Password Baru')" />
                                 <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" />
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
 
-                             <!-- Role -->
-                            <div>
+                             <div>
                                 <x-input-label for="role" :value="__('Role')" />
-                                <select id="role" name="role" x-model="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <select id="role" name="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                     <option value="admin" @selected(old('role', $user->role) == 'admin')>Admin</option>
                                     <option value="penyiar" @selected(old('role', $user->role) == 'penyiar')>Penyiar</option>
                                     <option value="katim" @selected(old('role', $user->role) == 'katim')>Katim</option>
@@ -3239,64 +3259,6 @@ class SequenceItem extends Model
                                 </select>
                                 <x-input-error :messages="$errors->get('role')" class="mt-2" />
                             </div>
-                        </div>
-
-                        {{-- Biodata Penyiar (muncul jika role adalah 'penyiar') --}}
-                        <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
-                             <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Penyiar</h3>
-                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- NIK -->
-                                <div>
-                                    <x-input-label for="nik" :value="__('NIK')" />
-                                    <x-text-input id="nik" class="block mt-1 w-full" type="text" name="nik" :value="old('nik', $user->nik)" />
-                                    <x-input-error :messages="$errors->get('nik')" class="mt-2" />
-                                </div>
-                                
-                                <!-- Tempat Lahir -->
-                                <div>
-                                    <x-input-label for="tempat_lahir" :value="__('Tempat Lahir')" />
-                                    <x-text-input id="tempat_lahir" class="block mt-1 w-full" type="text" name="tempat_lahir" :value="old('tempat_lahir', $user->tempat_lahir)" />
-                                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
-                                </div>
-
-                                <!-- Tanggal Lahir -->
-                                <div>
-                                    <x-input-label for="tanggal_lahir" :value="__('Tanggal Lahir')" />
-                                    <x-text-input id="tanggal_lahir" class="block mt-1 w-full" type="date" name="tanggal_lahir" :value="old('tanggal_lahir', $user->tanggal_lahir?->format('Y-m-d'))" />
-                                    <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
-                                </div>
-
-                                <!-- Agama -->
-                                <div>
-                                    <x-input-label for="agama" :value="__('Agama')" />
-                                    <select id="agama" name="agama" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                        <option value="Islam" {{ old('agama', $user->agama) == 'Islam' ? 'selected' : '' }}>Islam</option>
-                                        <option value="Kristen" {{ old('agama', $user->agama) == 'Kristen' ? 'selected' : '' }}>Kristen</option>
-                                        <option value="Katolik" {{ old('agama', $user->agama) == 'Katolik' ? 'selected' : '' }}>Katolik</option>
-                                        <option value="Hindu" {{ old('agama', $user->agama) == 'Hindu' ? 'selected' : '' }}>Hindu</option>
-                                        <option value="Buddha" {{ old('agama', $user->agama) == 'Buddha' ? 'selected' : '' }}>Buddha</option>
-                                        <option value="Khonghucu" {{ old('agama', $user->agama) == 'Khonghucu' ? 'selected' : '' }}>Khonghucu</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('agama')" class="mt-2" />
-                                </div>
-
-                                <!-- Jenis Kelamin -->
-                                <div>
-                                    <x-input-label for="jenis_kelamin" :value="__('Jenis Kelamin')" />
-                                    <select id="jenis_kelamin" name="jenis_kelamin" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                        <option value="Laki-laki" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="Perempuan" {{ old('jenis_kelamin', $user->jenis_kelamin) == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
-                                </div>
-
-                                <!-- Nomor Telepon -->
-                                <div>
-                                    <x-input-label for="no_telp" :value="__('Nomor Telepon')" />
-                                    <x-text-input id="no_telp" class="block mt-1 w-full" type="text" name="no_telp" :value="old('no_telp', $user->no_telp)" />
-                                    <x-input-error :messages="$errors->get('no_telp')" class="mt-2" />
-                                </div>
-                             </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
@@ -3365,6 +3327,7 @@ class SequenceItem extends Model
                         <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
                             <thead class="bg-gray-100 text-gray-700">
                                 <tr>
+                                    <th class="px-4 py-3 font-semibold text-left">No</th>
                                     <th class="px-4 py-3 font-semibold text-left">Nama</th>
                                     <th class="px-4 py-3 font-semibold text-left">Email</th>
                                     <th class="px-4 py-3 font-semibold text-left">Role</th>
@@ -3374,6 +3337,7 @@ class SequenceItem extends Model
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($users as $user)
                                 <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ $user->name }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
                                     <td class="px-4 py-3">
@@ -3912,7 +3876,8 @@ $classes = ($active ?? false)
             {{ __('Laporan Daftar Acara Siaran') }}
         </h2>
     </x-slot>
-     <div class="py-12">
+
+    <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 no-print">
@@ -3935,117 +3900,109 @@ $classes = ($active ?? false)
                 </div>
             </div>
 
-            {{-- Area ini yang akan dicetak --}}
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg printable-area">
-                <div class="p-6 text-gray-900">
-                    <h3 class="text-center font-bold text-lg">DAFTAR ACARA SIARAN</h3>
-                    <h4 class="text-center font-semibold text-md mb-4">{{ $tanggal->isoFormat('dddd, D MMMM Y') }}</h4>
-
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full border-collapse border border-gray-300 text-sm">
-                            <thead class="bg-gray-100 text-left">
-                                <tr>
-                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
-                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                                    <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
-                                    <th class="border border-gray-300 px-4 py-2 w-4/12">Materi Siar</th>
-                                    <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse ($programs as $program)
-                                    @php
-                                        $programRowspan = 0;
-                                        foreach ($program->sequences as $sequence) {
-                                            $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                                        }
-                                    @endphp
-                                    <tr>
-                                        <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
-                                        @foreach ($program->sequences as $sequenceIndex => $sequence)
-                                            @php
-                                                $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                                            @endphp
-                                            @if ($sequenceIndex > 0) <tr> @endif
-                                            <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                                            <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">{{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host: {{ $sequence->host->name ?? 'N/A' }}</small></td>
-                                            @forelse ($sequence->items as $itemIndex => $item)
-                                                @if ($itemIndex > 0) <tr> @endif
-                                                <td class="border border-gray-300 px-4 py-2 align-top">
-                                                    {{ $item->materi }}
-                                                    @if($item->materiDetails->isNotEmpty())
-                                                        <ol class="list-decimal list-inside mt-1 pl-2">
-                                                            @foreach($item->materiDetails as $detail)
-                                                                <li class="text-gray-600">{{ $detail->isi }}</li>
-                                                            @endforeach
-                                                        </ol>
-                                                    @endif
-                                                </td>
-                                                <td class="border border-gray-300 px-4 py-2 align-top">
-                                                    @if($item->keterangan)<p class="mb-2 italic text-gray-700">{{ $item->keterangan }}</p>@endif
-                                                    @if($item->itemDetails->isNotEmpty())
-                                                        @foreach($item->itemDetails->groupBy('jenis') as $jenis => $details)
-                                                            <p class="font-semibold capitalize">{{ $jenis }}:</p>
-                                                            <ol class="list-decimal list-inside pl-4 mb-2">
-                                                                @foreach($details as $detail)
-                                                                    <li>{{ $detail->isi }}</li>
-                                                                @endforeach
-                                                            </ol>
-                                                        @endforeach
-                                                    @endif
-                                                </td>
-                                                </tr>
-                                            @empty
-                                                <td class="border border-gray-300 px-4 py-2 align-top"></td>
-                                                <td class="border border-gray-300 px-4 py-2 align-top"></td>
-                                                </tr>
-                                            @endforelse
-                                        @endforeach
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="text-center py-4 text-gray-500">Jadwal siaran belum tersedia.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div x-data="{ activeTab: {{ $programs->first()->id ?? 'null' }} }">
+                    <div class="px-4 border-b border-gray-200">
+                        <nav class="-mb-px flex space-x-3" aria-label="Tabs">
+                            @foreach ($programs as $program)
+                                <button @click="activeTab = {{ $program->id }}"
+                                        :class="activeTab === {{ $program->id }} ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                                        class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none">
+                                    {{ $program->alias ?? $program->nama }}
+                                </button>
+                            @endforeach
+                        </nav>
                     </div>
 
-                    {{-- <div class="mt-12">
-                        @foreach($programs as $program)
-                            @php $petugas = $jadwalPetugas->get($program->id); @endphp
-                            @if($petugas)
-                            <div class="mb-10 signature-block">
-                                <h3 class="font-bold text-center mb-4 uppercase">PETUGAS - {{ $program->nama }}</h3>
-                                <table class="w-full text-sm mb-4">
-                                    <tr><td class="w-1/4">Nama Daypart</td><td>: {{ $program->nama }}</td></tr>
-                                    <tr><td>Produser</td><td>: {{ $petugas->produser->name ?? '-' }}</td></tr>
-                                    <tr><td>Pengelola PEP</td><td>: {{ $petugas->pengelolaPep->name ?? '-' }}</td></tr>
-                                    <tr><td>Pengarah Acara</td><td>: {{ $petugas->pengarahAcara->name ?? '-' }}</td></tr>
-                                    <tr><td>Petugas LPU</td><td>: {{ $petugas->petugasLpu->name ?? '-' }}</td></tr>
-                                    <tr><td>Penyiar</td><td>: {{ $petugas->penyiarDinas->name ?? '-' }}</td></tr>
-                                </table>
-                                <p class="text-sm mt-4">Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
-                                <p class="text-sm">Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
-                                <div class="mt-8 grid grid-cols-3 gap-4 text-center">
-                                    <div>
-                                        <p class="mb-16">Penyiar Dinas</p>
-                                        <p class="font-semibold underline">({{ $petugas->penyiarDinas->name ?? '____________________' }})</p>
-                                    </div>
-                                    <div>
-                                        <p class="mb-16">Pengelola Pro 2</p>
-                                        <p class="font-semibold underline">({{ $petugas->pengelolaPep->name ?? '____________________' }})</p>
-                                    </div>
-                                    <div>
-                                        <p class="mb-16">Petugas LPU</p>
-                                        <p class="font-semibold underline">({{ $petugas->petugasLpu->name ?? '____________________' }})</p>
+                    <div>
+                        @forelse ($programs as $program)
+                            <div x-show="activeTab === {{ $program->id }}" x-cloak class="printable-area">
+                                <div class="p-6 text-gray-900">
+                                    <h3 class="text-center font-bold text-lg">DAFTAR ACARA SIARAN</h3>
+                                    <h4 class="text-center font-semibold text-md mb-4">{{ $tanggal->isoFormat('dddd, D MMMM Y') }}</h4>
+
+                                    <div class="overflow-x-auto">
+                                        <table class="min-w-full border-collapse border border-gray-300 text-sm">
+                                            <thead class="bg-gray-100 text-left">
+                                                <tr>
+                                                    {{-- PENYESUAIAN LEBAR KOLOM --}}
+                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
+                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
+                                                    <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
+                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Jumlah Pendengar</th> {{-- TAMBAHAN --}}
+                                                    <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
+                                                    <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @php
+                                                    $programRowspan = 0;
+                                                    foreach ($program->sequences as $sequence) {
+                                                        $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                                                    }
+                                                @endphp
+                                                <tr>
+                                                    <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
+                                                    @foreach ($program->sequences as $sequenceIndex => $sequence)
+                                                        @php
+                                                            $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                                                        @endphp
+                                                        @if ($sequenceIndex > 0) <tr> @endif
+                                                        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                                        <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">{{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host: {{ $sequence->host->name ?? 'N/A' }}</small></td>
+                                                        
+                                                        {{-- TAMBAHAN: Kolom Jumlah Pendengar --}}
+                                                        <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
+                                                            <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
+                                                        </td>
+
+                                                        @forelse ($sequence->items as $itemIndex => $item)
+                                                            @if ($itemIndex > 0) <tr> @endif
+                                                            <td class="border border-gray-300 px-4 py-2 align-top">
+                                                                {{ $item->materi }}
+                                                                @if($item->materiDetails->isNotEmpty())
+                                                                    <ol class="list-decimal list-inside mt-1 pl-2">
+                                                                        @foreach($item->materiDetails as $detail)
+                                                                            <li class="text-gray-600">{{ $detail->isi }}</li>
+                                                                        @endforeach
+                                                                    </ol>
+                                                                @endif
+                                                            </td>
+                                                            <td class="border border-gray-300 px-4 py-2 align-top">
+                                                                @if($item->keterangan)<p class="mb-2 italic text-gray-700">{{ $item->keterangan }}</p>@endif
+                                                                @if($item->itemDetails->isNotEmpty())
+                                                                    @foreach($item->itemDetails->groupBy('jenis') as $jenis => $details)
+                                                                        <p class="font-semibold capitalize">{{ $jenis }}:</p>
+                                                                        <ol class="list-decimal list-inside pl-4 mb-2">
+                                                                            @foreach($details as $detail)
+                                                                                <li>{{ $detail->isi }}</li>
+                                                                            @endforeach
+                                                                        </ol>
+                                                                    @endforeach
+                                                                @endif
+                                                            </td>
+                                                            </tr>
+                                                        @empty
+                                                            <td class="border border-gray-300 px-4 py-2 align-top"></td>
+                                                            <td class="border border-gray-300 px-4 py-2 align-top"></td>
+                                                            </tr>
+                                                        @endforelse
+                                                    @endforeach
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
-                            @endif
-                        @endforeach
-                    </div> --}}
+                        @empty
+                            <div class="p-6 text-center text-gray-500">
+                                Jadwal siaran belum tersedia untuk tanggal yang dipilih.
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>
@@ -4149,6 +4106,7 @@ $classes = ($active ?? false)
                     <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
                     <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
                     <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
+                    <th class="border border-gray-300 px-4 py-2 w-1/12">Jumlah Pendengar</th>
                     <th class="border border-gray-300 px-4 py-2 w-4/12">Materi Siar</th>
                     <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
                 </tr>
@@ -4176,6 +4134,9 @@ $classes = ($active ?? false)
                 <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
                     {{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host:
                         {{ $sequence->host->name ?? 'N/A' }}</small></td>
+                <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
+                    <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
+                </td>
                 @forelse ($sequence->items as $itemIndex => $item)
                     @if ($itemIndex > 0)
                         <tr>
@@ -4250,7 +4211,7 @@ $classes = ($active ?? false)
                                 </tr>
                                 <tr>
                                     <td>Penyiar</td>
-                                    <td>: {{ $petugas->penyiarDinas->name ?? '-' }}</td>
+                                    <td>: {{ $petugas->penyiars->isNotEmpty() ? $petugas->penyiars->pluck('name')->implode(', ') : '-' }}</td>
                                 </tr>
                             </table>
                             <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
@@ -4259,7 +4220,7 @@ $classes = ($active ?? false)
                                 <div>
                                     Penyiar Dinas<br><br><br><br>
                                     <span
-                                        class="font-semibold underline">({{ $petugas->penyiarDinas->name ?? '____________________' }})</span>
+                                        class="font-semibold underline">({{ $petugas->penyiars->isNotEmpty() ? $petugas->penyiars->pluck('name')->implode(', ') : '____________________' }})</span>
                                 </div>
                                 <div>
                                     Pengelola Pro 2<br><br><br><br>
@@ -4523,6 +4484,13 @@ $classes = ($active ?? false)
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
+
+                    @if (session('success'))
+                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+                            <span class="block sm:inline">{{ session('success') }}</span>
+                        </div>
+                    @endif
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
                             <thead class="text-left">
@@ -4530,6 +4498,7 @@ $classes = ($active ?? false)
                                     <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Program</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama Sequence</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Waktu</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Jml. Pendengar</th>
                                     <th class="px-4 py-2"></th>
                                 </tr>
                             </thead>
@@ -4540,6 +4509,16 @@ $classes = ($active ?? false)
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $sequence->nama }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
+                                        {{-- AWAL MODIFIKASI: Form Input Jumlah Pendengar --}}
+                                        <form action="{{ route('penyiar.sequences.pendengar.update', $sequence) }}" method="POST" class="flex items-center gap-2">
+                                            @csrf
+                                            @method('PATCH')
+                                            <input type="number" name="jumlah_pendengar" value="{{ $sequence->jumlah_pendengar }}" class="w-24 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm py-1">
+                                            <button type="submit" class="px-2 py-1 bg-indigo-600 text-white text-xs font-semibold rounded hover:bg-indigo-700">Simpan</button>
+                                        </form>
+                                        {{-- AKHIR MODIFIKASI --}}
+                                    </td>
+                                    <td class="whitespace-nowrap px-4 py-2">
                                         <a href="{{ route('penyiar.sequences.items.index', $sequence) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">
                                             Isi Materi Siaran &raquo;
                                         </a>
@@ -4547,7 +4526,7 @@ $classes = ($active ?? false)
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="4" class="text-center py-4 text-gray-500">
+                                    <td colspan="5" class="text-center py-4 text-gray-500">
                                         Anda belum memiliki jadwal siaran yang ditugaskan.
                                     </td>
                                 </tr>
@@ -4919,12 +4898,12 @@ $classes = ($active ?? false)
                         <p class="mt-6 max-w-2xl mx-auto text-lg leading-8 text-slate-400">
                             Tinggalkan cara manual. Sambut era baru penjadwalan siaran yang terintegrasi, cepat, dan bebas dari kesalahan.
                         </p>
-                        <div class="mt-10">
+                        {{-- <div class="mt-10">
                             <a href="{{ route('dashboard') }}" 
                                class="inline-block bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
                                 Mulai Sekarang &rarr;
                             </a>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </section>
@@ -5088,8 +5067,26 @@ exit($status);
 import './bootstrap';
 
 import Alpine from 'alpinejs';
+import TomSelect from 'tom-select';
+
 
 window.Alpine = Alpine;
+
+document.addEventListener('DOMContentLoaded', function () {
+    const el = document.getElementById('penyiars');
+    if (el) {
+        new TomSelect(el, {
+            plugins: {
+                remove_button: {
+                    title: 'Hapus item ini',
+                }
+            },
+            create: false,
+            maxItems: null,
+            placeholder: 'Pilih satu atau lebih penyiar...'
+        });
+    }
+});
 
 Alpine.start();
 

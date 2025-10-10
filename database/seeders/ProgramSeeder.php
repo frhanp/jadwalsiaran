@@ -15,23 +15,40 @@ class ProgramSeeder extends Seeder
     public function run(): void
     {
         Program::query()->delete();
-        // Cari user admin pertama untuk dijadikan pembuat program
+        
         $admin = User::where('role', 'admin')->first();
 
-        if ($admin) {
-            Program::create([
-                'nama' => 'Selamat Pagi Teman Pro2',
+        $programs = [
+            [
+                'nama' => 'SELAMAT PAGI TEMAN PRO2',
                 'alias' => 'SPADA',
                 'deskripsi' => 'Program pagi hari yang menyajikan musik dan informasi ringan.',
-                'dibuat_oleh' => $admin->id,
-            ]);
+            ],
+            [
+                'nama' => 'SANTAI SIANG',
+                'alias' => 'SASI',
+                'deskripsi' => 'Program musik santai di siang hari.',
+            ],
+            [
+                'nama' => 'SORE CERIA',
+                'alias' => 'SOCER',
+                'deskripsi' => 'Menemani sore hari dengan lagu-lagu ceria.',
+            ],
+            [
+                'nama' => 'JAGA MALAM',
+                'alias' => 'JAMAL',
+                'deskripsi' => 'Program malam hari dengan musik syahdu.',
+            ],
+        ];
 
+        foreach ($programs as $program) {
             Program::create([
-                'nama' => 'Zona Indie',
-                'alias' => 'ZODIE',
-                'deskripsi' => 'Kumpulan lagu-lagu indie terbaik.',
+                'nama' => $program['nama'],
+                'alias' => $program['alias'],
+                'deskripsi' => $program['deskripsi'],
                 'dibuat_oleh' => $admin->id,
             ]);
         }
+    
     }   
 }
