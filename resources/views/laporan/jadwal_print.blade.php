@@ -202,19 +202,19 @@
                     </tr>
                     <tr>
                         <td>Produser</td>
-                        <td>: {{ $petugas->produser->name ?? '-' }}</td>
+                        <td>: {{ $petugas->produser_nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Pengelola PEP</td>
-                        <td>: {{ $petugas->pengelolaPep->name ?? '-' }}</td>
+                        <td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Pengarah Acara</td>
-                        <td>: {{ $petugas->pengarahAcara->name ?? '-' }}</td>
+                        <td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Petugas LPU</td>
-                        <td>: {{ $petugas->petugasLpu->name ?? '-' }}</td>
+                        <td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td>Penyiar</td>
@@ -233,13 +233,12 @@
                     </div>
                     <div>
                         Pengelola Pro 2<br><br><br><br>
-                        <span
-                            class="font-semibold underline">({{ $petugas->pengelolaPep->name ?? '____________________' }})</span>
+                        <span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span>
                     </div>
                     <div>
                         Petugas LPU<br><br><br><br>
                         <span
-                            class="font-semibold underline">({{ $petugas->petugasLpu->name ?? '____________________' }})</span>
+                            class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span>
                     </div>
                 </div>
             </div>

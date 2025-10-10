@@ -16,36 +16,16 @@ class JadwalPetugas extends Model
     protected $fillable = [
         'tanggal',
         'program_id',
-        'produser_id',
-        'pengelola_pep_id',
-        'pengarah_acara_id',
-        'petugas_lpu_id',
+        'produser_nama',
+        'pengelola_pep_nama',
+        'pengarah_acara_nama',
+        'petugas_lpu_nama',
         'dibuat_oleh',
-    ];
+    ];  
 
     public function program(): BelongsTo
     {
         return $this->belongsTo(Program::class);
-    }
-
-    public function produser(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'produser_id');
-    }
-
-    public function pengelolaPep(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pengelola_pep_id');
-    }
-
-    public function pengarahAcara(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'pengarah_acara_id');
-    }
-
-    public function petugasLpu(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'petugas_lpu_id');
     }
     
     public function penyiars(): BelongsToMany

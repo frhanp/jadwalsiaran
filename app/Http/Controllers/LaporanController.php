@@ -41,7 +41,7 @@ class LaporanController extends Controller
         ->get();
 
         // Ambil data petugas untuk semua program pada tanggal yang dipilih
-        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
+        $jadwalPetugas = JadwalPetugas::with('penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()
             ->keyBy('program_id');
@@ -51,7 +51,7 @@ class LaporanController extends Controller
 
     public function cetak(Request $request)
     {
-        // AWAL MODIFIKASI: Tambah validasi dan logika filter program
+        
         $validated = $request->validate([
             'tanggal' => 'nullable|date_format:Y-m-d',
             'program' => 'nullable|exists:programs,id' // Validasi ID program
@@ -80,9 +80,9 @@ class LaporanController extends Controller
                 ->limit(1)
         )
         ->get();
-        // AKHIR MODIFIKASI
+        
 
-        $jadwalPetugas = JadwalPetugas::with('produser', 'pengelolaPep', 'pengarahAcara', 'petugasLpu', 'penyiars')
+        $jadwalPetugas = JadwalPetugas::with('penyiars')
             ->where('tanggal', $tanggal->format('Y-m-d'))
             ->get()->keyBy('program_id');
         
