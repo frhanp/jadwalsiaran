@@ -36,7 +36,7 @@
                                 <button @click="activeTab = {{ $program->id }}"
                                         :class="activeTab === {{ $program->id }} ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
                                         class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none">
-                                    {{ $program->alias ?? $program->nama }}
+                                    {{  $program->nama }}
                                 </button>
                             @endforeach
                         </nav>
