@@ -14,7 +14,8 @@ class JadwalController extends Controller
      */
     public function index()
     {
-        $sequences = Sequence::with('program')
+        $sequences = Sequence::with('program.studio')
+
             ->where('host_id', Auth::id())
             ->orderBy('waktu', 'asc')
             ->paginate(15);

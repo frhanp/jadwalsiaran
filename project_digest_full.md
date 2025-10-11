@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-11 01:17:34_
+_Generated: 2025-10-11 08:41:31_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -55,6 +55,7 @@ app\Http\Controllers\Admin\MateriDetailController.php
 app\Http\Controllers\Admin\ProgramController.php
 app\Http\Controllers\Admin\SequenceController.php
 app\Http\Controllers\Admin\SequenceItemController.php
+app\Http\Controllers\Admin\StudioController.php
 app\Http\Controllers\Admin\UserController.php
 app\Http\Controllers\Auth\AuthenticatedSessionController.php
 app\Http\Controllers\Auth\ConfirmablePasswordController.php
@@ -76,6 +77,7 @@ app\Models\MateriDetail.php
 app\Models\Program.php
 app\Models\Sequence.php
 app\Models\SequenceItem.php
+app\Models\Studio.php
 app\Models\User.php
 app\Providers\AppServiceProvider.php
 app\View\Components
@@ -115,14 +117,18 @@ database\migrations\2025_09_27_074706_create_jadwal_petugas_table.php
 database\migrations\2025_10_10_003852_modify_penyiar_relationship_in_jadwal_petugas_table.php
 database\migrations\2025_10_10_115757_add_jumlah_pendengar_to_sequences_table.php
 database\migrations\2025_10_10_130544_change_petugas_ids_to_names_in_jadwal_petugas_table.php
+database\migrations\2025_10_10_171922_create_studios_table.php
+database\migrations\2025_10_10_171944_add_studio_id_to_programs_table.php
 database\seeders\DatabaseSeeder.php
 database\seeders\JadwalPetugasSeeder.php
 database\seeders\ProgramSeeder.php
 database\seeders\ScheduleContentSeeder.php
+database\seeders\StudioSeeder.php
 database\seeders\UserSeeder.php
 public\build
 public\.htaccess
 public\favicon.ico
+public\hot
 public\index.php
 public\robots.txt
 resources\css
@@ -147,6 +153,7 @@ resources\views\admin\materi-details
 resources\views\admin\petugas
 resources\views\admin\programs
 resources\views\admin\sequences
+resources\views\admin\studios
 resources\views\admin\users
 resources\views\admin\item-details\manage.blade.php
 resources\views\admin\items\create.blade.php
@@ -163,6 +170,9 @@ resources\views\admin\programs\index.blade.php
 resources\views\admin\sequences\create.blade.php
 resources\views\admin\sequences\edit.blade.php
 resources\views\admin\sequences\index.blade.php
+resources\views\admin\studios\create.blade.php
+resources\views\admin\studios\edit.blade.php
+resources\views\admin\studios\index.blade.php
 resources\views\admin\users\create.blade.php
 resources\views\admin\users\edit.blade.php
 resources\views\admin\users\index.blade.php
@@ -187,6 +197,7 @@ resources\views\components\secondary-button.blade.php
 resources\views\components\text-input.blade.php
 resources\views\laporan\jadwal.blade.php
 resources\views\laporan\jadwal_print.blade.php
+resources\views\laporan\_tabel_program.blade.php
 resources\views\layouts\app.blade.php
 resources\views\layouts\guest.blade.php
 resources\views\layouts\navigation.blade.php
@@ -237,6 +248,7 @@ storage\framework\views\254d3ac6621c93d737a454bf775eee8b.php
 storage\framework\views\25d27b4217d628ed13819a6a76dbfb57.php
 storage\framework\views\261ff914b65da2fc3d72c0bd41ad8f14.php
 storage\framework\views\2a9e2eebb8128e1a5de2b94cf066fb0a.php
+storage\framework\views\2fd6c1d6fb909050c4d2af731927504c.php
 storage\framework\views\329f5b96f8ca0e543442f19e8f19afb5.php
 storage\framework\views\37eb828fe514f2b9b8d738fe55f10881.php
 storage\framework\views\3bac30ba8c1fc90ba0aa219679a248c1.php
@@ -345,11 +357,11 @@ Branch:
 main
 
 Last 5 commits:
+59d69d1 ubah sequences menjadi seqmen
+a45aceb fix studio v2
+af71858 fix studio v1
 57bb081 revisi minor
 766a3b3 fix logic 1 penyiar saja
-b86dd0d input petugas jadi manual
-51815b4 buat logic cetak DAS
-29efbbf add jumlah pendengar
 ```
 
 
@@ -455,6 +467,7 @@ use App\Http\Controllers\Penyiar\JadwalController;
 use App\Http\Controllers\LaporanController;
 use App\Http\Controllers\Admin\JadwalPetugasController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
 
 
@@ -486,7 +499,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
         Route::resource('programs.petugas', JadwalPetugasController::class)->parameters(['petugas' => 'jadwalPetugas']);
-    });
+        Route::resource('studios', StudioController::class);
+        });
 
     // Grup untuk Penyiar
     Route::middleware(['role:penyiar'])->name('penyiar.')->prefix('penyiar')->group(function () {
@@ -524,87 +538,94 @@ require __DIR__ . '/auth.php';
 ## Routes (from command)
 ```
 
-  GET|HEAD        / .............................................................................................. 
-  GET|HEAD        _debugbar/assets/javascript ........ debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
-  GET|HEAD        _debugbar/assets/stylesheets ..... debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
-  DELETE          _debugbar/cache/{key}/{tags?} debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
-  GET|HEAD        _debugbar/clockwork/{id} debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwoΓÇª
-  GET|HEAD        _debugbar/open ......... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
-  POST            _debugbar/queries/explain debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explΓÇª
-  PUT|PATCH       admin/items/{item} .................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          admin/items/{item} .................. admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        admin/items/{item}/edit ................... admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        admin/items/{item}/item-details admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edΓÇª
-  PUT             admin/items/{item}/item-details admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailControlleΓÇª
-  GET|HEAD        admin/items/{item}/materi-details admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailControlΓÇª
-  PUT             admin/items/{item}/materi-details admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailConΓÇª
-  GET|HEAD        admin/programs ............................ admin.programs.index ΓÇ║ Admin\ProgramController@index
-  POST            admin/programs ............................ admin.programs.store ΓÇ║ Admin\ProgramController@store
-  GET|HEAD        admin/programs/create ................... admin.programs.create ΓÇ║ Admin\ProgramController@create
-  GET|HEAD        admin/programs/{program} .................... admin.programs.show ΓÇ║ Admin\ProgramController@show
-  PUT|PATCH       admin/programs/{program} ................ admin.programs.update ΓÇ║ Admin\ProgramController@update
-  DELETE          admin/programs/{program} .............. admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
-  GET|HEAD        admin/programs/{program}/edit ............... admin.programs.edit ΓÇ║ Admin\ProgramController@edit
-  GET|HEAD        admin/programs/{program}/petugas admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@iΓÇª
-  POST            admin/programs/{program}/petugas admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@sΓÇª
-  GET|HEAD        admin/programs/{program}/petugas/create admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasContΓÇª
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.show ΓÇ║ Admin\JadwalPetuΓÇª
-  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.update ΓÇ║ Admin\JadwalPeΓÇª
-  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPΓÇª
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit admin.programs.petugas.edit ΓÇ║ Admin\JadwaΓÇª
-  GET|HEAD        admin/programs/{program}/sequences admin.programs.sequences.index ΓÇ║ Admin\SequenceController@inΓÇª
-  POST            admin/programs/{program}/sequences admin.programs.sequences.store ΓÇ║ Admin\SequenceController@stΓÇª
-  GET|HEAD        admin/programs/{program}/sequences/create admin.programs.sequences.create ΓÇ║ Admin\SequenceContrΓÇª
-  PUT|PATCH       admin/sequences/{sequence} ............ admin.sequences.update ΓÇ║ Admin\SequenceController@update
-  DELETE          admin/sequences/{sequence} .......... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
-  GET|HEAD        admin/sequences/{sequence}/edit ........... admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
-  GET|HEAD        admin/sequences/{sequence}/items admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@indΓÇª
-  POST            admin/sequences/{sequence}/items admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@stoΓÇª
-  GET|HEAD        admin/sequences/{sequence}/items/create admin.sequences.items.create ΓÇ║ Admin\SequenceItemControΓÇª
-  GET|HEAD        admin/users ..................................... admin.users.index ΓÇ║ Admin\UserController@index
-  POST            admin/users ..................................... admin.users.store ΓÇ║ Admin\UserController@store
-  GET|HEAD        admin/users/create ............................ admin.users.create ΓÇ║ Admin\UserController@create
-  GET|HEAD        admin/users/{user} ................................ admin.users.show ΓÇ║ Admin\UserController@show
-  PUT|PATCH       admin/users/{user} ............................ admin.users.update ΓÇ║ Admin\UserController@update
-  DELETE          admin/users/{user} .......................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
-  GET|HEAD        admin/users/{user}/edit ........................... admin.users.edit ΓÇ║ Admin\UserController@edit
-  GET|HEAD        confirm-password .................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
-  POST            confirm-password ...................................... Auth\ConfirmablePasswordController@store
-  GET|HEAD        dashboard ................................................ dashboard ΓÇ║ DashboardController@index
-  POST            email/verification-notification verification.send ΓÇ║ Auth\EmailVerificationNotificationControlleΓÇª
-  GET|HEAD        forgot-password ..................... password.request ΓÇ║ Auth\PasswordResetLinkController@create
-  POST            forgot-password ........................ password.email ΓÇ║ Auth\PasswordResetLinkController@store
-  GET|HEAD        laporan/jadwal-harian .......................... laporan.jadwal.harian ΓÇ║ LaporanController@index
-  GET|HEAD        laporan/jadwal-harian/cetak ..................... laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
-  GET|HEAD        login ....................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
-  POST            login ................................................ Auth\AuthenticatedSessionController@store
-  POST            logout .................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
-  PUT             password ...................................... password.update ΓÇ║ Auth\PasswordController@update
-  PUT|PATCH       penyiar/items/{item} ................ penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          penyiar/items/{item} .............. penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        penyiar/items/{item}/edit ............... penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        penyiar/items/{item}/item-details penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailControlleΓÇª
-  PUT             penyiar/items/{item}/item-details penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailContrΓÇª
-  GET|HEAD        penyiar/items/{item}/materi-details penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailConΓÇª
-  PUT             penyiar/items/{item}/materi-details penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetaiΓÇª
-  GET|HEAD        penyiar/jadwal ........................... penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
-  GET|HEAD        penyiar/sequences/{sequence}/items penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemControllerΓÇª
-  POST            penyiar/sequences/{sequence}/items penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemControllerΓÇª
-  GET|HEAD        penyiar/sequences/{sequence}/items/create penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemCoΓÇª
-  PATCH           penyiar/sequences/{sequence}/pendengar penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceContrΓÇª
-  GET|HEAD        profile .................................................. profile.edit ΓÇ║ ProfileController@edit
-  PATCH           profile .............................................. profile.update ΓÇ║ ProfileController@update
-  DELETE          profile ............................................ profile.destroy ΓÇ║ ProfileController@destroy
-  GET|HEAD        register ....................................... register ΓÇ║ Auth\RegisteredUserController@create
-  POST            register ................................................... Auth\RegisteredUserController@store
-  POST            reset-password ............................... password.store ΓÇ║ Auth\NewPasswordController@store
-  GET|HEAD        reset-password/{token} ...................... password.reset ΓÇ║ Auth\NewPasswordController@create
-  GET|HEAD        storage/{path} ................................................................... storage.local
-  GET|HEAD        up ............................................................................................. 
-  GET|HEAD        verify-email ...................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
-  GET|HEAD        verify-email/{id}/{hash} ...................... verification.verify ΓÇ║ Auth\VerifyEmailController
+  GET|HEAD        / ......................................................................................................................... 
+  GET|HEAD        _debugbar/assets/javascript ................................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
+  GET|HEAD        _debugbar/assets/stylesheets ................................ debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
+  DELETE          _debugbar/cache/{key}/{tags?} .......................... debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
+  GET|HEAD        _debugbar/clockwork/{id} ......................... debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
+  GET|HEAD        _debugbar/open .................................... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
+  POST            _debugbar/queries/explain ........................ debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
+  PUT|PATCH       admin/items/{item} ............................................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          admin/items/{item} ............................................. admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        admin/items/{item}/edit .............................................. admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        admin/items/{item}/item-details ......................... admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             admin/items/{item}/item-details ................... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        admin/items/{item}/materi-details ................... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             admin/items/{item}/materi-details ............. admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
+  GET|HEAD        admin/programs ....................................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
+  POST            admin/programs ....................................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
+  GET|HEAD        admin/programs/create .............................................. admin.programs.create ΓÇ║ Admin\ProgramController@create
+  GET|HEAD        admin/programs/{program} ............................................... admin.programs.show ΓÇ║ Admin\ProgramController@show
+  PUT|PATCH       admin/programs/{program} ........................................... admin.programs.update ΓÇ║ Admin\ProgramController@update
+  DELETE          admin/programs/{program} ......................................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
+  GET|HEAD        admin/programs/{program}/edit .......................................... admin.programs.edit ΓÇ║ Admin\ProgramController@edit
+  GET|HEAD        admin/programs/{program}/petugas ....................... admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
+  POST            admin/programs/{program}/petugas ....................... admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
+  GET|HEAD        admin/programs/{program}/petugas/create .............. admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} ......... admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasController@show
+  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} ..... admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasController@update
+  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} ... admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasController@destroy
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit .... admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasController@edit
+  GET|HEAD        admin/programs/{program}/sequences ........................ admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
+  POST            admin/programs/{program}/sequences ........................ admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
+  GET|HEAD        admin/programs/{program}/sequences/create ............... admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
+  PUT|PATCH       admin/sequences/{sequence} ....................................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
+  DELETE          admin/sequences/{sequence} ..................................... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
+  GET|HEAD        admin/sequences/{sequence}/edit ...................................... admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
+  GET|HEAD        admin/sequences/{sequence}/items ......................... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            admin/sequences/{sequence}/items ......................... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        admin/sequences/{sequence}/items/create ................ admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  GET|HEAD        admin/studios .......................................................... admin.studios.index ΓÇ║ Admin\StudioController@index
+  POST            admin/studios .......................................................... admin.studios.store ΓÇ║ Admin\StudioController@store
+  GET|HEAD        admin/studios/create ................................................. admin.studios.create ΓÇ║ Admin\StudioController@create
+  GET|HEAD        admin/studios/{studio} ................................................... admin.studios.show ΓÇ║ Admin\StudioController@show
+  PUT|PATCH       admin/studios/{studio} ............................................... admin.studios.update ΓÇ║ Admin\StudioController@update
+  DELETE          admin/studios/{studio} ............................................. admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
+  GET|HEAD        admin/studios/{studio}/edit .............................................. admin.studios.edit ΓÇ║ Admin\StudioController@edit
+  GET|HEAD        admin/users ................................................................ admin.users.index ΓÇ║ Admin\UserController@index
+  POST            admin/users ................................................................ admin.users.store ΓÇ║ Admin\UserController@store
+  GET|HEAD        admin/users/create ....................................................... admin.users.create ΓÇ║ Admin\UserController@create
+  GET|HEAD        admin/users/{user} ........................................................... admin.users.show ΓÇ║ Admin\UserController@show
+  PUT|PATCH       admin/users/{user} ....................................................... admin.users.update ΓÇ║ Admin\UserController@update
+  DELETE          admin/users/{user} ..................................................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
+  GET|HEAD        admin/users/{user}/edit ...................................................... admin.users.edit ΓÇ║ Admin\UserController@edit
+  GET|HEAD        confirm-password ............................................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
+  POST            confirm-password ................................................................. Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard ........................................................................... dashboard ΓÇ║ DashboardController@index
+  POST            email/verification-notification .................... verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
+  GET|HEAD        forgot-password ................................................ password.request ΓÇ║ Auth\PasswordResetLinkController@create
+  POST            forgot-password ................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
+  GET|HEAD        laporan/jadwal-harian ..................................................... laporan.jadwal.harian ΓÇ║ LaporanController@index
+  GET|HEAD        laporan/jadwal-harian/cetak ................................................ laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
+  GET|HEAD        login .................................................................. login ΓÇ║ Auth\AuthenticatedSessionController@create
+  POST            login ........................................................................... Auth\AuthenticatedSessionController@store
+  POST            logout ............................................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  PUT             password ................................................................. password.update ΓÇ║ Auth\PasswordController@update
+  PUT|PATCH       penyiar/items/{item} ........................................... penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          penyiar/items/{item} ......................................... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        penyiar/items/{item}/edit .......................................... penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        penyiar/items/{item}/item-details ..................... penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             penyiar/items/{item}/item-details ............... penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        penyiar/items/{item}/materi-details ............... penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             penyiar/items/{item}/materi-details ......... penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
+  GET|HEAD        penyiar/jadwal ...................................................... penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
+  GET|HEAD        penyiar/sequences/{sequence}/items ..................... penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            penyiar/sequences/{sequence}/items ..................... penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        penyiar/sequences/{sequence}/items/create ............ penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  PATCH           penyiar/sequences/{sequence}/pendengar ...... penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceController@updatePendengar
+  GET|HEAD        profile ............................................................................. profile.edit ΓÇ║ ProfileController@edit
+  PATCH           profile ......................................................................... profile.update ΓÇ║ ProfileController@update
+  DELETE          profile ....................................................................... profile.destroy ΓÇ║ ProfileController@destroy
+  GET|HEAD        register .................................................................. register ΓÇ║ Auth\RegisteredUserController@create
+  POST            register .............................................................................. Auth\RegisteredUserController@store
+  POST            reset-password .......................................................... password.store ΓÇ║ Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} ................................................. password.reset ΓÇ║ Auth\NewPasswordController@create
+  GET|HEAD        storage/{path} .............................................................................................. storage.local
+  GET|HEAD        up ........................................................................................................................ 
+  GET|HEAD        verify-email ................................................. verification.notice ΓÇ║ Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} ................................................. verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                               Showing [79] routes
+                                                                                                                          Showing [86] routes
 
 ```
 
@@ -819,6 +840,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Program;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Studio;
 
 class ProgramController extends Controller
 {public function index()
@@ -827,23 +849,19 @@ class ProgramController extends Controller
         return view('admin.programs.index', compact('programs'));
     }
 
-    public function create()
-    {
-        return view('admin.programs.create');
+    public function create() {
+        $studios = Studio::orderBy('nama')->get(); // TAMBAHAN
+        return view('admin.programs.create', compact('studios'));
     }
-
-    public function store(Request $request)
-    {
+    public function store(Request $request) {
         $request->validate([
             'nama' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
+            'studio_id' => 'required|exists:studios,id', // TAMBAHAN
         ]);
-
         Program::create($request->all() + ['dibuat_oleh' => Auth::id()]);
-
-        return redirect()->route('admin.programs.index')
-            ->with('success', 'Program siaran berhasil ditambahkan.');
+        return redirect()->route('admin.programs.index')->with('success', 'Program berhasil ditambahkan.');
     }
 
     public function show(Program $program)
@@ -852,23 +870,19 @@ class ProgramController extends Controller
         return redirect()->route('admin.programs.sequences.index', $program);
     }
 
-    public function edit(Program $program)
-    {
-        return view('admin.programs.edit', compact('program'));
+    public function edit(Program $program) {
+        $studios = Studio::orderBy('nama')->get(); // TAMBAHAN
+        return view('admin.programs.edit', compact('program', 'studios'));
     }
-
-    public function update(Request $request, Program $program)
-    {
+    public function update(Request $request, Program $program) {
         $request->validate([
             'nama' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
             'deskripsi' => 'nullable|string',
+            'studio_id' => 'required|exists:studios,id', // TAMBAHAN
         ]);
-
         $program->update($request->all());
-
-        return redirect()->route('admin.programs.index')
-            ->with('success', 'Program siaran berhasil diperbarui.');
+        return redirect()->route('admin.programs.index')->with('success', 'Program berhasil diperbarui.');
     }
 
     public function destroy(Program $program)
@@ -1046,6 +1060,60 @@ class SequenceItemController extends Controller
 
         $redirectRoute = Auth::user()->role === 'admin' ? 'admin.sequences.items.index' : 'penyiar.sequences.items.index';
         return redirect()->route($redirectRoute, $sequence)->with('success', 'Materi siar berhasil dihapus.');
+    }
+}
+
+===== app\Http\Controllers\Admin\StudioController.php =====
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Studio;
+
+class StudioController extends Controller
+{
+    public function index()
+    {
+        $studios = Studio::latest()->paginate(10);
+        return view('admin.studios.index', compact('studios'));
+    }
+
+    public function create()
+    {
+        return view('admin.studios.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255|unique:studios,nama',
+            'deskripsi' => 'nullable|string',
+        ]);
+        Studio::create($request->all());
+        return redirect()->route('admin.studios.index')->with('success', 'Studio berhasil ditambahkan.');
+    }
+
+    public function edit(Studio $studio)
+    {
+        return view('admin.studios.edit', compact('studio'));
+    }
+
+    public function update(Request $request, Studio $studio)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255|unique:studios,nama,' . $studio->id,
+            'deskripsi' => 'nullable|string',
+        ]);
+        $studio->update($request->all());
+        return redirect()->route('admin.studios.index')->with('success', 'Studio berhasil diperbarui.');
+    }
+
+    public function destroy(Studio $studio)
+    {
+        $studio->delete();
+        return redirect()->route('admin.studios.index')->with('success', 'Studio berhasil dihapus.');
     }
 }
 
@@ -1539,6 +1607,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Program;
 use App\Models\Sequence;
+use App\Models\Studio;
 
 class DashboardController extends Controller
 {
@@ -1553,6 +1622,7 @@ class DashboardController extends Controller
                     'totalUsers' => User::count(),
                     'totalPrograms' => Program::count(),
                     'totalSequences' => Sequence::count(),
+                    'totalStudios' => Studio::count(),
                 ];
                 break;
 
@@ -1587,83 +1657,65 @@ use App\Models\Program;
 use App\Models\JadwalPetugas;
 use Carbon\Carbon;
 use App\Models\Sequence;
+use App\Models\Studio;
 
 
 class LaporanController extends Controller
 {
     public function index(Request $request)
     {
-        // Validasi input tanggal, jika tidak ada, gunakan tanggal hari ini
         $validated = $request->validate(['tanggal' => 'nullable|date_format:Y-m-d']);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
 
-        // Ambil program dan urutkan berdasarkan waktu sequence paling awal
+        // Ambil program yang terjadwal hari itu, lalu kelompokkan berdasarkan studio
         $programs = Program::with([
-            'sequences' => function ($query) {
-                $query->orderBy('waktu', 'asc');
-            },
-            'sequences.host',
-            'sequences.items' => function ($query) {
-                $query->orderBy('id', 'asc');
-            },
-            'sequences.items.materiDetails',
-            'sequences.items.itemDetails'
-        ])
-        ->whereHas('jadwalPetugas', function ($query) use ($tanggal) {
-            $query->whereDate('tanggal', $tanggal);
-        })
-        ->orderBy(
-            Sequence::select('waktu')
-                ->whereColumn('program_id', 'programs.id')
-                ->orderBy('waktu', 'asc')
-                ->limit(1)
-        )
-        ->get();
-
-        // Ambil data petugas untuk semua program pada tanggal yang dipilih
-        $jadwalPetugas = JadwalPetugas::with('penyiars')
-            ->where('tanggal', $tanggal->format('Y-m-d'))
+                'studio',
+                'sequences' => fn($q) => $q->orderBy('waktu', 'asc'),
+                'sequences.host', 
+                'sequences.items' => fn($q) => $q->orderBy('id', 'asc'),
+                'sequences.items.materiDetails', 
+                'sequences.items.itemDetails'
+            ])
+            ->whereHas('jadwalPetugas', fn($q) => $q->whereDate('tanggal', $tanggal))
             ->get()
-            ->keyBy('program_id');
+            ->sortBy('sequences.0.waktu');
+        
+        $jadwalPerStudio = $programs->groupBy('studio.nama');
+        $studios = Studio::whereIn('id', $programs->pluck('studio_id')->unique())->orderBy('nama')->get();
+        
+        $jadwalPetugas = JadwalPetugas::with('penyiars')
+            ->whereDate('tanggal', $tanggal)
+            ->get()->keyBy('program_id');
 
-        return view('laporan.jadwal', compact('programs', 'jadwalPetugas', 'tanggal'));
+        return view('laporan.jadwal', compact('studios', 'jadwalPerStudio', 'jadwalPetugas', 'tanggal'));
     }
 
     public function cetak(Request $request)
     {
-        
         $validated = $request->validate([
             'tanggal' => 'nullable|date_format:Y-m-d',
-            'program' => 'nullable|exists:programs,id' // Validasi ID program
+            'program' => 'nullable|exists:programs,id'
         ]);
         $tanggal = Carbon::parse($validated['tanggal'] ?? now())->startOfDay();
         
         $programQuery = Program::query();
 
-        // Jika ada request spesifik program, filter berdasarkan ID program tersebut
         if (isset($validated['program'])) {
             $programQuery->where('id', $validated['program']);
         }
 
         $programs = $programQuery->with([
-            'sequences' => function ($query) { $query->orderBy('waktu', 'asc'); },
-            'sequences.host', 'sequences.items' => function ($query) { $query->orderBy('id', 'asc'); },
-            'sequences.items.materiDetails', 'sequences.items.itemDetails'
+            'sequences' => fn ($q) => $q->orderBy('waktu', 'asc'),
+            'sequences.host', 
+            'sequences.items' => fn ($q) => $q->orderBy('id', 'asc'),
+            'sequences.items.materiDetails', 
+            'sequences.items.itemDetails'
         ])
-        ->whereHas('jadwalPetugas', function ($query) use ($tanggal) {
-            $query->whereDate('tanggal', $tanggal);
-        })
-        ->orderBy(
-            Sequence::select('waktu')
-                ->whereColumn('program_id', 'programs.id')
-                ->orderBy('waktu', 'asc')
-                ->limit(1)
-        )
+        ->whereHas('jadwalPetugas', fn ($q) => $q->whereDate('tanggal', $tanggal))
         ->get();
         
-
         $jadwalPetugas = JadwalPetugas::with('penyiars')
-            ->where('tanggal', $tanggal->format('Y-m-d'))
+            ->whereDate('tanggal', $tanggal)
             ->get()->keyBy('program_id');
         
         return view('laporan.jadwal_print', compact('programs', 'jadwalPetugas', 'tanggal'));
@@ -1860,7 +1912,13 @@ class Program extends Model
         'alias',
         'deskripsi',
         'dibuat_oleh',
+        'studio_id',
     ];
+
+    public function studio(): BelongsTo
+    {
+        return $this->belongsTo(Studio::class);
+    }
 
     public function pembuat(): BelongsTo
     {
@@ -1968,6 +2026,26 @@ class SequenceItem extends Model
     }
 }
 
+===== app\Models\Studio.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Studio extends Model
+{
+    use HasFactory;
+    protected $fillable = ['nama', 'deskripsi'];
+
+    public function programs(): HasMany
+    {
+        return $this->hasMany(Program::class);
+    }
+}
+
 ```
 
 
@@ -1977,28 +2055,45 @@ class SequenceItem extends Model
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Kelola ILM, Spot, Filler untuk: <span class="font-bold">{{ $item->materi }}</span>
+            Kelola ILM, Spot, Filler untuk: 
+            <span class="font-bold text-indigo-700">{{ $item->materi }}</span>
         </h2>
-        @php $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; @endphp
-        <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}" class="text-sm text-indigo-600 hover:text-indigo-900 mt-1 block">&larr; Kembali ke Daftar Materi</a>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    @php $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; @endphp
+
+    <div class="py-10">
+        <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-gray-900 space-y-6">
                     
+                    {{-- Tombol kembali --}}
+                    <div class="mb-4">
+                        <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}" 
+                           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium 
+                                  text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-800 
+                                  transition-all duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" 
+                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                            </svg>
+                            Kembali ke Daftar Materi
+                        </a>
+                    </div>
+
+                    {{-- Alert --}}
                     @if (session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
+                        <div class="rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
+                            âœ… {{ session('success') }}
                         </div>
                     @endif
                     @if (session('error'))
-                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('error') }}</span>
+                        <div class="rounded-md bg-red-50 border border-red-200 text-red-800 px-4 py-3 text-sm">
+                            âš ï¸ {{ session('error') }}
                         </div>
                     @endif
 
+                    {{-- Form --}}
                     <form method="POST" action="{{ route($prefix.'items.item-details.update-all', $item) }}"
                           x-data="{ details: {{ json_encode($item->itemDetails->map->only(['jenis', 'isi'])) }} }">
                         @csrf
@@ -2006,9 +2101,10 @@ class SequenceItem extends Model
 
                         <div class="space-y-4">
                             <template x-for="(detail, index) in details" :key="index">
-                                <div class="flex items-center space-x-3 bg-gray-50 p-3 rounded-md">
+                                <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-md border border-gray-200">
                                     <div class="w-1/4">
-                                        <select :name="'details[' + index + '][jenis]'" x-model="detail.jenis" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                        <select :name="'details[' + index + '][jenis]'" x-model="detail.jenis"
+                                                class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                             <option value="ilm">ILM</option>
                                             <option value="spot">Spot</option>
                                             <option value="filler">Filler</option>
@@ -2021,25 +2117,32 @@ class SequenceItem extends Model
                                                class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
                                                placeholder="Isi ILM, Spot, atau Filler...">
                                     </div>
-                                    <button type="button" @click="details.splice(index, 1)" class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>
+                                    <button type="button" @click="details.splice(index, 1)"
+                                            class="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-100 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
                                     </button>
                                 </div>
                             </template>
                         </div>
 
-                        <div class="mt-6">
-                            <button type="button" @click="details.push({ jenis: 'ilm', isi: '' })" class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
+                        <div class="mt-5">
+                            <button type="button" @click="details.push({ jenis: 'ilm', isi: '' })"
+                                    class="text-sm font-medium text-indigo-600 hover:text-indigo-800 transition">
                                 + Tambah Baris
                             </button>
                         </div>
 
                         <div class="flex items-center justify-end mt-8 border-t pt-6">
-                            <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}"
+                               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium 
+                                      text-gray-600 bg-gray-100 hover:bg-gray-200 hover:text-gray-800 
+                                      transition-all duration-300 mr-3">
                                 Batal
                             </a>
                             <x-primary-button>
-                                {{ __('Simpan Perubahan') }}
+                                Simpan Perubahan
                             </x-primary-button>
                         </div>
                     </form>
@@ -2480,69 +2583,97 @@ class SequenceItem extends Model
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <div>
-                <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                    Kelola Petugas Harian untuk: <span class="font-bold">{{ $program->nama }}</span>
-                </h2>
-                <a href="{{ route('admin.programs.index') }}" class="text-sm text-indigo-600 hover:text-indigo-900">&larr;
-                    Kembali ke Daftar Program</a>
-            </div>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Kelola Petugas Harian untuk:
+                <span class="font-bold text-indigo-700">{{ $program->nama }}</span>
+            </h2>
+
+            {{-- Tombol Tambah Jadwal --}}
             <a href="{{ route('admin.programs.petugas.create', $program) }}"
-                class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md 
+                       font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 
+                       focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
                 Tambah Jadwal Petugas
             </a>
         </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-gray-900 space-y-4">
+
+                    {{-- ðŸ”™ Kembali ke daftar program --}}
+                    <a href="{{ route('admin.programs.index') }}"
+                        class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium 
+          text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-800 
+          transition-all duration-300">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Kembali ke Daftar Program
+                    </a>
+
+
+
+                    {{-- Pesan sukses --}}
                     @if (session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4"
-                            role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
+                        <div class="rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
+                            âœ… {{ session('success') }}
                         </div>
                     @endif
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                            <thead class="text-left">
+
+                    {{-- ðŸ“‹ Tabel Jadwal --}}
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full text-sm text-gray-700">
+                            <thead class="bg-gray-100">
                                 <tr>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Tanggal</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Produser</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Pengarah Acara
-                                    </th>
-                                    <th class="px-4 py-2"></th>
+                                    <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Produser</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Pengarah Acara</th>
+                                    <th class="px-4 py-3 text-center font-semibold w-32">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+
+                            <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($jadwalPetugas as $petugas)
-                                    <tr>
-                                        <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-4 py-3 font-medium text-gray-900">
                                             {{ \Carbon\Carbon::parse($petugas->tanggal)->isoFormat('dddd, D MMMM Y') }}
                                         </td>
-                                        <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                            {{ $petugas->produser_nama ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-4 py-2 text-gray-700">
-                                            {{ $petugas->pengarah_acara_nama ?? '-' }}</td>
-                                        <td class="whitespace-nowrap px-4 py-2">
-                                            <div class="flex items-center space-x-2">
+                                        <td class="px-4 py-3 text-gray-700">{{ $petugas->produser_nama ?? '-' }}</td>
+                                        <td class="px-4 py-3 text-gray-700">{{ $petugas->pengarah_acara_nama ?? '-' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="flex justify-center gap-3">
                                                 <a href="{{ route('admin.programs.petugas.edit', [$program, $petugas]) }}"
-                                                    class="text-yellow-600 hover:text-yellow-900">Edit</a>
+                                                    class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md 
+                                                           bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
+                                                    âœï¸ Edit
+                                                </a>
                                                 <form
                                                     action="{{ route('admin.programs.petugas.destroy', [$program, $petugas]) }}"
-                                                    method="POST" onsubmit="return confirm('Anda yakin?');">
+                                                    method="POST"
+                                                    onsubmit="return confirm('Yakin ingin menghapus jadwal ini?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit"
-                                                        class="text-red-600 hover:text-red-900">Hapus</button>
+                                                        class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-md 
+                                                                   bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                        ðŸ—‘ï¸ Hapus
+                                                    </button>
                                                 </form>
                                             </div>
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center py-4 text-gray-500">
+                                        <td colspan="4" class="text-center py-6 text-gray-500">
                                             Belum ada jadwal petugas untuk program ini.
                                         </td>
                                     </tr>
@@ -2550,6 +2681,8 @@ class SequenceItem extends Model
                             </tbody>
                         </table>
                     </div>
+
+                    {{-- Pagination --}}
                     <div class="mt-4">
                         {{ $jadwalPetugas->links() }}
                     </div>
@@ -2631,6 +2764,18 @@ class SequenceItem extends Model
                                 <x-text-input id="alias" class="block mt-1 w-full" type="text" name="alias" :value="old('alias')" />
                                 <x-input-error :messages="$errors->get('alias')" class="mt-2" />
                             </div>
+                            <div class="md:col-span-2">
+                                <x-input-label for="studio_id" value="Studio" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">-- Pilih Studio --</option>
+                                    @foreach($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(old('studio_id', $program->studio_id ?? '') == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
+                            </div>
 
                              <div class="md:col-span-2">
                                 <x-input-label for="deskripsi" :value="__('Deskripsi')" />
@@ -2680,6 +2825,20 @@ class SequenceItem extends Model
                                 <x-input-label for="alias" :value="__('Alias (Singkatan)')" />
                                 <x-text-input id="alias" class="block mt-1 w-full" type="text" name="alias" :value="old('alias', $program->alias)" />
                                 <x-input-error :messages="$errors->get('alias')" class="mt-2" />
+                            </div>
+
+                            {{-- TAMBAHAN DROPDOWN STUDIO --}}
+                            <div class="md:col-span-2">
+                                <x-input-label for="studio_id" value="Studio" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">-- Pilih Studio --</option>
+                                    @foreach($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(old('studio_id', $program->studio_id) == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
                             </div>
 
                              <div class="md:col-span-2">
@@ -2742,22 +2901,25 @@ class SequenceItem extends Model
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-50">
                                 <tr>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">No</th>
+                                    <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Studio</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Nama Program</th>
                                     {{-- <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th> --}}
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Dibuat Oleh</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Tanggal Dibuat</th>
-                                    <th class="px-4 py-2"></th>
+                                    <th class="px-4 py-2">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($programs as $program)
                                 <tr class="hover:bg-gray-50 transition">
+                                    <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $loop->iteration + $programs->firstItem() - 1 }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->studio->nama }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->nama }}</td>
-                                    {{-- <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->alias ?? '-' }}</td> --}}
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->pembuat->name ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->created_at->format('d M Y, H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
-                                        <div class="flex flex-wrap gap-2">
+                                        <div class="flex gap-2">
                                             <a href="{{ route('admin.programs.petugas.index', $program) }}" 
                                                class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 hover:bg-green-200">
                                                 Petugas
@@ -2995,7 +3157,7 @@ class SequenceItem extends Model
                         <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
                             <thead class="bg-gray-100 text-gray-700">
                                 <tr>
-                                    <th class="px-4 py-3 font-semibold text-left">Nama Sequence</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Nama Seqmen</th>
                                     <th class="px-4 py-3 font-semibold text-left">Waktu</th>
                                     <th class="px-4 py-3 font-semibold text-left">Host/Penyiar</th>
                                     <th class="px-4 py-3 font-semibold text-left">Durasi (Menit)</th>
@@ -3067,6 +3229,165 @@ class SequenceItem extends Model
                     </div>
                 </div>
                 
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\studios\create.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tambah Studio Baru</h2>
+    </x-slot>
+    <div class="py-12">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="p-8">
+                    <form method="POST" action="{{ route('admin.studios.store') }}">
+                        @csrf
+                        <div class="space-y-6">
+                            <div>
+                                <x-input-label for="nama" value="Nama Studio" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama')" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="deskripsi" value="Deskripsi (Opsional)" />
+                                <textarea id="deskripsi" name="deskripsi" rows="3" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('deskripsi') }}</textarea>
+                                <x-input-error :messages="$errors->get('deskripsi')" class="mt-2" />
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end mt-8 border-t pt-6">
+                            <a href="{{ route('admin.studios.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">Batal</a>
+                            <x-primary-button>Simpan Studio</x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\studios\edit.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Edit Studio</h2>
+    </x-slot>
+    <div class="py-12">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="p-8">
+                    <form method="POST" action="{{ route('admin.studios.update', $studio) }}">
+                        @csrf
+                        @method('PUT')
+                        <div class="space-y-6">
+                            <div>
+                                <x-input-label for="nama" value="Nama Studio" />
+                                <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama', $studio->nama)" required autofocus />
+                                <x-input-error :messages="$errors->get('nama')" class="mt-2" />
+                            </div>
+                            <div>
+                                <x-input-label for="deskripsi" value="Deskripsi (Opsional)" />
+                                <textarea id="deskripsi" name="deskripsi" rows="3" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('deskripsi', $studio->deskripsi) }}</textarea>
+                                <x-input-error :messages="$errors->get('deskripsi')" class="mt-2" />
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-end mt-8 border-t pt-6">
+                            <a href="{{ route('admin.studios.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">Batal</a>
+                            <x-primary-button>Simpan Perubahan</x-primary-button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
+
+===== resources\views\admin\studios\index.blade.php =====
+<x-app-layout>
+    <x-slot name="header">
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                Kelola Studio
+            </h2>
+            <a href="{{ route('admin.studios.create') }}" 
+               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 
+                      border border-transparent rounded-lg font-semibold text-sm text-white 
+                      shadow hover:shadow-md hover:from-blue-700 hover:to-sky-600 
+                      transition ease-in-out duration-200">
+                + Tambah Studio
+            </a>
+        </div>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="p-6 text-gray-900">
+
+                    @if (session('success'))
+                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 
+                                    text-green-700 px-4 py-3 rounded-lg mb-4 shadow-sm"
+                             x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 3000)">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/>
+                            </svg>
+                            <span>{{ session('success') }}</span>
+                            <button @click="show = false" class="ml-auto text-green-600 hover:text-green-800">&times;</button>
+                        </div>
+                    @endif
+
+                    <div class="overflow-x-auto">
+                        <div class="overflow-x-auto rounded-lg border border-gray-200">
+                            <table class="min-w-full text-sm text-gray-700">
+                                <thead class="bg-gray-100 text-gray-700">
+                                    <tr>
+                                        <th class="px-4 py-3 text-left font-semibold w-16">No</th>
+                                        <th class="px-4 py-3 text-left font-semibold">Nama Studio</th>
+                                        <th class="px-4 py-3 text-left font-semibold">Deskripsi</th>
+                                        <th class="px-4 py-3 text-center font-semibold w-32">Aksi</th>
+                                    </tr>
+                                </thead>
+                        
+                                <tbody class="divide-y divide-gray-200 bg-white">
+                                    @forelse ($studios as $studio)
+                                        <tr class="hover:bg-gray-50 transition">
+                                            <td class="px-4 py-3">{{ $loop->iteration + $studios->firstItem() - 1 }}</td>
+                                            <td class="px-4 py-3 font-medium text-gray-900">{{ $studio->nama }}</td>
+                                            <td class="px-4 py-3 text-gray-600">{{ $studio->deskripsi ?? '-' }}</td>
+                                            <td class="px-4 py-3 text-center">
+                                                <div class="inline-flex items-center gap-2">
+                                                    <a href="{{ route('admin.studios.edit', $studio) }}"
+                                                       class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
+                                                        Edit
+                                                    </a>
+                                                    <form action="{{ route('admin.studios.destroy', $studio) }}" method="POST"
+                                                          onsubmit="return confirm('Anda yakin?');" class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit"
+                                                                class="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                            Hapus
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="4" class="py-6 text-center text-gray-500">Belum ada data studio.</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        
+                    </div>
+                     <div class="mt-4">
+                        {{ $studios->links() }}
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -3834,9 +4155,17 @@ $classes = ($active ?? false)
 </a>
 
 ===== resources\views\components\primary-button.blade.php =====
-<button {{ $attributes->merge(['type' => 'submit', 'class' => 'inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150']) }}>
+<button {{ $attributes->merge([
+    'type' => 'submit',
+    'class' => 'inline-flex items-center justify-center gap-2 px-4 py-2.5 
+                bg-indigo-600 text-white text-sm font-medium rounded-lg 
+                hover:bg-indigo-700 focus:outline-none focus:ring-2 
+                focus:ring-indigo-500 focus:ring-offset-2 active:bg-indigo-800 
+                transition-all duration-200'
+]) }}>
     {{ $slot }}
 </button>
+
 
 ===== resources\views\components\responsive-nav-link.blade.php =====
 @props(['active'])
@@ -3864,27 +4193,23 @@ $classes = ($active ?? false)
 ===== resources\views\laporan\jadwal.blade.php =====
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Laporan Daftar Acara Siaran') }}
-        </h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Laporan Daftar Acara Siaran</h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
-            {{-- AWAL MODIFIKASI: Tombol Cetak dipindah ke dalam Tab --}}
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 no-print">
                 <div class="p-6 text-gray-900">
-                    <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-4">
-                        {{ __('Laporan Daftar Acara Siaran') }}
-                    </h2>
+                    <h2 class="font-semibold text-xl text-gray-800 leading-tight mb-4">Laporan Daftar Acara Siaran</h2>
                     <form method="GET" action="{{ route('laporan.jadwal.harian') }}" class="flex items-end space-x-4">
                         <div>
                             <label for="tanggal" class="block text-sm font-medium text-gray-700">Pilih Tanggal</label>
                             <input type="date" name="tanggal" id="tanggal" value="{{ $tanggal->format('Y-m-d') }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                         </div>
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700">Tampilkan</button>
-                        {{-- Tombol ini sekarang untuk mencetak semua program --}}
+                        
+                        {{-- TOMBOL CETAK SEMUA DIKEMBALIKAN --}}
                         <a href="{{ route('laporan.jadwal.cetak', ['tanggal' => $tanggal->format('Y-m-d')]) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-gray-500 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-400">
                             Cetak Semua
                         </a>
@@ -3892,116 +4217,66 @@ $classes = ($active ?? false)
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div x-data="{ activeTab: {{ $programs->first()->id ?? 'null' }} }">
-                    <div class="px-4 border-b border-gray-200 flex justify-between items-center">
-                        <nav class="-mb-px flex space-x-3" aria-label="Tabs">
-                            @foreach ($programs as $program)
-                                <button @click="activeTab = {{ $program->id }}"
-                                        :class="activeTab === {{ $program->id }} ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
-                                        class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none">
-                                    {{ $program->nama }}
-                                </button>
+            @if($studios->isNotEmpty())
+            <div x-data="{ 
+                activeStudioTab: '{{ $studios->first()->nama }}',
+                activeProgramTabs: {} 
+            }" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                
+                <div class="px-4 border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-3" aria-label="Tabs">
+                        @foreach ($studios as $studio)
+                            <button @click="activeStudioTab = '{{ $studio->nama }}'"
+                                    :class="activeStudioTab === '{{ $studio->nama }}' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500 hover:text-gray-700'"
+                                    class="whitespace-nowrap py-4 px-4 border-b-2 font-medium text-sm transition-colors duration-200 focus:outline-none">
+                                {{ $studio->nama }}
+                            </button>
+                        @endforeach
+                    </nav>
+                </div>
+
+                @foreach ($jadwalPerStudio as $namaStudio => $programsInStudio)
+                    <div x-show="activeStudioTab === '{{ $namaStudio }}'" x-cloak
+                         x-init="if (activeProgramTabs['{{ $namaStudio }}'] === undefined && {{ $programsInStudio->isNotEmpty() ? 'true' : 'false' }}) { activeProgramTabs['{{ $namaStudio }}'] = {{ $programsInStudio->first()->id }}; }">
+                        
+                        @if($programsInStudio->isNotEmpty())
+                        <div class="px-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/70">
+                            <nav class="flex space-x-2" aria-label="Program Tabs">
+                                @foreach ($programsInStudio as $program)
+                                    <button @click="activeProgramTabs['{{ $namaStudio }}'] = {{ $program->id }}"
+                                            :class="activeProgramTabs['{{ $namaStudio }}'] === {{ $program->id }} ? 'bg-white text-indigo-600 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
+                                            class="whitespace-nowrap my-2 py-2 px-4 rounded-md font-medium text-sm transition-colors duration-200 focus:outline-none">
+                                        {{ $program->nama }}
+                                    </button>
+                                @endforeach
+                            </nav>
+                            @foreach ($programsInStudio as $program)
+                                <div x-show="activeProgramTabs[activeStudioTab] === {{ $program->id }}" x-cloak>
+                                    <a href="{{ route('laporan.jadwal.cetak', ['tanggal' => $tanggal->format('Y-m-d'), 'program' => $program->id]) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 no-print">
+                                        Cetak {{ $program->nama }}
+                                    </a>
+                                </div>
                             @endforeach
-                        </nav>
-                        {{-- Tombol cetak per program --}}
-                        @foreach ($programs as $program)
-                            <div x-show="activeTab === {{ $program->id }}" x-cloak>
-                                <a href="{{ route('laporan.jadwal.cetak', ['tanggal' => $tanggal->format('Y-m-d'), 'program' => $program->id]) }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-500 no-print">
-                                    Cetak {{ $program->nama }}
-                                </a>
+                        </div>
+                        @endif
+
+                        @foreach ($programsInStudio as $program)
+                            <div x-show="activeProgramTabs[activeStudioTab] === {{ $program->id }}" x-cloak class="printable-area">
+                                <div class="p-6 text-gray-900">
+                                    @include('laporan._tabel_program', ['program' => $program])
+                                _</div>
                             </div>
                         @endforeach
                     </div>
-            {{-- AKHIR MODIFIKASI --}}
-
-                    <div>
-                        @forelse ($programs as $program)
-                            <div x-show="activeTab === {{ $program->id }}" x-cloak class="printable-area">
-                                <div class="p-6 text-gray-900">
-                                    <h3 class="text-center font-bold text-lg">DAFTAR ACARA SIARAN</h3>
-                                    <h4 class="text-center font-semibold text-md mb-4">{{ $tanggal->isoFormat('dddd, D MMMM Y') }}</h4>
-
-                                    {{-- ... sisa kode tabel tidak berubah ... --}}
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full border-collapse border border-gray-300 text-sm">
-                                            <thead class="bg-gray-100 text-left">
-                                                <tr>
-                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
-                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                                                    <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
-                                                    <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
-                                                    <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
-                                                    <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @php
-                                                    $programRowspan = 0;
-                                                    foreach ($program->sequences as $sequence) {
-                                                        $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                                                    }
-                                                @endphp
-                                                <tr>
-                                                    <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
-                                                    @foreach ($program->sequences as $sequenceIndex => $sequence)
-                                                        @php
-                                                            $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                                                        @endphp
-                                                        @if ($sequenceIndex > 0) <tr> @endif
-                                                        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                                                        <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">{{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host: {{ $sequence->host->name ?? 'N/A' }}</small></td>
-                                                        <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
-                                                            <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
-                                                        </td>
-
-                                                        @forelse ($sequence->items as $itemIndex => $item)
-                                                            @if ($itemIndex > 0) <tr> @endif
-                                                            <td class="border border-gray-300 px-4 py-2 align-top">
-                                                                {{ $item->materi }}
-                                                                @if($item->materiDetails->isNotEmpty())
-                                                                    <ol class="list-decimal list-inside mt-1 pl-2">
-                                                                        @foreach($item->materiDetails as $detail)
-                                                                            <li class="text-gray-600">{{ $detail->isi }}</li>
-                                                                        @endforeach
-                                                                    </ol>
-                                                                @endif
-                                                            </td>
-                                                            <td class="border border-gray-300 px-4 py-2 align-top">
-                                                                @if($item->keterangan)<p class="mb-2 italic text-gray-700">{{ $item->keterangan }}</p>@endif
-                                                                @if($item->itemDetails->isNotEmpty())
-                                                                    @foreach($item->itemDetails->groupBy('jenis') as $jenis => $details)
-                                                                        <p class="font-semibold capitalize">{{ $jenis }}:</p>
-                                                                        <ol class="list-decimal list-inside pl-4 mb-2">
-                                                                            @foreach($details as $detail)
-                                                                                <li>{{ $detail->isi }}</li>
-                                                                            @endforeach
-                                                                        </ol>
-                                                                    @endforeach
-                                                                @endif
-                                                            </td>
-                                                            </tr>
-                                                        @empty
-                                                            <td class="border border-gray-300 px-4 py-2 align-top"></td>
-                                                            <td class="border border-gray-300 px-4 py-2 align-top"></td>
-                                                            </tr>
-                                                        @endforelse
-                                                    @endforeach
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        @empty
-                            <div class="p-6 text-center text-gray-500">
-                                Jadwal siaran belum tersedia untuk tanggal yang dipilih.
-                            </div>
-                        @endforelse
-                    </div>
+                @endforeach
+            </div>
+            @else
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 text-center text-gray-500">
+                    Jadwal siaran belum tersedia untuk tanggal yang dipilih.
                 </div>
             </div>
-
+            @endif
         </div>
     </div>
 </x-app-layout>
@@ -4129,7 +4404,7 @@ $classes = ($active ?? false)
                         <tr>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                            <th class="border border-gray-300 px-4 py-2 w-2/12">Sequence</th>
+                            <th class="border border-gray-300 px-4 py-2 w-2/12">Seqmen</th>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
                             <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
                             <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
@@ -4264,6 +4539,59 @@ $classes = ($active ?? false)
     </body>
 
     </html>
+
+===== resources\views\laporan\_tabel_program.blade.php =====
+<div class="overflow-x-auto">
+    <table class="min-w-full border-collapse border border-gray-300 text-sm">
+        <thead class="bg-gray-100 text-left">
+            <tr>
+                <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
+                <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
+                <th class="border border-gray-300 px-4 py-2 w-2/12">Seqmen</th>
+                <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
+                <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
+                <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
+            </tr>
+        </thead>
+        <tbody>
+            @php
+                $programRowspan = 0;
+                if ($program->sequences->isNotEmpty()) {
+                    foreach ($program->sequences as $sequence) {
+                        $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                    }
+                } else {
+                    $programRowspan = 1;
+                }
+            @endphp
+            <tr>
+                <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
+                @forelse ($program->sequences as $sequenceIndex => $sequence)
+                    @php
+                        $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                    @endphp
+                    @if ($sequenceIndex > 0) <tr> @endif
+                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                    <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">{{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host: {{ $sequence->host->name ?? 'N/A' }}</small></td>
+                    <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
+                        <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
+                    </td>
+                    @forelse ($sequence->items as $itemIndex => $item)
+                        @if ($itemIndex > 0) <tr> @endif
+                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
+                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
+                        </tr>
+                    @empty
+                        <td colspan="2" class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic">-- Belum ada materi --</td>
+                        </tr>
+                    @endforelse
+                @empty
+                    <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada sequence --</td>
+                    </tr>
+                @endforelse
+        </tbody>
+    </table>
+</div>
 
 ===== resources\views\layouts\app.blade.php =====
 <!DOCTYPE html>
@@ -4420,6 +4748,12 @@ $classes = ($active ?? false)
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
                     </svg>
                     <span>Kelola Program</span>
+                </x-nav-link>
+                <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    <span>Kelola Studio</span>
                 </x-nav-link>
             </div>
         </div>
@@ -4792,10 +5126,15 @@ $classes = ($active ?? false)
                                 <p class="text-2xl font-bold text-green-900">{{ $totalPrograms }}</p>
                             </div>
                             <div class="bg-yellow-100 p-4 rounded-lg">
-                                <p class="text-sm text-yellow-700">Total Sequence</p>
+                                <p class="text-sm text-yellow-700">Total Seqmen</p>
                                 <p class="text-2xl font-bold text-yellow-900">{{ $totalSequences }}</p>
                             </div>
+                            <div class="bg-yellow-100 p-4 rounded-lg">
+                                <p class="text-sm text-yellow-700">Total Studio</p>
+                                <p class="text-2xl font-bold text-yellow-900">{{ $totalStudios }}</p>
+                            </div>
                         </div>
+                        
                         {{-- <div class="mt-6">
                             <a href="{{ route('admin.programs.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
                                 &raquo; Kelola Program Siaran

@@ -41,7 +41,7 @@
                                     {{-- <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th> --}}
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Dibuat Oleh</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Tanggal Dibuat</th>
-                                    <th class="px-4 py-2"></th>
+                                    <th class="px-4 py-2">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
@@ -53,7 +53,7 @@
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->pembuat->name ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->created_at->format('d M Y, H:i') }}</td>
                                     <td class="whitespace-nowrap px-4 py-2">
-                                        <div class="flex flex-wrap gap-2">
+                                        <div class="flex gap-2">
                                             <a href="{{ route('admin.programs.petugas.index', $program) }}" 
                                                class="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700 hover:bg-green-200">
                                                 Petugas

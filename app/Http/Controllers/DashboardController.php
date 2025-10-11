@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Program;
 use App\Models\Sequence;
+use App\Models\Studio;
 
 class DashboardController extends Controller
 {
@@ -21,6 +22,7 @@ class DashboardController extends Controller
                     'totalUsers' => User::count(),
                     'totalPrograms' => Program::count(),
                     'totalSequences' => Sequence::count(),
+                    'totalStudios' => Studio::count(),
                 ];
                 break;
 

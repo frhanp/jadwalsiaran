@@ -3,9 +3,9 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tambah Studio Baru</h2>
     </x-slot>
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
+                <div class="p-8">
                     <form method="POST" action="{{ route('admin.studios.store') }}">
                         @csrf
                         <div class="space-y-6">
@@ -20,9 +20,9 @@
                                 <x-input-error :messages="$errors->get('deskripsi')" class="mt-2" />
                             </div>
                         </div>
-                        <div class="flex items-center justify-end mt-6">
+                        <div class="flex items-center justify-end mt-8 border-t pt-6">
                             <a href="{{ route('admin.studios.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">Batal</a>
-                            <x-primary-button>Simpan</x-primary-button>
+                            <x-primary-button>Simpan Studio</x-primary-button>
                         </div>
                     </form>
                 </div>

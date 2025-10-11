@@ -27,7 +27,12 @@
                                 <p class="text-sm text-yellow-700">Total Seqmen</p>
                                 <p class="text-2xl font-bold text-yellow-900">{{ $totalSequences }}</p>
                             </div>
+                            <div class="bg-yellow-100 p-4 rounded-lg">
+                                <p class="text-sm text-yellow-700">Total Studio</p>
+                                <p class="text-2xl font-bold text-yellow-900">{{ $totalStudios }}</p>
+                            </div>
                         </div>
+                        
                         {{-- <div class="mt-6">
                             <a href="{{ route('admin.programs.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
                                 &raquo; Kelola Program Siaran
