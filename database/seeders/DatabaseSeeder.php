@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
             StudioSeeder::class,
             ProgramSeeder::class,
             JadwalPetugasSeeder::class,
-            ScheduleContentSeeder::class,
+            // ScheduleContentSeeder::class,
         ]);
     }
 }
