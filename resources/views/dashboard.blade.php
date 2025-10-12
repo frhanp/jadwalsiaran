@@ -32,16 +32,10 @@
                                 <p class="text-2xl font-bold text-yellow-900">{{ $totalStudios }}</p>
                             </div>
                         </div>
-                        
-                        {{-- <div class="mt-6">
-                            <a href="{{ route('admin.programs.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
-                                &raquo; Kelola Program Siaran
-                            </a>
-                        </div> --}}
                     
                     {{-- KONTEN UNTUK PENYIAR --}}
                     @elseif (Auth::user()->role === 'penyiar')
-                        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Jadwal Terdekat Anda</h3>
+                        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Daftar Acara Siaran Anda</h3>
                         @if($jadwalTerdekat->isNotEmpty())
                             <ul class="space-y-3">
                                 @foreach($jadwalTerdekat as $sequence)
@@ -60,19 +54,19 @@
                             </ul>
                             <div class="mt-6">
                                 <a href="{{ route('penyiar.jadwal.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
-                                    &raquo; Lihat Semua Jadwal Saya
+                                    &raquo; Lihat Semua Daftar Acara Siaran Saya
                                 </a>
                             </div>
                         @else
-                            <p>Anda belum memiliki jadwal siaran yang ditugaskan.</p>
+                            <p>Anda belum memiliki daftar acara siaran yang ditugaskan.</p>
                         @endif
 
                     {{-- KONTEN UNTUK KATIM & KEPSTA --}}
                     @elseif (in_array(Auth::user()->role, ['katim', 'kepsta']))
                         <h3 class="text-lg font-semibold border-b pb-2 mb-4">Akses Laporan</h3>
-                        <p class="mb-4">Anda dapat melihat laporan jadwal siaran harian melalui link di bawah ini.</p>
+                        <p class="mb-4">Anda dapat melihat laporan daftar acara siaran harian melalui link di bawah ini.</p>
                         <a href="{{ route('laporan.jadwal.harian') }}" class="inline-block px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500">
-                            Lihat Laporan Jadwal Harian
+                            Lihat Laporan Daftar Acara Siaran Harian
                         </a>
                     
                     @else

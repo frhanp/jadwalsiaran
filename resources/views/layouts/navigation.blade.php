@@ -1,8 +1,8 @@
 <aside class="h-full flex flex-col md:h-screen md:sticky md:top-0">
     <div class="py-7 px-6 border-b border-gray-200 shadow-sm">
         <a href="{{ route('dashboard') }}" 
-           class="text-2xl font-extrabold text-blue-700 tracking-tight hover:text-blue-800 transition-colors">
-            {{ config('app.name', 'MY APP') }}
+           class="text-1xl font-extrabold text-blue-700 tracking-tight hover:text-blue-800 transition-colors">
+            {{ config('app.name', 'DAFTAR ACARA SIARAN') }}
         </a>
     </div>
     
@@ -35,15 +35,12 @@
                     </svg>
                     <span>Kelola Program</span>
                 </x-nav-link>
-                <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <span>Kelola Studio</span>
-                </x-nav-link>
+                
             </div>
         </div>
         @endif
+
+        
 
         @if(Auth::check() && Auth::user()->role === 'penyiar')
         <div class="pt-4">
@@ -55,12 +52,11 @@
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 15.75h.008v.008H12v-.008Z" />
                     </svg>
-                    <span>Jadwal Siaran Saya</span>
+                    <span>Daftar Acara Siaran Saya</span>
                 </x-nav-link>
             </div>
         </div>
         @endif
-
         @if(Auth::check() && in_array(Auth::user()->role, ['katim', 'kepsta']))
         <div class="pt-4">
             <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -76,6 +72,15 @@
                 </x-nav-link>
             </div>
         </div>
+        @endif
+
+        @if(Auth::check() && in_array(Auth::user()->role, ['katim']))
+        <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span>Kelola Studio</span>
+        </x-nav-link>
         @endif
         {{-- @endrole --}}
 

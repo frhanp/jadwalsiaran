@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-11 08:41:31_
+_Generated: 2025-10-12 12:48:22_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -357,11 +357,11 @@ Branch:
 main
 
 Last 5 commits:
+03f0895 fix penamaan
+eb94ec7 fix tampilan v1
 59d69d1 ubah sequences menjadi seqmen
 a45aceb fix studio v2
 af71858 fix studio v1
-57bb081 revisi minor
-766a3b3 fix logic 1 penyiar saja
 ```
 
 
@@ -538,94 +538,94 @@ require __DIR__ . '/auth.php';
 ## Routes (from command)
 ```
 
-  GET|HEAD        / ......................................................................................................................... 
-  GET|HEAD        _debugbar/assets/javascript ................................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
-  GET|HEAD        _debugbar/assets/stylesheets ................................ debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
-  DELETE          _debugbar/cache/{key}/{tags?} .......................... debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
-  GET|HEAD        _debugbar/clockwork/{id} ......................... debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
-  GET|HEAD        _debugbar/open .................................... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
-  POST            _debugbar/queries/explain ........................ debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
-  PUT|PATCH       admin/items/{item} ............................................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          admin/items/{item} ............................................. admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        admin/items/{item}/edit .............................................. admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        admin/items/{item}/item-details ......................... admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             admin/items/{item}/item-details ................... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
-  GET|HEAD        admin/items/{item}/materi-details ................... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
-  PUT             admin/items/{item}/materi-details ............. admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
-  GET|HEAD        admin/programs ....................................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
-  POST            admin/programs ....................................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
-  GET|HEAD        admin/programs/create .............................................. admin.programs.create ΓÇ║ Admin\ProgramController@create
-  GET|HEAD        admin/programs/{program} ............................................... admin.programs.show ΓÇ║ Admin\ProgramController@show
-  PUT|PATCH       admin/programs/{program} ........................................... admin.programs.update ΓÇ║ Admin\ProgramController@update
-  DELETE          admin/programs/{program} ......................................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
-  GET|HEAD        admin/programs/{program}/edit .......................................... admin.programs.edit ΓÇ║ Admin\ProgramController@edit
-  GET|HEAD        admin/programs/{program}/petugas ....................... admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
-  POST            admin/programs/{program}/petugas ....................... admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
-  GET|HEAD        admin/programs/{program}/petugas/create .............. admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} ......... admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasController@show
-  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} ..... admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasController@update
-  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} ... admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasController@destroy
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit .... admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasController@edit
-  GET|HEAD        admin/programs/{program}/sequences ........................ admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
-  POST            admin/programs/{program}/sequences ........................ admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
-  GET|HEAD        admin/programs/{program}/sequences/create ............... admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
-  PUT|PATCH       admin/sequences/{sequence} ....................................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
-  DELETE          admin/sequences/{sequence} ..................................... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
-  GET|HEAD        admin/sequences/{sequence}/edit ...................................... admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
-  GET|HEAD        admin/sequences/{sequence}/items ......................... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            admin/sequences/{sequence}/items ......................... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        admin/sequences/{sequence}/items/create ................ admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
-  GET|HEAD        admin/studios .......................................................... admin.studios.index ΓÇ║ Admin\StudioController@index
-  POST            admin/studios .......................................................... admin.studios.store ΓÇ║ Admin\StudioController@store
-  GET|HEAD        admin/studios/create ................................................. admin.studios.create ΓÇ║ Admin\StudioController@create
-  GET|HEAD        admin/studios/{studio} ................................................... admin.studios.show ΓÇ║ Admin\StudioController@show
-  PUT|PATCH       admin/studios/{studio} ............................................... admin.studios.update ΓÇ║ Admin\StudioController@update
-  DELETE          admin/studios/{studio} ............................................. admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
-  GET|HEAD        admin/studios/{studio}/edit .............................................. admin.studios.edit ΓÇ║ Admin\StudioController@edit
-  GET|HEAD        admin/users ................................................................ admin.users.index ΓÇ║ Admin\UserController@index
-  POST            admin/users ................................................................ admin.users.store ΓÇ║ Admin\UserController@store
-  GET|HEAD        admin/users/create ....................................................... admin.users.create ΓÇ║ Admin\UserController@create
-  GET|HEAD        admin/users/{user} ........................................................... admin.users.show ΓÇ║ Admin\UserController@show
-  PUT|PATCH       admin/users/{user} ....................................................... admin.users.update ΓÇ║ Admin\UserController@update
-  DELETE          admin/users/{user} ..................................................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
-  GET|HEAD        admin/users/{user}/edit ...................................................... admin.users.edit ΓÇ║ Admin\UserController@edit
-  GET|HEAD        confirm-password ............................................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
-  POST            confirm-password ................................................................. Auth\ConfirmablePasswordController@store
-  GET|HEAD        dashboard ........................................................................... dashboard ΓÇ║ DashboardController@index
-  POST            email/verification-notification .................... verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
-  GET|HEAD        forgot-password ................................................ password.request ΓÇ║ Auth\PasswordResetLinkController@create
-  POST            forgot-password ................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
-  GET|HEAD        laporan/jadwal-harian ..................................................... laporan.jadwal.harian ΓÇ║ LaporanController@index
-  GET|HEAD        laporan/jadwal-harian/cetak ................................................ laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
-  GET|HEAD        login .................................................................. login ΓÇ║ Auth\AuthenticatedSessionController@create
-  POST            login ........................................................................... Auth\AuthenticatedSessionController@store
-  POST            logout ............................................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
-  PUT             password ................................................................. password.update ΓÇ║ Auth\PasswordController@update
-  PUT|PATCH       penyiar/items/{item} ........................................... penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          penyiar/items/{item} ......................................... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        penyiar/items/{item}/edit .......................................... penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        penyiar/items/{item}/item-details ..................... penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             penyiar/items/{item}/item-details ............... penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
-  GET|HEAD        penyiar/items/{item}/materi-details ............... penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
-  PUT             penyiar/items/{item}/materi-details ......... penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
-  GET|HEAD        penyiar/jadwal ...................................................... penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
-  GET|HEAD        penyiar/sequences/{sequence}/items ..................... penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            penyiar/sequences/{sequence}/items ..................... penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        penyiar/sequences/{sequence}/items/create ............ penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
-  PATCH           penyiar/sequences/{sequence}/pendengar ...... penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceController@updatePendengar
-  GET|HEAD        profile ............................................................................. profile.edit ΓÇ║ ProfileController@edit
-  PATCH           profile ......................................................................... profile.update ΓÇ║ ProfileController@update
-  DELETE          profile ....................................................................... profile.destroy ΓÇ║ ProfileController@destroy
-  GET|HEAD        register .................................................................. register ΓÇ║ Auth\RegisteredUserController@create
-  POST            register .............................................................................. Auth\RegisteredUserController@store
-  POST            reset-password .......................................................... password.store ΓÇ║ Auth\NewPasswordController@store
-  GET|HEAD        reset-password/{token} ................................................. password.reset ΓÇ║ Auth\NewPasswordController@create
-  GET|HEAD        storage/{path} .............................................................................................. storage.local
-  GET|HEAD        up ........................................................................................................................ 
-  GET|HEAD        verify-email ................................................. verification.notice ΓÇ║ Auth\EmailVerificationPromptController
-  GET|HEAD        verify-email/{id}/{hash} ................................................. verification.verify ΓÇ║ Auth\VerifyEmailController
+  GET|HEAD        / ........................................................................................................................... 
+  GET|HEAD        _debugbar/assets/javascript ..................................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
+  GET|HEAD        _debugbar/assets/stylesheets .................................. debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
+  DELETE          _debugbar/cache/{key}/{tags?} ............................ debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
+  GET|HEAD        _debugbar/clockwork/{id} ........................... debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
+  GET|HEAD        _debugbar/open ...................................... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
+  POST            _debugbar/queries/explain .......................... debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
+  PUT|PATCH       admin/items/{item} ................................................. admin.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          admin/items/{item} ............................................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        admin/items/{item}/edit ................................................ admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        admin/items/{item}/item-details ........................... admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             admin/items/{item}/item-details ..................... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        admin/items/{item}/materi-details ..................... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             admin/items/{item}/materi-details ............... admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
+  GET|HEAD        admin/programs ......................................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
+  POST            admin/programs ......................................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
+  GET|HEAD        admin/programs/create ................................................ admin.programs.create ΓÇ║ Admin\ProgramController@create
+  GET|HEAD        admin/programs/{program} ................................................. admin.programs.show ΓÇ║ Admin\ProgramController@show
+  PUT|PATCH       admin/programs/{program} ............................................. admin.programs.update ΓÇ║ Admin\ProgramController@update
+  DELETE          admin/programs/{program} ........................................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
+  GET|HEAD        admin/programs/{program}/edit ............................................ admin.programs.edit ΓÇ║ Admin\ProgramController@edit
+  GET|HEAD        admin/programs/{program}/petugas ......................... admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
+  POST            admin/programs/{program}/petugas ......................... admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
+  GET|HEAD        admin/programs/{program}/petugas/create ................ admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} ........... admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasController@show
+  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} ....... admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasController@update
+  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} ..... admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasController@destroy
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit ...... admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasController@edit
+  GET|HEAD        admin/programs/{program}/sequences .......................... admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
+  POST            admin/programs/{program}/sequences .......................... admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
+  GET|HEAD        admin/programs/{program}/sequences/create ................. admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
+  PUT|PATCH       admin/sequences/{sequence} ......................................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
+  DELETE          admin/sequences/{sequence} ....................................... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
+  GET|HEAD        admin/sequences/{sequence}/edit ........................................ admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
+  GET|HEAD        admin/sequences/{sequence}/items ........................... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            admin/sequences/{sequence}/items ........................... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        admin/sequences/{sequence}/items/create .................. admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  GET|HEAD        admin/studios ............................................................ admin.studios.index ΓÇ║ Admin\StudioController@index
+  POST            admin/studios ............................................................ admin.studios.store ΓÇ║ Admin\StudioController@store
+  GET|HEAD        admin/studios/create ................................................... admin.studios.create ΓÇ║ Admin\StudioController@create
+  GET|HEAD        admin/studios/{studio} ..................................................... admin.studios.show ΓÇ║ Admin\StudioController@show
+  PUT|PATCH       admin/studios/{studio} ................................................. admin.studios.update ΓÇ║ Admin\StudioController@update
+  DELETE          admin/studios/{studio} ............................................... admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
+  GET|HEAD        admin/studios/{studio}/edit ................................................ admin.studios.edit ΓÇ║ Admin\StudioController@edit
+  GET|HEAD        admin/users .................................................................. admin.users.index ΓÇ║ Admin\UserController@index
+  POST            admin/users .................................................................. admin.users.store ΓÇ║ Admin\UserController@store
+  GET|HEAD        admin/users/create ......................................................... admin.users.create ΓÇ║ Admin\UserController@create
+  GET|HEAD        admin/users/{user} ............................................................. admin.users.show ΓÇ║ Admin\UserController@show
+  PUT|PATCH       admin/users/{user} ......................................................... admin.users.update ΓÇ║ Admin\UserController@update
+  DELETE          admin/users/{user} ....................................................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
+  GET|HEAD        admin/users/{user}/edit ........................................................ admin.users.edit ΓÇ║ Admin\UserController@edit
+  GET|HEAD        confirm-password ................................................. password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
+  POST            confirm-password ................................................................... Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard ............................................................................. dashboard ΓÇ║ DashboardController@index
+  POST            email/verification-notification ...................... verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
+  GET|HEAD        forgot-password .................................................. password.request ΓÇ║ Auth\PasswordResetLinkController@create
+  POST            forgot-password ..................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
+  GET|HEAD        laporan/jadwal-harian ....................................................... laporan.jadwal.harian ΓÇ║ LaporanController@index
+  GET|HEAD        laporan/jadwal-harian/cetak .................................................. laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
+  GET|HEAD        login .................................................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
+  POST            login ............................................................................. Auth\AuthenticatedSessionController@store
+  POST            logout ................................................................. logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  PUT             password ................................................................... password.update ΓÇ║ Auth\PasswordController@update
+  PUT|PATCH       penyiar/items/{item} ............................................. penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          penyiar/items/{item} ........................................... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        penyiar/items/{item}/edit ............................................ penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        penyiar/items/{item}/item-details ....................... penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             penyiar/items/{item}/item-details ................. penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        penyiar/items/{item}/materi-details ................. penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             penyiar/items/{item}/materi-details ........... penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
+  GET|HEAD        penyiar/jadwal ........................................................ penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
+  GET|HEAD        penyiar/sequences/{sequence}/items ....................... penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            penyiar/sequences/{sequence}/items ....................... penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        penyiar/sequences/{sequence}/items/create .............. penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  PATCH           penyiar/sequences/{sequence}/pendengar ........ penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceController@updatePendengar
+  GET|HEAD        profile ............................................................................... profile.edit ΓÇ║ ProfileController@edit
+  PATCH           profile ........................................................................... profile.update ΓÇ║ ProfileController@update
+  DELETE          profile ......................................................................... profile.destroy ΓÇ║ ProfileController@destroy
+  GET|HEAD        register .................................................................... register ΓÇ║ Auth\RegisteredUserController@create
+  POST            register ................................................................................ Auth\RegisteredUserController@store
+  POST            reset-password ............................................................ password.store ΓÇ║ Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} ................................................... password.reset ΓÇ║ Auth\NewPasswordController@create
+  GET|HEAD        storage/{path} ................................................................................................ storage.local
+  GET|HEAD        up .......................................................................................................................... 
+  GET|HEAD        verify-email ................................................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} ................................................... verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                                          Showing [86] routes
+                                                                                                                            Showing [86] routes
 
 ```
 
@@ -1578,7 +1578,8 @@ class JadwalController extends Controller
      */
     public function index()
     {
-        $sequences = Sequence::with('program')
+        $sequences = Sequence::with('program.studio')
+
             ->where('host_id', Auth::id())
             ->orderBy('waktu', 'asc')
             ->paginate(15);
@@ -2303,7 +2304,7 @@ class Studio extends Model
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                                           d="M15 19l-7-7 7-7"/>
                                 </svg>
-                                Kembali ke Daftar Sequence
+                                Kembali ke Daftar Seqmen
                             </a>
                         @else
                             <a href="{{ route('penyiar.jadwal.index') }}" 
@@ -3110,7 +3111,7 @@ class Studio extends Model
                       border border-transparent rounded-lg font-semibold text-sm text-white 
                       shadow hover:shadow-md hover:from-blue-700 hover:to-sky-600 
                       transition ease-in-out duration-200">
-                + Tambah Sequence
+                + Tambah Seqmen
             </a>
         </div>
     </x-slot>
@@ -4832,60 +4833,93 @@ $classes = ($active ?? false)
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
+                <div class="p-6 text-gray-900 space-y-4">
 
                     @if (session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            <span class="block sm:inline">{{ session('success') }}</span>
+                        <div class="rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
+                            âœ… {{ session('success') }}
                         </div>
                     @endif
 
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y-2 divide-gray-200 bg-white text-sm">
-                            <thead class="text-left">
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="min-w-full text-sm text-gray-700">
+                            <thead class="bg-gray-100">
                                 <tr>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Program</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Nama Sequence</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Waktu</th>
-                                    <th class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">Jml. Pendengar</th>
-                                    <th class="px-4 py-2"></th>
+                                    <th class="px-4 py-3 text-left font-semibold">Studio</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Program</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Nama Sequence</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Waktu</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Jumlah Pendengar</th>
+                                    <th class="px-4 py-3 text-center font-semibold w-40">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-200">
+
+                            <tbody class="divide-y divide-gray-200 bg-white">
                                 @forelse ($sequences as $sequence)
-                                <tr>
-                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $sequence->program->nama ?? 'N/A' }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ $sequence->nama }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 text-gray-700">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2">
-                                        {{-- AWAL MODIFIKASI: Form Input Jumlah Pendengar --}}
-                                        <form action="{{ route('penyiar.sequences.pendengar.update', $sequence) }}" method="POST" class="flex items-center gap-2">
-                                            @csrf
-                                            @method('PATCH')
-                                            <input type="number" name="jumlah_pendengar" value="{{ $sequence->jumlah_pendengar }}" class="w-24 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm py-1">
-                                            <button type="submit" class="px-2 py-1 bg-indigo-600 text-white text-xs font-semibold rounded hover:bg-indigo-700">Simpan</button>
-                                        </form>
-                                        {{-- AKHIR MODIFIKASI --}}
-                                    </td>
-                                    <td class="whitespace-nowrap px-4 py-2">
-                                        <a href="{{ route('penyiar.sequences.items.index', $sequence) }}" class="text-indigo-600 hover:text-indigo-900 font-medium">
-                                            Isi Materi Siaran &raquo;
-                                        </a>
-                                    </td>
-                                </tr>
+                                    <tr class="hover:bg-gray-50 transition">
+                                        <td class="px-4 py-3 font-medium text-gray-900">
+                                            {{ $sequence->program->studio->nama ?? '-' }}
+                                        </td>
+                                        <td class="px-4 py-3 font-medium text-gray-900">
+                                            {{ $sequence->program->nama ?? 'N/A' }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700">{{ $sequence->nama }}</td>
+                                        <td class="px-4 py-3 text-gray-700">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                        <td class="px-4 py-3">
+                                            <form action="{{ route('penyiar.sequences.pendengar.update', $sequence) }}" 
+                                                  method="POST" class="flex items-center gap-2">
+                                                @csrf
+                                                @method('PATCH')
+                                        
+                                                <div class="relative">
+                                                    <input type="number" name="jumlah_pendengar" 
+                                                           value="{{ $sequence->jumlah_pendengar }}"
+                                                           class="w-28 pl-8 pr-2 py-1.5 text-sm border-gray-300 rounded-md 
+                                                                  focus:border-indigo-500 focus:ring-indigo-500">
+                                                                  
+                                                             
+                                                </div>
+                                        
+                                                <button type="submit"
+                                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white 
+                                                               text-xs font-medium rounded-md hover:bg-indigo-700 transition">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                              d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                    Simpan
+                                                </button>
+                                            </form>
+                                        </td>
+                                        
+                                        <td class="px-4 py-3 text-center">
+                                            <a href="{{ route('penyiar.sequences.items.index', $sequence) }}"
+                                               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium 
+                                                      text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-800 
+                                                      transition-all duration-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                                                </svg>
+                                                Isi Materi
+                                            </a>
+                                        </td>
+                                        
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="5" class="text-center py-4 text-gray-500">
-                                        Anda belum memiliki jadwal siaran yang ditugaskan.
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-6 text-gray-500">
+                                            Anda belum memiliki jadwal siaran yang ditugaskan.
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
+
                     <div class="mt-4">
                         {{ $sequences->links() }}
                     </div>
@@ -5243,11 +5277,11 @@ $classes = ($active ?? false)
                     </div>
                     
                     <div class="mx-auto max-w-4xl">
-                        <div class="mb-8 flex justify-center">
+                        {{-- <div class="mb-8 flex justify-center">
                             <div class="relative rounded-full px-4 py-1.5 text-sm leading-6 text-blue-300 bg-slate-900 ring-1 ring-slate-700 hover:ring-blue-500 transition-colors duration-300 shadow-sm">
                                 Didesain untuk Admin, Penyiar, Katim & Kepsta
                             </div>
-                        </div>
+                        </div> --}}
                         <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
                             Platform Kolaboratif untuk
                             <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Jadwal Siaran RRI</span>

@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Tambah Sequence untuk: <span class="font-bold">{{ $program->nama }}</span>
+            Tambah Seqmen untuk: <span class="font-bold">{{ $program->nama }}</span>
         </h2>
     </x-slot>
 
@@ -13,13 +13,13 @@
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <x-input-label for="nama" :value="__('Nama Sequence')" />
+                                <x-input-label for="nama" :value="__('Nama Seqmen')" />
                                 <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama')" required autofocus />
                                 <x-input-error :messages="$errors->get('nama')" class="mt-2" />
                             </div>
 
                             <div>
-                                <x-input-label for="host_id" :value="__('Host/Penyiar')" />
+                                <x-input-label for="host_id" :value="__('Penyiar')" />
                                 <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                     <option value="">Pilih Penyiar</option>
                                     @foreach ($penyiars as $penyiar)

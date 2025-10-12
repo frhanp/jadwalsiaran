@@ -16,13 +16,6 @@
     </head>
     <body class="font-sans antialiased bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-            
-            <!-- Logo -->
-            <div>
-                <a href="/" class="group">
-                    <x-application-logo class="w-20 h-20 text-blue-500 group-hover:scale-110 transition-transform duration-300" />
-                </a>
-            </div>
 
             <!-- Card Container -->
             <div class="w-full sm:max-w-md mt-6 px-6 py-8 

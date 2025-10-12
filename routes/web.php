@@ -44,7 +44,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
         Route::resource('programs.petugas', JadwalPetugasController::class)->parameters(['petugas' => 'jadwalPetugas']);
-        Route::resource('studios', StudioController::class);
+       
+        });
+
+        Route::middleware(['role:katim'])->name('admin.')->prefix('admin')->group(function () {
+            Route::resource('studios', StudioController::class); // PINDAHKAN KE SINI
         });
 
     // Grup untuk Penyiar

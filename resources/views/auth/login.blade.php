@@ -1,11 +1,17 @@
 <x-guest-layout>
     <!-- Logo -->
     <div class="flex justify-center mb-6">
-        <img src="/logo-rri.png" alt="Logo RRI" class="h-14 w-auto">
+        <div class="h-20 w-48 flex items-center justify-center bg-transparent rounded-lg shadow">
+            <img src="{{ asset('images/rrilogo1.png') }}" 
+                 alt="Logo RRI" 
+                 class="object-contain h-full w-auto" />
+        </div>
     </div>
+    
+    
 
     <!-- Title -->
-    <h2 class="text-center text-2xl font-bold text-white mb-6">Login ke Jadwal Siaran</h2>
+    <h2 class="text-center text-2xl font-bold text-white mb-6">Login ke Daftar Acara Siaran</h2>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
