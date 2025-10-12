@@ -76,6 +76,11 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+Route::middleware(['role:admin,kepsta,katim'])->name('laporan.')->prefix('laporan')->group(function () {
+    Route::get('jadwal-harian', [LaporanController::class, 'index'])->name('jadwal.harian');
+    Route::get('jadwal-harian/cetak', [LaporanController::class, 'cetak'])->name('jadwal.cetak');
+});
+
 
 
 

@@ -43,7 +43,7 @@
                         </tr>
                     @endforelse
                 @empty
-                    <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada sequence --</td>
+                    <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
                     </tr>
                 @endforelse
         </tbody>

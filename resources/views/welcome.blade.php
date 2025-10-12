@@ -30,19 +30,19 @@
                 <nav class="flex items-center space-x-4 sm:space-x-6">
                     @if (Route::has('login'))
                         <a href="{{ route('login') }}"
-                            class="relative text-slate-600 dark:text-slate-300 font-semibold transition-colors duration-300 group py-1">
+                        class="bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
                             <span>Log in</span>
                             {{-- Garis Bawah Animasi --}}
                             <span
                                 class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center"></span>
                         </a>
                     @endif
-                    @if (Route::has('register'))
+                    {{-- @if (Route::has('register'))
                         <a href="{{ route('register') }}"
                             class="bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
                             Register
                         </a>
-                    @endif
+                    @endif --}}
                 </nav>
             </div>
         </header>
@@ -60,11 +60,7 @@
                     </div>
 
                     <div class="mx-auto max-w-4xl">
-                        {{-- <div class="mb-8 flex justify-center">
-                            <div class="relative rounded-full px-4 py-1.5 text-sm leading-6 text-blue-300 bg-slate-900 ring-1 ring-slate-700 hover:ring-blue-500 transition-colors duration-300 shadow-sm">
-                                Didesain untuk Admin, Penyiar, Katim & Kepsta
-                            </div>
-                        </div> --}}
+                        
                         <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
                             Platform Kolaboratif untuk
                             <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Daftar

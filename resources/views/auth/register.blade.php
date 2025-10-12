@@ -1,7 +1,7 @@
 <x-guest-layout>
     <!-- Logo -->
     <div class="flex justify-center mb-6">
-        <img src="/logo-rri.png" alt="Logo RRI" class="h-14 w-auto">
+        <img src="{{ asset('images/rrilogo1.png') }}" alt="Logo RRI" class="h-14 w-auto">
     </div>
 
     <!-- Title -->
