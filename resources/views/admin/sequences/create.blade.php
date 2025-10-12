@@ -19,19 +19,6 @@
                             </div>
 
                             <div>
-                                <x-input-label for="host_id" :value="__('Penyiar')" />
-                                <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
-                                    <option value="">Pilih Penyiar</option>
-                                    @foreach ($penyiars as $penyiar)
-                                        <option value="{{ $penyiar->id }}" {{ old('host_id') == $penyiar->id ? 'selected' : '' }}>
-                                            {{ $penyiar->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('host_id')" class="mt-2" />
-                            </div>
-
-                            <div>
                                 <x-input-label for="waktu" :value="__('Waktu Mulai (HH:MM)')" />
                                 <x-text-input id="waktu" class="block mt-1 w-full" type="time" name="waktu" :value="old('waktu')" required />
                                 <x-input-error :messages="$errors->get('waktu')" class="mt-2" />

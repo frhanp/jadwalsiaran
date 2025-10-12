@@ -71,7 +71,7 @@
                             <div x-show="activeProgramTabs[activeStudioTab] === {{ $program->id }}" x-cloak class="printable-area">
                                 <div class="p-6 text-gray-900">
                                     @include('laporan._tabel_program', ['program' => $program])
-                                _</div>
+                                </div>
                             </div>
                         @endforeach
                     </div>

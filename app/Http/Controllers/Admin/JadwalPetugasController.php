@@ -39,8 +39,15 @@ class JadwalPetugasController extends Controller
             'penyiars.*' => 'exists:users,id',
         ], ['tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.']);
 
+
         $jadwalPetugas = $program->jadwalPetugas()->create($validatedData + ['dibuat_oleh' => Auth::id()]);
+        $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($request->input('penyiars', []));
+
+        $hostId = collect($penyiarIds)->first(); 
+        if ($hostId) {
+            $program->sequences()->update(['host_id' => $hostId]);
+        }
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil ditambahkan.');
@@ -68,9 +75,20 @@ class JadwalPetugasController extends Controller
             'penyiars.*' => 'exists:users,id',
         ], ['tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.']);
         
+
         $jadwalPetugas->update($validatedData);
+        $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($request->input('penyiars', []));
-        // AKHIR MODIFIKASI
+
+        
+        $hostId = collect($penyiarIds)->first();
+        if ($hostId) {
+            $program->sequences()->update(['host_id' => $hostId]);
+        }
+
+
+        
+        
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil diperbarui.');

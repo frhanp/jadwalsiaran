@@ -67,19 +67,14 @@
                         </div> --}}
                         <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
                             Platform Kolaboratif untuk
-                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Jadwal
+                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Daftar
+                                Acara
                                 Siaran RRI</span>
                         </h1>
                         <p class="mt-6 max-w-2xl mx-auto text-lg leading-8 text-slate-400">
                             Tinggalkan cara manual. Sambut era baru penjadwalan siaran yang terintegrasi, cepat, dan
                             bebas dari kesalahan.
                         </p>
-                        {{-- <div class="mt-10">
-                            <a href="{{ route('dashboard') }}" 
-                               class="inline-block bg-gradient-to-r from-blue-600 to-sky-500 text-white font-bold text-lg px-8 py-4 rounded-2xl shadow-lg hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105">
-                                Mulai Sekarang &rarr;
-                            </a>
-                        </div> --}}
                     </div>
                 </div>
             </section>

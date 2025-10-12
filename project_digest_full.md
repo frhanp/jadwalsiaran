@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-12 12:48:22_
+_Generated: 2025-10-12 13:42:25_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -126,11 +126,13 @@ database\seeders\ScheduleContentSeeder.php
 database\seeders\StudioSeeder.php
 database\seeders\UserSeeder.php
 public\build
+public\images
 public\.htaccess
 public\favicon.ico
 public\hot
 public\index.php
 public\robots.txt
+public\images\rrilogo1.png
 resources\css
 resources\js
 resources\views
@@ -357,11 +359,11 @@ Branch:
 main
 
 Last 5 commits:
+5a21684 fix penamaan dan logo v2
 03f0895 fix penamaan
 eb94ec7 fix tampilan v1
 59d69d1 ubah sequences menjadi seqmen
 a45aceb fix studio v2
-af71858 fix studio v1
 ```
 
 
@@ -499,7 +501,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
         Route::resource('programs.petugas', JadwalPetugasController::class)->parameters(['petugas' => 'jadwalPetugas']);
-        Route::resource('studios', StudioController::class);
+       
+        });
+
+        Route::middleware(['role:katim'])->name('admin.')->prefix('admin')->group(function () {
+            Route::resource('studios', StudioController::class); // PINDAHKAN KE SINI
         });
 
     // Grup untuk Penyiar
@@ -538,94 +544,94 @@ require __DIR__ . '/auth.php';
 ## Routes (from command)
 ```
 
-  GET|HEAD        / ........................................................................................................................... 
-  GET|HEAD        _debugbar/assets/javascript ..................................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
-  GET|HEAD        _debugbar/assets/stylesheets .................................. debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
-  DELETE          _debugbar/cache/{key}/{tags?} ............................ debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
-  GET|HEAD        _debugbar/clockwork/{id} ........................... debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
-  GET|HEAD        _debugbar/open ...................................... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
-  POST            _debugbar/queries/explain .......................... debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
-  PUT|PATCH       admin/items/{item} ................................................. admin.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          admin/items/{item} ............................................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        admin/items/{item}/edit ................................................ admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        admin/items/{item}/item-details ........................... admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             admin/items/{item}/item-details ..................... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
-  GET|HEAD        admin/items/{item}/materi-details ..................... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
-  PUT             admin/items/{item}/materi-details ............... admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
-  GET|HEAD        admin/programs ......................................................... admin.programs.index ΓÇ║ Admin\ProgramController@index
-  POST            admin/programs ......................................................... admin.programs.store ΓÇ║ Admin\ProgramController@store
-  GET|HEAD        admin/programs/create ................................................ admin.programs.create ΓÇ║ Admin\ProgramController@create
-  GET|HEAD        admin/programs/{program} ................................................. admin.programs.show ΓÇ║ Admin\ProgramController@show
-  PUT|PATCH       admin/programs/{program} ............................................. admin.programs.update ΓÇ║ Admin\ProgramController@update
-  DELETE          admin/programs/{program} ........................................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
-  GET|HEAD        admin/programs/{program}/edit ............................................ admin.programs.edit ΓÇ║ Admin\ProgramController@edit
-  GET|HEAD        admin/programs/{program}/petugas ......................... admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
-  POST            admin/programs/{program}/petugas ......................... admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
-  GET|HEAD        admin/programs/{program}/petugas/create ................ admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} ........... admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasController@show
-  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} ....... admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasController@update
-  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} ..... admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasController@destroy
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit ...... admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasController@edit
-  GET|HEAD        admin/programs/{program}/sequences .......................... admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
-  POST            admin/programs/{program}/sequences .......................... admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
-  GET|HEAD        admin/programs/{program}/sequences/create ................. admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
-  PUT|PATCH       admin/sequences/{sequence} ......................................... admin.sequences.update ΓÇ║ Admin\SequenceController@update
-  DELETE          admin/sequences/{sequence} ....................................... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
-  GET|HEAD        admin/sequences/{sequence}/edit ........................................ admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
-  GET|HEAD        admin/sequences/{sequence}/items ........................... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            admin/sequences/{sequence}/items ........................... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        admin/sequences/{sequence}/items/create .................. admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
-  GET|HEAD        admin/studios ............................................................ admin.studios.index ΓÇ║ Admin\StudioController@index
-  POST            admin/studios ............................................................ admin.studios.store ΓÇ║ Admin\StudioController@store
-  GET|HEAD        admin/studios/create ................................................... admin.studios.create ΓÇ║ Admin\StudioController@create
-  GET|HEAD        admin/studios/{studio} ..................................................... admin.studios.show ΓÇ║ Admin\StudioController@show
-  PUT|PATCH       admin/studios/{studio} ................................................. admin.studios.update ΓÇ║ Admin\StudioController@update
-  DELETE          admin/studios/{studio} ............................................... admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
-  GET|HEAD        admin/studios/{studio}/edit ................................................ admin.studios.edit ΓÇ║ Admin\StudioController@edit
-  GET|HEAD        admin/users .................................................................. admin.users.index ΓÇ║ Admin\UserController@index
-  POST            admin/users .................................................................. admin.users.store ΓÇ║ Admin\UserController@store
-  GET|HEAD        admin/users/create ......................................................... admin.users.create ΓÇ║ Admin\UserController@create
-  GET|HEAD        admin/users/{user} ............................................................. admin.users.show ΓÇ║ Admin\UserController@show
-  PUT|PATCH       admin/users/{user} ......................................................... admin.users.update ΓÇ║ Admin\UserController@update
-  DELETE          admin/users/{user} ....................................................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
-  GET|HEAD        admin/users/{user}/edit ........................................................ admin.users.edit ΓÇ║ Admin\UserController@edit
-  GET|HEAD        confirm-password ................................................. password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
-  POST            confirm-password ................................................................... Auth\ConfirmablePasswordController@store
-  GET|HEAD        dashboard ............................................................................. dashboard ΓÇ║ DashboardController@index
-  POST            email/verification-notification ...................... verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
-  GET|HEAD        forgot-password .................................................. password.request ΓÇ║ Auth\PasswordResetLinkController@create
-  POST            forgot-password ..................................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
-  GET|HEAD        laporan/jadwal-harian ....................................................... laporan.jadwal.harian ΓÇ║ LaporanController@index
-  GET|HEAD        laporan/jadwal-harian/cetak .................................................. laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
-  GET|HEAD        login .................................................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
-  POST            login ............................................................................. Auth\AuthenticatedSessionController@store
-  POST            logout ................................................................. logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
-  PUT             password ................................................................... password.update ΓÇ║ Auth\PasswordController@update
-  PUT|PATCH       penyiar/items/{item} ............................................. penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          penyiar/items/{item} ........................................... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        penyiar/items/{item}/edit ............................................ penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        penyiar/items/{item}/item-details ....................... penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             penyiar/items/{item}/item-details ................. penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
-  GET|HEAD        penyiar/items/{item}/materi-details ................. penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
-  PUT             penyiar/items/{item}/materi-details ........... penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@update
-  GET|HEAD        penyiar/jadwal ........................................................ penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
-  GET|HEAD        penyiar/sequences/{sequence}/items ....................... penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            penyiar/sequences/{sequence}/items ....................... penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        penyiar/sequences/{sequence}/items/create .............. penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
-  PATCH           penyiar/sequences/{sequence}/pendengar ........ penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceController@updatePendengar
-  GET|HEAD        profile ............................................................................... profile.edit ΓÇ║ ProfileController@edit
-  PATCH           profile ........................................................................... profile.update ΓÇ║ ProfileController@update
-  DELETE          profile ......................................................................... profile.destroy ΓÇ║ ProfileController@destroy
-  GET|HEAD        register .................................................................... register ΓÇ║ Auth\RegisteredUserController@create
-  POST            register ................................................................................ Auth\RegisteredUserController@store
-  POST            reset-password ............................................................ password.store ΓÇ║ Auth\NewPasswordController@store
-  GET|HEAD        reset-password/{token} ................................................... password.reset ΓÇ║ Auth\NewPasswordController@create
-  GET|HEAD        storage/{path} ................................................................................................ storage.local
-  GET|HEAD        up .......................................................................................................................... 
-  GET|HEAD        verify-email ................................................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
-  GET|HEAD        verify-email/{id}/{hash} ................................................... verification.verify ΓÇ║ Auth\VerifyEmailController
+  GET|HEAD        / ................................................................................................ 
+  GET|HEAD        _debugbar/assets/javascript .......... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
+  GET|HEAD        _debugbar/assets/stylesheets ....... debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
+  DELETE          _debugbar/cache/{key}/{tags?} . debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
+  GET|HEAD        _debugbar/clockwork/{id} debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
+  GET|HEAD        _debugbar/open ........... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
+  POST            _debugbar/queries/explain debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
+  PUT|PATCH       admin/items/{item} ...................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          admin/items/{item} .................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        admin/items/{item}/edit ..................... admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        admin/items/{item}/item-details admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             admin/items/{item}/item-details admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@ΓÇª
+  GET|HEAD        admin/items/{item}/materi-details admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailControlleΓÇª
+  PUT             admin/items/{item}/materi-details admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailContrΓÇª
+  GET|HEAD        admin/programs .............................. admin.programs.index ΓÇ║ Admin\ProgramController@index
+  POST            admin/programs .............................. admin.programs.store ΓÇ║ Admin\ProgramController@store
+  GET|HEAD        admin/programs/create ..................... admin.programs.create ΓÇ║ Admin\ProgramController@create
+  GET|HEAD        admin/programs/{program} ...................... admin.programs.show ΓÇ║ Admin\ProgramController@show
+  PUT|PATCH       admin/programs/{program} .................. admin.programs.update ΓÇ║ Admin\ProgramController@update
+  DELETE          admin/programs/{program} ................ admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
+  GET|HEAD        admin/programs/{program}/edit ................. admin.programs.edit ΓÇ║ Admin\ProgramController@edit
+  GET|HEAD        admin/programs/{program}/petugas admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@indΓÇª
+  POST            admin/programs/{program}/petugas admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@stoΓÇª
+  GET|HEAD        admin/programs/{program}/petugas/create admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasControΓÇª
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugaΓÇª
+  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.update ΓÇ║ Admin\JadwalPetuΓÇª
+  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetΓÇª
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit admin.programs.petugas.edit ΓÇ║ Admin\JadwalPΓÇª
+  GET|HEAD        admin/programs/{program}/sequences admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
+  POST            admin/programs/{program}/sequences admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
+  GET|HEAD        admin/programs/{program}/sequences/create admin.programs.sequences.create ΓÇ║ Admin\SequenceControlΓÇª
+  PUT|PATCH       admin/sequences/{sequence} .............. admin.sequences.update ΓÇ║ Admin\SequenceController@update
+  DELETE          admin/sequences/{sequence} ............ admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
+  GET|HEAD        admin/sequences/{sequence}/edit ............. admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
+  GET|HEAD        admin/sequences/{sequence}/items admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            admin/sequences/{sequence}/items admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        admin/sequences/{sequence}/items/create admin.sequences.items.create ΓÇ║ Admin\SequenceItemControllΓÇª
+  GET|HEAD        admin/studios ................................. admin.studios.index ΓÇ║ Admin\StudioController@index
+  POST            admin/studios ................................. admin.studios.store ΓÇ║ Admin\StudioController@store
+  GET|HEAD        admin/studios/create ........................ admin.studios.create ΓÇ║ Admin\StudioController@create
+  GET|HEAD        admin/studios/{studio} .......................... admin.studios.show ΓÇ║ Admin\StudioController@show
+  PUT|PATCH       admin/studios/{studio} ...................... admin.studios.update ΓÇ║ Admin\StudioController@update
+  DELETE          admin/studios/{studio} .................... admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
+  GET|HEAD        admin/studios/{studio}/edit ..................... admin.studios.edit ΓÇ║ Admin\StudioController@edit
+  GET|HEAD        admin/users ....................................... admin.users.index ΓÇ║ Admin\UserController@index
+  POST            admin/users ....................................... admin.users.store ΓÇ║ Admin\UserController@store
+  GET|HEAD        admin/users/create .............................. admin.users.create ΓÇ║ Admin\UserController@create
+  GET|HEAD        admin/users/{user} .................................. admin.users.show ΓÇ║ Admin\UserController@show
+  PUT|PATCH       admin/users/{user} .............................. admin.users.update ΓÇ║ Admin\UserController@update
+  DELETE          admin/users/{user} ............................ admin.users.destroy ΓÇ║ Admin\UserController@destroy
+  GET|HEAD        admin/users/{user}/edit ............................. admin.users.edit ΓÇ║ Admin\UserController@edit
+  GET|HEAD        confirm-password ...................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
+  POST            confirm-password ........................................ Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard .................................................. dashboard ΓÇ║ DashboardController@index
+  POST            email/verification-notification verification.send ΓÇ║ Auth\EmailVerificationNotificationController@ΓÇª
+  GET|HEAD        forgot-password ....................... password.request ΓÇ║ Auth\PasswordResetLinkController@create
+  POST            forgot-password .......................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
+  GET|HEAD        laporan/jadwal-harian ............................ laporan.jadwal.harian ΓÇ║ LaporanController@index
+  GET|HEAD        laporan/jadwal-harian/cetak ....................... laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
+  GET|HEAD        login ......................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
+  POST            login .................................................. Auth\AuthenticatedSessionController@store
+  POST            logout ...................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  PUT             password ........................................ password.update ΓÇ║ Auth\PasswordController@update
+  PUT|PATCH       penyiar/items/{item} .................. penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          penyiar/items/{item} ................ penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        penyiar/items/{item}/edit ................. penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        penyiar/items/{item}/item-details penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@ΓÇª
+  PUT             penyiar/items/{item}/item-details penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailControlΓÇª
+  GET|HEAD        penyiar/items/{item}/materi-details penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailContrΓÇª
+  PUT             penyiar/items/{item}/materi-details penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailCΓÇª
+  GET|HEAD        penyiar/jadwal ............................. penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
+  GET|HEAD        penyiar/sequences/{sequence}/items penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@iΓÇª
+  POST            penyiar/sequences/{sequence}/items penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@sΓÇª
+  GET|HEAD        penyiar/sequences/{sequence}/items/create penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemContΓÇª
+  PATCH           penyiar/sequences/{sequence}/pendengar penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceControlΓÇª
+  GET|HEAD        profile .................................................... profile.edit ΓÇ║ ProfileController@edit
+  PATCH           profile ................................................ profile.update ΓÇ║ ProfileController@update
+  DELETE          profile .............................................. profile.destroy ΓÇ║ ProfileController@destroy
+  GET|HEAD        register ......................................... register ΓÇ║ Auth\RegisteredUserController@create
+  POST            register ..................................................... Auth\RegisteredUserController@store
+  POST            reset-password ................................. password.store ΓÇ║ Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} ........................ password.reset ΓÇ║ Auth\NewPasswordController@create
+  GET|HEAD        storage/{path} ..................................................................... storage.local
+  GET|HEAD        up ............................................................................................... 
+  GET|HEAD        verify-email ........................ verification.notice ΓÇ║ Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} ........................ verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                                            Showing [86] routes
+                                                                                                 Showing [86] routes
 
 ```
 
@@ -2969,7 +2975,7 @@ class Studio extends Model
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Tambah Sequence untuk: <span class="font-bold">{{ $program->nama }}</span>
+            Tambah Seqmen untuk: <span class="font-bold">{{ $program->nama }}</span>
         </h2>
     </x-slot>
 
@@ -2981,13 +2987,13 @@ class Studio extends Model
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <x-input-label for="nama" :value="__('Nama Sequence')" />
+                                <x-input-label for="nama" :value="__('Nama Seqmen')" />
                                 <x-text-input id="nama" class="block mt-1 w-full" type="text" name="nama" :value="old('nama')" required autofocus />
                                 <x-input-error :messages="$errors->get('nama')" class="mt-2" />
                             </div>
 
                             <div>
-                                <x-input-label for="host_id" :value="__('Host/Penyiar')" />
+                                <x-input-label for="host_id" :value="__('Penyiar')" />
                                 <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                     <option value="">Pilih Penyiar</option>
                                     @foreach ($penyiars as $penyiar)
@@ -3771,11 +3777,17 @@ class Studio extends Model
 <x-guest-layout>
     <!-- Logo -->
     <div class="flex justify-center mb-6">
-        <img src="/logo-rri.png" alt="Logo RRI" class="h-14 w-auto">
+        <div class="h-20 w-48 flex items-center justify-center bg-transparent rounded-lg shadow">
+            <img src="{{ asset('images/rrilogo1.png') }}" 
+                 alt="Logo RRI" 
+                 class="object-contain h-full w-auto" />
+        </div>
     </div>
+    
+    
 
     <!-- Title -->
-    <h2 class="text-center text-2xl font-bold text-white mb-6">Login ke Jadwal Siaran</h2>
+    <h2 class="text-center text-2xl font-bold text-white mb-6">Login ke Daftar Acara Siaran</h2>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -4265,7 +4277,7 @@ $classes = ($active ?? false)
                             <div x-show="activeProgramTabs[activeStudioTab] === {{ $program->id }}" x-cloak class="printable-area">
                                 <div class="p-6 text-gray-900">
                                     @include('laporan._tabel_program', ['program' => $program])
-                                _</div>
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -4692,13 +4704,6 @@ $classes = ($active ?? false)
     </head>
     <body class="font-sans antialiased bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
-            
-            <!-- Logo -->
-            <div>
-                <a href="/" class="group">
-                    <x-application-logo class="w-20 h-20 text-blue-500 group-hover:scale-110 transition-transform duration-300" />
-                </a>
-            </div>
 
             <!-- Card Container -->
             <div class="w-full sm:max-w-md mt-6 px-6 py-8 
@@ -4716,8 +4721,8 @@ $classes = ($active ?? false)
 <aside class="h-full flex flex-col md:h-screen md:sticky md:top-0">
     <div class="py-7 px-6 border-b border-gray-200 shadow-sm">
         <a href="{{ route('dashboard') }}" 
-           class="text-2xl font-extrabold text-blue-700 tracking-tight hover:text-blue-800 transition-colors">
-            {{ config('app.name', 'MY APP') }}
+           class="text-1xl font-extrabold text-blue-700 tracking-tight hover:text-blue-800 transition-colors">
+            {{ config('app.name', 'DAFTAR ACARA SIARAN') }}
         </a>
     </div>
     
@@ -4750,15 +4755,12 @@ $classes = ($active ?? false)
                     </svg>
                     <span>Kelola Program</span>
                 </x-nav-link>
-                <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                    <span>Kelola Studio</span>
-                </x-nav-link>
+                
             </div>
         </div>
         @endif
+
+        
 
         @if(Auth::check() && Auth::user()->role === 'penyiar')
         <div class="pt-4">
@@ -4770,12 +4772,11 @@ $classes = ($active ?? false)
                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 15.75h.008v.008H12v-.008Z" />
                     </svg>
-                    <span>Jadwal Siaran Saya</span>
+                    <span>Daftar Acara Siaran Saya</span>
                 </x-nav-link>
             </div>
         </div>
         @endif
-
         @if(Auth::check() && in_array(Auth::user()->role, ['katim', 'kepsta']))
         <div class="pt-4">
             <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -4791,6 +4792,15 @@ $classes = ($active ?? false)
                 </x-nav-link>
             </div>
         </div>
+        @endif
+
+        @if(Auth::check() && in_array(Auth::user()->role, ['katim']))
+        <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            <span>Kelola Studio</span>
+        </x-nav-link>
         @endif
         {{-- @endrole --}}
 
@@ -4829,7 +4839,7 @@ $classes = ($active ?? false)
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Jadwal Siaran Saya') }}
+            {{ __('Daftar Acara Siaran Saya') }}
         </h2>
     </x-slot>
 
@@ -5168,16 +5178,10 @@ $classes = ($active ?? false)
                                 <p class="text-2xl font-bold text-yellow-900">{{ $totalStudios }}</p>
                             </div>
                         </div>
-                        
-                        {{-- <div class="mt-6">
-                            <a href="{{ route('admin.programs.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
-                                &raquo; Kelola Program Siaran
-                            </a>
-                        </div> --}}
                     
                     {{-- KONTEN UNTUK PENYIAR --}}
                     @elseif (Auth::user()->role === 'penyiar')
-                        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Jadwal Terdekat Anda</h3>
+                        <h3 class="text-lg font-semibold border-b pb-2 mb-4">Daftar Acara Siaran Anda</h3>
                         @if($jadwalTerdekat->isNotEmpty())
                             <ul class="space-y-3">
                                 @foreach($jadwalTerdekat as $sequence)
@@ -5196,19 +5200,19 @@ $classes = ($active ?? false)
                             </ul>
                             <div class="mt-6">
                                 <a href="{{ route('penyiar.jadwal.index') }}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
-                                    &raquo; Lihat Semua Jadwal Saya
+                                    &raquo; Lihat Semua Daftar Acara Siaran Saya
                                 </a>
                             </div>
                         @else
-                            <p>Anda belum memiliki jadwal siaran yang ditugaskan.</p>
+                            <p>Anda belum memiliki daftar acara siaran yang ditugaskan.</p>
                         @endif
 
                     {{-- KONTEN UNTUK KATIM & KEPSTA --}}
                     @elseif (in_array(Auth::user()->role, ['katim', 'kepsta']))
                         <h3 class="text-lg font-semibold border-b pb-2 mb-4">Akses Laporan</h3>
-                        <p class="mb-4">Anda dapat melihat laporan jadwal siaran harian melalui link di bawah ini.</p>
+                        <p class="mb-4">Anda dapat melihat laporan daftar acara siaran harian melalui link di bawah ini.</p>
                         <a href="{{ route('laporan.jadwal.harian') }}" class="inline-block px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-500">
-                            Lihat Laporan Jadwal Harian
+                            Lihat Laporan Daftar Acara Siaran Harian
                         </a>
                     
                     @else
@@ -5223,6 +5227,7 @@ $classes = ($active ?? false)
 ===== resources\views\welcome.blade.php =====
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -5233,31 +5238,35 @@ $classes = ($active ?? false)
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body class="font-sans antialiased bg-slate-950 text-slate-200">
     <div class="relative min-h-screen flex flex-col">
-        
+
         <!-- HEADER -->
         <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-slate-950/80 border-b border-slate-800">
             <div class="container mx-auto flex justify-between items-center p-4">
                 <a href="/" class="flex items-center gap-3 group">
-                    <img src="/logo-rri.png" alt="Logo RRI" class="h-10 w-auto transition-transform duration-300 group-hover:scale-110"> 
-                    <span class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors hidden sm:block">
-                        Jadwal Siaran
+                    <img src="{{ asset('images/rrilogo1.png') }}" alt="Logo RRI"
+                        class="h-10 w-auto transition-transform duration-300 group-hover:scale-110">
+                    <span
+                        class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors hidden sm:block">
+                        Daftar Acara Siaran
                     </span>
                 </a>
 
                 <nav class="flex items-center space-x-4 sm:space-x-6">
                     @if (Route::has('login'))
-                        <a href="{{ route('login') }}" 
-                           class="relative text-slate-600 dark:text-slate-300 font-semibold transition-colors duration-300 group py-1">
+                        <a href="{{ route('login') }}"
+                            class="relative text-slate-600 dark:text-slate-300 font-semibold transition-colors duration-300 group py-1">
                             <span>Log in</span>
                             {{-- Garis Bawah Animasi --}}
-                            <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center"></span>
+                            <span
+                                class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center"></span>
                         </a>
                     @endif
                     @if (Route::has('register'))
-                        <a href="{{ route('register') }}" 
-                           class="bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
+                        <a href="{{ route('register') }}"
+                            class="bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
                             Register
                         </a>
                     @endif
@@ -5270,12 +5279,13 @@ $classes = ($active ?? false)
             <section class="relative isolate overflow-hidden">
                 <div class="container mx-auto px-6 pt-24 pb-32 text-center">
                     <!-- Background Gradient Shape -->
-                    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-72" aria-hidden="true">
+                    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-72"
+                        aria-hidden="true">
                         <div class="relative left-1/2 aspect-[1155/678] w-[36rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-500 to-sky-600 opacity-30 sm:w-[72rem]"
-                             style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
+                            style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
                         </div>
                     </div>
-                    
+
                     <div class="mx-auto max-w-4xl">
                         {{-- <div class="mb-8 flex justify-center">
                             <div class="relative rounded-full px-4 py-1.5 text-sm leading-6 text-blue-300 bg-slate-900 ring-1 ring-slate-700 hover:ring-blue-500 transition-colors duration-300 shadow-sm">
@@ -5284,10 +5294,12 @@ $classes = ($active ?? false)
                         </div> --}}
                         <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
                             Platform Kolaboratif untuk
-                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Jadwal Siaran RRI</span>
+                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Jadwal
+                                Siaran RRI</span>
                         </h1>
                         <p class="mt-6 max-w-2xl mx-auto text-lg leading-8 text-slate-400">
-                            Tinggalkan cara manual. Sambut era baru penjadwalan siaran yang terintegrasi, cepat, dan bebas dari kesalahan.
+                            Tinggalkan cara manual. Sambut era baru penjadwalan siaran yang terintegrasi, cepat, dan
+                            bebas dari kesalahan.
                         </p>
                         {{-- <div class="mt-10">
                             <a href="{{ route('dashboard') }}" 
@@ -5298,113 +5310,118 @@ $classes = ($active ?? false)
                     </div>
                 </div>
             </section>
-            
+
             <!-- FITUR -->
             <section class="bg-slate-950 py-24">
                 <div class="container mx-auto px-6">
                     <div class="text-center mb-16">
-                         <h2 class="text-4xl font-bold tracking-tight text-white">Semua yang Anda Butuhkan</h2>
-                         <p class="text-slate-400 mt-4 text-lg">Dari templat master hingga laporan real-time, semua dalam satu platform.</p>
+                        <h2 class="text-4xl font-bold tracking-tight text-white">Semua yang Anda Butuhkan</h2>
+                        <p class="text-slate-400 mt-4 text-lg">Dari templat master hingga laporan real-time, semua dalam
+                            satu platform.</p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
                         <!-- CARD 1 -->
-                        <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
+                        <div
+                            class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
                                     hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/30 
                                     transition-all duration-500 ease-out group">
-                            <div class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
+                            <div
+                                class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
                                         rounded-xl w-14 h-14 flex items-center justify-center mb-6 
                                         group-hover:rotate-6 group-hover:scale-110 
                                         transition-transform duration-500 ease-out">
                                 <!-- Calendar Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" 
-                                     fill="none" viewBox="0 0 24 24" 
-                                     stroke-width="1.5" stroke="currentColor" 
-                                     class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                          d="M6.75 3v2.25M17.25 3v2.25M3.75 9h16.5m-1.5 
-                                          11.25h-13.5a2.25 2.25 0 01-2.25-2.25V7.5a2.25 
-                                          2.25 0 012.25-2.25h13.5a2.25 2.25 0 012.25 
-                                          2.25v10.5a2.25 2.25 0 01-2.25 2.25z"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 9h16.5m-1.5
+                                          11.25h-13.5a2.25 2.25 0 01-2.25-2.25V7.5a2.25
+                                          2.25 0 012.25-2.25h13.5a2.25 2.25 0 012.25
+                                          2.25v10.5a2.25 2.25 0 01-2.25 2.25z" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
+                            <h3
+                                class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
                                 Templat Jadwal Dinamis
                             </h3>
                             <p class="text-slate-400 group-hover:text-slate-200 transition-colors duration-500">
-                                Admin dapat membuat templat jadwal per-Daypart yang siap digunakan penyiar setiap hari hanya dengan satu klik.
+                                Admin dapat membuat templat jadwal per-Daypart yang siap digunakan penyiar setiap hari
+                                hanya dengan satu klik.
                             </p>
                         </div>
 
                         <!-- CARD 2 -->
-                        <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
+                        <div
+                            class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
                                     hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/30 
                                     transition-all duration-500 ease-out group">
-                            <div class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
+                            <div
+                                class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
                                         rounded-xl w-14 h-14 flex items-center justify-center mb-6 
                                         group-hover:rotate-6 group-hover:scale-110 
                                         transition-transform duration-500 ease-out">
                                 <!-- Document Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" 
-                                     fill="none" viewBox="0 0 24 24" 
-                                     stroke-width="1.5" stroke="currentColor" 
-                                     class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                          d="M19.5 14.25v-7.5A2.25 2.25 0 0017.25 
-                                          4.5h-10.5A2.25 2.25 0 004.5 
-                                          6.75v10.5A2.25 2.25 0 006.75 
-                                          19.5h6.879c.414 0 .81-.165 
-                                          1.102-.458l4.241-4.241a1.5 
-                                          1.5 0 00.458-1.051z"/>
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                          d="M9 9.75h6M9 12.75h3"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-7.5A2.25 2.25 0 0017.25
+                                          4.5h-10.5A2.25 2.25 0 004.5
+                                          6.75v10.5A2.25 2.25 0 006.75
+                                          19.5h6.879c.414 0 .81-.165
+                                          1.102-.458l4.241-4.241a1.5
+                                          1.5 0 00.458-1.051z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 9.75h6M9 12.75h3" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
+                            <h3
+                                class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
                                 Input Terstruktur
                             </h3>
                             <p class="text-slate-400 group-hover:text-slate-200 transition-colors duration-500">
-                                Penyiar mengisi detail siaran dengan komponen yang disetujui, mengurangi kesalahan dan menjaga konsistensi.
+                                Penyiar mengisi detail siaran dengan komponen yang disetujui, mengurangi kesalahan dan
+                                menjaga konsistensi.
                             </p>
                         </div>
 
                         <!-- CARD 3 -->
-                        <div class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
+                        <div
+                            class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
                                     hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/30 
                                     transition-all duration-500 ease-out group">
-                            <div class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
+                            <div
+                                class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
                                         rounded-xl w-14 h-14 flex items-center justify-center mb-6 
                                         group-hover:rotate-6 group-hover:scale-110 
                                         transition-transform duration-500 ease-out">
                                 <!-- Chart Icon -->
-                                <svg xmlns="http://www.w3.org/2000/svg" 
-                                     fill="none" viewBox="0 0 24 24" 
-                                     stroke-width="1.5" stroke="currentColor" 
-                                     class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" 
-                                          d="M3 3v18h18M9 17v-4.5M15 17V9M12 
-                                          17v-2.25"/>
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                                    stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M9 17v-4.5M15 17V9M12
+                                          17v-2.25" />
                                 </svg>
                             </div>
-                            <h3 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
+                            <h3
+                                class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
                                 Monitoring Mudah
                             </h3>
                             <p class="text-slate-400 group-hover:text-slate-200 transition-colors duration-500">
-                                Kepsta & Katim dapat melihat laporan jadwal siaran final secara real-time, tanpa menunggu dokumen fisik.
+                                Kepsta & Katim dapat melihat laporan jadwal siaran final secara real-time, tanpa
+                                menunggu dokumen fisik.
                             </p>
                         </div>
                     </div>
                 </div>
             </section>
         </main>
-        
+
         <!-- FOOTER -->
         <footer class="bg-gradient-to-r from-blue-600 to-sky-500">
             <div class="container mx-auto px-6 py-8 text-center text-white font-medium">
-                &copy; {{ date('Y') }} Jadwal Siaran RRI. <span class="opacity-80">Dikembangkan untuk efisiensi modern.</span>
+                &copy; {{ date('Y') }} Jadwal Siaran RRI. <span class="opacity-80">Dikembangkan untuk efisiensi
+                    modern.</span>
             </div>
         </footer>
     </div>
 </body>
+
 </html>
 
 ```
@@ -5540,7 +5557,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'DAFTAR ACARA SIARAN'),
 
     /*
     |--------------------------------------------------------------------------

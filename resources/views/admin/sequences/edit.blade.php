@@ -19,18 +19,6 @@
                                 <x-input-error :messages="$errors->get('nama')" class="mt-2" />
                             </div>
 
-                            <div>
-                                <x-input-label for="host_id" :value="__('Host/Penyiar')" />
-                                <select id="host_id" name="host_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
-                                    <option value="">Pilih Penyiar</option>
-                                    @foreach ($penyiars as $penyiar)
-                                        <option value="{{ $penyiar->id }}" @selected(old('host_id', $sequence->host_id) == $penyiar->id)>
-                                            {{ $penyiar->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <x-input-error :messages="$errors->get('host_id')" class="mt-2" />
-                            </div>
 
                             <div>
                                 <x-input-label for="waktu" :value="__('Waktu Mulai (HH:MM)')" />
