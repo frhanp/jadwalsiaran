@@ -6,7 +6,7 @@
                       border border-transparent rounded-lg font-semibold text-sm text-white 
                       shadow hover:shadow-md hover:from-blue-700 hover:to-sky-600 
                       transition ease-in-out duration-200">
-                + Tambah Sequence
+                + Tambah Seqmen
             </a>
         </div>
     </x-slot>

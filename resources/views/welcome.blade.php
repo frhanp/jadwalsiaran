@@ -54,11 +54,11 @@
                     </div>
                     
                     <div class="mx-auto max-w-4xl">
-                        <div class="mb-8 flex justify-center">
+                        {{-- <div class="mb-8 flex justify-center">
                             <div class="relative rounded-full px-4 py-1.5 text-sm leading-6 text-blue-300 bg-slate-900 ring-1 ring-slate-700 hover:ring-blue-500 transition-colors duration-300 shadow-sm">
                                 Didesain untuk Admin, Penyiar, Katim & Kepsta
                             </div>
-                        </div>
+                        </div> --}}
                         <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
                             Platform Kolaboratif untuk
                             <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Jadwal Siaran RRI</span>
