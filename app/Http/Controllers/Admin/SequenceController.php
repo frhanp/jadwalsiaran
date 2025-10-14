@@ -28,12 +28,15 @@ class SequenceController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'waktu' => 'required|date_format:H:i',
-            'host_id' => 'required|exists:users,id',
+            //'host_id' => 'required|exists:users,id',
             'frame' => 'nullable|string|max:255',
             'durasi' => 'nullable|numeric|min:0',
         ]);
 
-        $program->sequences()->create($request->all() + ['dibuat_oleh' => Auth::id()]);
+        $program->sequences()->create($request->all() + [
+            'dibuat_oleh' => Auth::id(),
+            'host_id' => null 
+        ]);
 
         return redirect()->route('admin.programs.sequences.index', $program)
             ->with('success', 'Sequence berhasil ditambahkan.');
@@ -52,7 +55,7 @@ class SequenceController extends Controller
         $request->validate([
             'nama' => 'required|string|max:255',
             'waktu' => 'required|date_format:H:i',
-            'host_id' => 'required|exists:users,id',
+            //'host_id' => 'required|exists:users,id',
             'frame' => 'nullable|string|max:255',
             'durasi' => 'nullable|numeric|min:0',
         ]);

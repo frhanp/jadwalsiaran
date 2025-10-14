@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Jadwal Siaran - {{ $tanggal->isoFormat('D MMMM Y') }}</title>
     <style>
+        /* referensi: resources/views/laporan/jadwal_print.blade.php baris 8-90 */
         body {
             font-family: 'Arial', sans-serif;
             font-size: 10pt;
@@ -82,11 +83,8 @@
         }
 
 
-        /* AWAL MODIFIKASI: CSS UNTUK PRINT */
+        /* CSS UNTUK PRINT */
         @media print {
-
-            
-
             .signature-block {
                 page-break-before: always;
                 margin-top: 2cm;
@@ -98,8 +96,6 @@
                 margin-top: 0;
             }
         }
-
-        /* AKHIR MODIFIKASI */
     </style>
 </head>
 
@@ -115,7 +111,6 @@
                 </div>
 
                 <table class="schedule-table">
-                    {{-- ... (Isi tabel tetap sama, tidak perlu diubah) ... --}}
                     <thead class="bg-gray-100 text-left">
                         <tr>
                             <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
@@ -128,16 +123,22 @@
                     </thead>
                     <tbody>
                         @php
+                            // referensi: resources/views/laporan/jadwal_print.blade.php baris 116-121
                             $programRowspan = 0;
-                            foreach ($program->sequences as $sequence) {
-                                $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                            if ($program->sequences->isNotEmpty()) {
+                                foreach ($program->sequences as $sequence) {
+                                    $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                                }
+                            } else {
+                                $programRowspan = 1;
                             }
                         @endphp
                         <tr>
                             <td class="border border-gray-300 px-4 py-2 align-top font-bold"
                                 rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
-                            @foreach ($program->sequences as $sequenceIndex => $sequence)
+                            @forelse ($program->sequences as $sequenceIndex => $sequence)
                                 @php
+                                    // referensi: resources/views/laporan/jadwal_print.blade.php baris 125-127
                                     $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
                                 @endphp
                                 @if ($sequenceIndex > 0)
@@ -146,8 +147,11 @@
         <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">
             {{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
         <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
-            {{ $sequence->nama }} <br> <small class="font-normal text-gray-500">Host:
-                {{ $sequence->host->name ?? 'N/A' }}</small></td>
+            {{ $sequence->nama }} <br> 
+            {{-- MODIFIKASI KUNCI: Ambil dari $petugas (JadwalPetugas) BUKAN $sequence->host --}}
+            {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 133 --}}
+            <small class="font-normal text-gray-500">Host:
+                {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small></td>
         <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
             <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
         </td>
@@ -168,6 +172,7 @@
             <td class="border border-gray-300 px-4 py-2 align-top">
                 @if ($item->keterangan)
                     <p class="mb-2 italic text-gray-700">{{ $item->keterangan }}</p>
+
                 @endif
                 @if ($item->itemDetails->isNotEmpty())
                     @foreach ($item->itemDetails->groupBy('jenis') as $jenis => $details)
@@ -186,60 +191,64 @@
             <td class="border border-gray-300 px-4 py-2 align-top"></td>
             </tr>
         @endforelse
-        @endforeach
-        </tbody>
-        </table>
+    @empty
+        <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
+        </tr>
+    @endforelse
+    </tbody>
+    </table>
 
-        @if ($petugas)
-            <div class="signature-section">
-                <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS -
-                    {{ $program->nama }}</h3>
-                {{-- ... (Tabel petugas & tanda tangan tetap sama) ... --}}
-                <table style="width: 50%; margin-bottom: 20px;">
-                    <tr>
-                        <td style="width: 40%;">Nama Daypart</td>
-                        <td>: {{ $program->nama }}</td>
-                    </tr>
-                    <tr>
-                        <td>Produser</td>
-                        <td>: {{ $petugas->produser_nama ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Pengelola PEP</td>
-                        <td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Pengarah Acara</td>
-                        <td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Petugas LPU</td>
-                        <td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td>
-                    </tr>
-                    <tr>
-                        <td>Penyiar</td>
-                        <td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td>
-                    </tr>
-                </table>
-                <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
-                <p>Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
-                <div class="signature-grid">
-                    <div>
-                        Penyiar Dinas<br><br><br><br>
-                        <span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span>
-                    </div>
-                    <div>
-                        Pengelola Pro 2<br><br><br><br>
-                        <span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span>
-                    </div>
-                    <div>
-                        Petugas LPU<br><br><br><br>
-                        <span
-                            class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span>
-                    </div>
+    @if ($petugas)
+        <div class="signature-section">
+            <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS -
+                {{ $program->nama }}</h3>
+            {{-- ... (Tabel petugas & tanda tangan tetap sama) ... --}}
+            {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 --}}
+            <table style="width: 50%; margin-bottom: 20px;">
+                <tr>
+                    <td style="width: 40%;">Nama Daypart</td>
+                    <td>: {{ $program->nama }}</td>
+                </tr>
+                <tr>
+                    <td>Produser</td>
+                    <td>: {{ $petugas->produser_nama ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td>Pengelola PEP</td>
+                    <td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td>Pengarah Acara</td>
+                    <td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td>Petugas LPU</td>
+                    <td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td>
+                </tr>
+                <tr>
+                    <td>Penyiar</td>
+                    <td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td>
+                </tr>
+            </table>
+            <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
+            <p>Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
+            <div class="signature-grid">
+                <div>
+                    Penyiar Dinas<br><br><br><br>
+                    <span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span>
+                </div>
+                <div>
+                    Pengelola Pro 2<br><br><br><br>
+                    <span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span>
+                </div>
+                <div>
+                    Petugas LPU<br><br><br><br>
+                    <span
+                        class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span>
                 </div>
             </div>
-        @endif
+        </div>
+    @endif
     </div>
     @empty
         <div class="header">

@@ -54,7 +54,7 @@
                                 <tr>
                                     <th class="px-4 py-3 font-semibold text-left">Nama Seqmen</th>
                                     <th class="px-4 py-3 font-semibold text-left">Waktu</th>
-                                    <th class="px-4 py-3 font-semibold text-left">Host/Penyiar</th>
+                                    {{-- <th class="px-4 py-3 font-semibold text-left">Host/Penyiar</th> --}}
                                     <th class="px-4 py-3 font-semibold text-left">Durasi (Menit)</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
@@ -65,7 +65,7 @@
                                         <td class="px-4 py-3 font-medium text-gray-900">{{ $sequence->nama }}</td>
                                         <td class="px-4 py-3 text-gray-600">
                                             {{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                                        <td class="px-4 py-3 text-gray-600">{{ $sequence->host->name ?? 'N/A' }}</td>
+                            
                                         <td class="px-4 py-3 text-gray-600">{{ $sequence->durasi ?? '-' }}</td>
                                         <td class="px-4 py-3">
                                             <div class="flex flex-wrap gap-2">

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('program_id')->constrained('programs')->onDelete('cascade');
             $table->string('nama');
             $table->time('waktu');
-            $table->foreignId('host_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('host_id')->nullable()->constrained('users')->onDelete('set null');
             $table->string('frame')->nullable();
             $table->decimal('durasi', 5, 2)->nullable();
             $table->foreignId('dibuat_oleh')->constrained('users')->onDelete('cascade');

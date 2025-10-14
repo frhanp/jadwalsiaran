@@ -42,15 +42,16 @@ class JadwalPetugasController extends Controller
 
         $jadwalPetugas = $program->jadwalPetugas()->create($validatedData + ['dibuat_oleh' => Auth::id()]);
         $penyiarIds = $request->input('penyiars', []);
-        $jadwalPetugas->penyiars()->sync($request->input('penyiars', []));
+        $jadwalPetugas->penyiars()->sync($penyiarIds);
 
-        $hostId = collect($penyiarIds)->first(); 
-        if ($hostId) {
-            $program->sequences()->update(['host_id' => $hostId]);
-        }
+        // --- LOGIKA BARU DITAMBAHKAN ---
+        // Panggil fungsi untuk update host_id di semua sequence terkait program ini
+        $this->updateProgramSequencesHost($program, $penyiarIds);
+        // --- AKHIR LOGIKA BARU ---
 
         return redirect()->route('admin.programs.petugas.index', $program)
-            ->with('success', 'Jadwal petugas berhasil ditambahkan.');
+            ->with('success', 'Jadwal petugas berhasil ditambahkan. Host di sequence terkait telah diperbarui.');
+        // AKHIR MODIFIKASI
     }
 
     public function edit(Program $program, JadwalPetugas $jadwalPetugas)
@@ -78,20 +79,16 @@ class JadwalPetugasController extends Controller
 
         $jadwalPetugas->update($validatedData);
         $penyiarIds = $request->input('penyiars', []);
-        $jadwalPetugas->penyiars()->sync($request->input('penyiars', []));
-
+        $jadwalPetugas->penyiars()->sync($penyiarIds);
         
-        $hostId = collect($penyiarIds)->first();
-        if ($hostId) {
-            $program->sequences()->update(['host_id' => $hostId]);
-        }
-
-
-        
-        
+        // --- LOGIKA BARU DITAMBAHKAN ---
+        // Panggil fungsi untuk update host_id di semua sequence terkait program ini
+        $this->updateProgramSequencesHost($program, $penyiarIds);
+        // --- AKHIR LOGIKA BARU ---
 
         return redirect()->route('admin.programs.petugas.index', $program)
-            ->with('success', 'Jadwal petugas berhasil diperbarui.');
+            ->with('success', 'Jadwal petugas berhasil diperbarui. Host di sequence terkait telah diperbarui.');
+        // AKHIR MODIFIKASI
     }
 
     public function destroy(Program $program, JadwalPetugas $jadwalPetugas)
@@ -99,5 +96,15 @@ class JadwalPetugasController extends Controller
         $jadwalPetugas->delete();
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil dihapus.');
+    }
+
+    private function updateProgramSequencesHost(Program $program, array $penyiarIds)
+    {
+        // Ambil ID penyiar pertama, atau null jika tidak ada penyiar yang dipilih
+        // Ini sesuai logika di LaporanController
+        $hostId = $penyiarIds[0] ?? null; 
+
+        // Update semua sequence yang dimiliki oleh program ini
+        $program->sequences()->update(['host_id' => $hostId]);
     }
 }
