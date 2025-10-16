@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Kelola Program Siaran') }}
+                {{ __('Kelola Daftar Acara Siaran') }}
             </h2>
             <a href="{{ route('admin.programs.create') }}" 
                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 
