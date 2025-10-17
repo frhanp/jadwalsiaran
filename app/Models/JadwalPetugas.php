@@ -31,7 +31,9 @@ class JadwalPetugas extends Model
     
     public function penyiars(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'jadwal_penyiar', 'jadwal_petugas_id', 'penyiar_id');
+        return $this->belongsToMany(User::class, 'jadwal_penyiar', 'jadwal_petugas_id', 'penyiar_id')
+                    ->withPivot('status', 'alasan_penolakan')
+                    ->withTimestamps();
     }
 
     public function pembuat(): BelongsTo

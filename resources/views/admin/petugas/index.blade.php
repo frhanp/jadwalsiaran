@@ -52,6 +52,7 @@
                             <thead class="bg-gray-100">
                                 <tr>
                                     <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Penyiar Bertugas</th>
                                     <th class="px-4 py-3 text-left font-semibold">Produser</th>
                                     <th class="px-4 py-3 text-left font-semibold">Pengarah Acara</th>
                                     <th class="px-4 py-3 text-center font-semibold w-32">Aksi</th>
@@ -63,6 +64,22 @@
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-4 py-3 font-medium text-gray-900">
                                             {{ \Carbon\Carbon::parse($petugas->tanggal)->isoFormat('dddd, D MMMM Y') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700">
+                                            @forelse($petugas->penyiars as $penyiar)
+                                                <div class="flex items-center gap-2">
+                                                    <span>{{ $penyiar->name }}</span>
+                                                    @if($penyiar->pivot->status == 'pending')
+                                                        <span title="Menunggu Konfirmasi" class="px-2 py-0.5 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">Menunggu Konfirmasi</span>
+                                                    @elseif($penyiar->pivot->status == 'diterima')
+                                                        <span title="Diterima" class="px-2 py-0.5 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Diterima</span>
+                                                    @elseif($penyiar->pivot->status == 'ditolak')
+                                                        <span title="Ditolak: {{ $penyiar->pivot->alasan_penolakan }}" class="px-2 py-0.5 text-xs font-semibold text-red-800 bg-red-100 rounded-full cursor-help">Ditolak</span>
+                                                    @endif
+                                                </div>
+                                            @empty
+                                                -
+                                            @endforelse
                                         </td>
                                         <td class="px-4 py-3 text-gray-700">{{ $petugas->produser_nama ?? '-' }}</td>
                                         <td class="px-4 py-3 text-gray-700">{{ $petugas->pengarah_acara_nama ?? '-' }}

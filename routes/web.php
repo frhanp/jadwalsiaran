@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Penyiar\PendengarController;
+use App\Http\Controllers\Penyiar\TugasController;
 
 
 
@@ -64,6 +65,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
         Route::post('jadwal-petugas/{jadwalPetugas}/pendengars', [PendengarController::class, 'store'])->name('pendengars.store');
         Route::delete('pendengars/{pendengar}', [PendengarController::class, 'destroy'])->name('pendengars.destroy');
+        Route::post('tugas/{jadwalPetugas}/terima', [TugasController::class, 'terima'])->name('tugas.terima');
+        Route::post('tugas/{jadwalPetugas}/tolak', [TugasController::class, 'tolak'])->name('tugas.tolak');
 
     });
 

@@ -18,14 +18,16 @@ class JadwalController extends Controller
         $jadwalPetugasList = JadwalPetugas::whereHas('penyiars', function ($query) {
                 $query->where('penyiar_id', Auth::id());
             })
-            ->whereDate('tanggal', $today)
+            // ->whereDate('tanggal', $today) // Sementara kita tampilkan semua untuk development
             ->with([
                 'program.studio',
                 'program.sequences' => fn($q) => $q->orderBy('waktu', 'asc'),
+                'penyiars', // Pastikan relasi penyiars termuat
                 'pendengars' => fn($q) => $q->orderBy('created_at', 'desc')
             ])
             ->withCount('pendengars')
-            ->get();
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
 
         return view('penyiar.jadwal.index', compact('jadwalPetugasList'));
     }
