@@ -14,6 +14,7 @@ use App\Http\Controllers\Admin\JadwalPetugasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\NotificationController;
 
 
 
@@ -33,6 +34,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
     Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
         Route::resource('users', UserController::class); 

@@ -9,6 +9,7 @@ use App\Models\JadwalPetugas;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Notifications\JadwalSiaranDitugaskan;
 
 class JadwalPetugasController extends Controller
 {
@@ -53,14 +54,19 @@ class JadwalPetugasController extends Controller
         $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($penyiarIds);
 
-        // --- LOGIKA BARU DITAMBAHKAN ---
         // Panggil fungsi untuk update host_id di semua sequence terkait program ini
         $this->updateProgramSequencesHost($program, $penyiarIds);
-        // --- AKHIR LOGIKA BARU ---
+
+        if (!empty($penyiarIds)) {
+            $penyiar = User::find($penyiarIds[0]);
+            if ($penyiar) {
+                $penyiar->notify(new JadwalSiaranDitugaskan($jadwalPetugas));
+            }
+        }
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil ditambahkan. Host di sequence terkait telah diperbarui.');
-        // AKHIR MODIFIKASI
+        
     }
 
     public function edit(Program $program, JadwalPetugas $jadwalPetugas)
@@ -99,14 +105,18 @@ class JadwalPetugasController extends Controller
         $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($penyiarIds);
         
-        // --- LOGIKA BARU DITAMBAHKAN ---
         // Panggil fungsi untuk update host_id di semua sequence terkait program ini
         $this->updateProgramSequencesHost($program, $penyiarIds);
-        // --- AKHIR LOGIKA BARU ---
+
+        if (!empty($penyiarIds)) {
+            $penyiar = User::find($penyiarIds[0]);
+            if ($penyiar) {
+                $penyiar->notify(new JadwalSiaranDitugaskan($jadwalPetugas));
+            }
+        }
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil diperbarui. Host di sequence terkait telah diperbarui.');
-        // AKHIR MODIFIKASI
     }
 
     public function destroy(Program $program, JadwalPetugas $jadwalPetugas)
