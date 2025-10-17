@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-17 01:37:12_
+_Generated: 2025-10-17 09:16:00_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -37,17 +37,20 @@ tailwind.config.js
 vite.config.js
 app\Http
 app\Models
+app\Notifications
 app\Providers
 app\View
 app\Http\Controllers
 app\Http\Middleware
 app\Http\Requests
+app\Http\View
 app\Http\Controllers\Admin
 app\Http\Controllers\Auth
 app\Http\Controllers\Penyiar
 app\Http\Controllers\Controller.php
 app\Http\Controllers\DashboardController.php
 app\Http\Controllers\LaporanController.php
+app\Http\Controllers\NotificationController.php
 app\Http\Controllers\ProfileController.php
 app\Http\Controllers\Admin\ItemDetailController.php
 app\Http\Controllers\Admin\JadwalPetugasController.php
@@ -71,6 +74,8 @@ app\Http\Middleware\RoleMiddleware.php
 app\Http\Requests\Auth
 app\Http\Requests\ProfileUpdateRequest.php
 app\Http\Requests\Auth\LoginRequest.php
+app\Http\View\Composers
+app\Http\View\Composers\NotificationComposer.php
 app\Models\ItemDetail.php
 app\Models\JadwalPetugas.php
 app\Models\MateriDetail.php
@@ -79,6 +84,7 @@ app\Models\Sequence.php
 app\Models\SequenceItem.php
 app\Models\Studio.php
 app\Models\User.php
+app\Notifications\JadwalSiaranDitugaskan.php
 app\Providers\AppServiceProvider.php
 app\View\Components
 app\View\Components\AppLayout.php
@@ -118,6 +124,8 @@ database\migrations\2025_10_10_115757_add_jumlah_pendengar_to_sequences_table.ph
 database\migrations\2025_10_10_130544_change_petugas_ids_to_names_in_jadwal_petugas_table.php
 database\migrations\2025_10_10_171922_create_studios_table.php
 database\migrations\2025_10_10_171944_add_studio_id_to_programs_table.php
+database\migrations\2025_10_16_235716_add_studio_id_to_users_table.php
+database\migrations\2025_10_17_002651_create_notifications_table.php
 database\seeders\DatabaseSeeder.php
 database\seeders\JadwalPetugasSeeder.php
 database\seeders\ProgramSeeder.php
@@ -358,11 +366,11 @@ Branch:
 main
 
 Last 5 commits:
+0ea4f1a add lonceng
+8dee9ff penyiar per studio
+4001db1 ubah nama DAS
 4514f79 fixing raw
 f33fabb change icon
-25e15c6 change di sequence
-3bf590c change name kelola DAS
-bfa0c4a change nama laporan
 ```
 
 
@@ -470,6 +478,7 @@ use App\Http\Controllers\Admin\JadwalPetugasController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\NotificationController;
 
 
 
@@ -489,6 +498,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
     Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
         Route::resource('users', UserController::class); 
@@ -610,6 +620,7 @@ require __DIR__ . '/auth.php';
   GET|HEAD        login ........................................ login ΓÇ║ Auth\AuthenticatedSessionController@create
   POST            login ................................................. Auth\AuthenticatedSessionController@store
   POST            logout ..................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  POST            notifications/mark-as-read ......... notifications.markAsRead ΓÇ║ NotificationController@markAsRead
   PUT             password ....................................... password.update ΓÇ║ Auth\PasswordController@update
   PUT|PATCH       penyiar/items/{item} ................. penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
   DELETE          penyiar/items/{item} ............... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
@@ -635,7 +646,7 @@ require __DIR__ . '/auth.php';
   GET|HEAD        verify-email ....................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
   GET|HEAD        verify-email/{id}/{hash} ....................... verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                Showing [86] routes
+                                                                                                Showing [87] routes
 
 ```
 
@@ -708,6 +719,7 @@ use App\Models\JadwalPetugas;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
+use App\Notifications\JadwalSiaranDitugaskan;
 
 class JadwalPetugasController extends Controller
 {
@@ -719,7 +731,16 @@ class JadwalPetugasController extends Controller
 
     public function create(Program $program)
     {
-        $penyiars = User::where('role', 'penyiar')->orderBy('name')->get();
+        $admin = Auth::user();
+        $penyiarsQuery = User::where('role', 'penyiar');
+
+        // Jika admin terikat pada studio, filter penyiar dari studio yang sama
+        if ($admin->studio_id) {
+            $penyiarsQuery->where('studio_id', $admin->studio_id);
+        }
+
+        $penyiars = $penyiarsQuery->orderBy('name')->get();
+        
         return view('admin.petugas.create', compact('program', 'penyiars'));
     }
 
@@ -743,19 +764,33 @@ class JadwalPetugasController extends Controller
         $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($penyiarIds);
 
-        // --- LOGIKA BARU DITAMBAHKAN ---
         // Panggil fungsi untuk update host_id di semua sequence terkait program ini
         $this->updateProgramSequencesHost($program, $penyiarIds);
-        // --- AKHIR LOGIKA BARU ---
+
+        if (!empty($penyiarIds)) {
+            $penyiar = User::find($penyiarIds[0]);
+            if ($penyiar) {
+                $penyiar->notify(new JadwalSiaranDitugaskan($jadwalPetugas));
+            }
+        }
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil ditambahkan. Host di sequence terkait telah diperbarui.');
-        // AKHIR MODIFIKASI
+        
     }
 
     public function edit(Program $program, JadwalPetugas $jadwalPetugas)
     {
-        $penyiars = User::where('role', 'penyiar')->orderBy('name')->get();
+        $admin = Auth::user();
+        $penyiarsQuery = User::where('role', 'penyiar');
+
+        // Jika admin terikat pada studio, filter penyiar dari studio yang sama
+        if ($admin->studio_id) {
+            $penyiarsQuery->where('studio_id', $admin->studio_id);
+        }
+        
+        $penyiars = $penyiarsQuery->orderBy('name')->get();
+        
         $jadwalPetugas->load('penyiars');
         return view('admin.petugas.edit', compact('program', 'jadwalPetugas', 'penyiars'));
     }
@@ -780,14 +815,18 @@ class JadwalPetugasController extends Controller
         $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($penyiarIds);
         
-        // --- LOGIKA BARU DITAMBAHKAN ---
         // Panggil fungsi untuk update host_id di semua sequence terkait program ini
         $this->updateProgramSequencesHost($program, $penyiarIds);
-        // --- AKHIR LOGIKA BARU ---
+
+        if (!empty($penyiarIds)) {
+            $penyiar = User::find($penyiarIds[0]);
+            if ($penyiar) {
+                $penyiar->notify(new JadwalSiaranDitugaskan($jadwalPetugas));
+            }
+        }
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil diperbarui. Host di sequence terkait telah diperbarui.');
-        // AKHIR MODIFIKASI
     }
 
     public function destroy(Program $program, JadwalPetugas $jadwalPetugas)
@@ -1168,18 +1207,20 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\Studio;
 
 class UserController extends Controller
 {
     public function index()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::with('studio')->latest()->paginate(10); // Tambah with('studio')
         return view('admin.users.index', compact('users'));
     }
 
     public function create()
     {
-        return view('admin.users.create');
+        $studios = Studio::orderBy('nama')->get(); // Ambil data studio
+        return view('admin.users.create', compact('studios')); // Kirim ke view
     }
 
     public function store(Request $request)
@@ -1189,6 +1230,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', Rule::in(['admin', 'penyiar', 'katim', 'kepsta'])],
+            'studio_id' => ['nullable', 'exists:studios,id'],
         ]);
 
         User::create([
@@ -1196,6 +1238,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
+            'studio_id' => $request->studio_id,
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
@@ -1203,7 +1246,8 @@ class UserController extends Controller
 
     public function edit(User $user)
     {
-        return view('admin.users.edit', compact('user'));
+        $studios = Studio::orderBy('nama')->get(); // Ambil data studio
+        return view('admin.users.edit', compact('user', 'studios')); // Kirim ke view
     }
 
     public function update(Request $request, User $user)
@@ -1213,6 +1257,7 @@ class UserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($user->id)],
             'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
             'role' => ['required', Rule::in(['admin', 'penyiar', 'katim', 'kepsta'])],
+            'studio_id' => ['nullable', 'exists:studios,id'],
         ]);
 
         $data = $request->except('password');
@@ -1761,6 +1806,26 @@ class LaporanController extends Controller
     }
 
 
+}
+
+===== app\Http\Controllers\NotificationController.php =====
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class NotificationController extends Controller
+{
+    public function markAsRead()
+        {
+            if (Auth::check()) {
+                Auth::user()->unreadNotifications->markAsRead();
+            }
+
+            return back();
+        }
 }
 
 ===== app\Http\Controllers\ProfileController.php =====
@@ -3448,36 +3513,31 @@ class Studio extends Model
                     <form method="POST" action="{{ route('admin.users.store') }}">
                         @csrf
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <!-- Nama Lengkap -->
                             <div>
                                 <x-input-label for="name" :value="__('Nama Lengkap')" />
                                 <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
                                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
                             </div>
 
-                            <!-- Email -->
                             <div>
                                 <x-input-label for="email" :value="__('Email (untuk Login)')" />
                                 <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required />
                                 <x-input-error :messages="$errors->get('email')" class="mt-2" />
                             </div>
 
-                            <!-- Password -->
                             <div>
                                 <x-input-label for="password" :value="__('Password')" />
                                 <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required />
                                 <x-input-error :messages="$errors->get('password')" class="mt-2" />
                             </div>
 
-                             <!-- Konfirmasi Password -->
-                            <div>
+                             <div>
                                 <x-input-label for="password_confirmation" :value="__('Konfirmasi Password')" />
                                 <x-text-input id="password_confirmation" class="block mt-1 w-full" type="password" name="password_confirmation" required />
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
 
-                             <!-- Role -->
-                            <div>
+                             <div>
                                 <x-input-label for="role" :value="__('Role')" />
                                 <select id="role" name="role" x-model="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
                                     <option value="admin">Admin</option>
@@ -3487,65 +3547,20 @@ class Studio extends Model
                                 </select>
                                 <x-input-error :messages="$errors->get('role')" class="mt-2" />
                             </div>
-                        </div>
 
-                        {{-- Biodata Penyiar (muncul jika role adalah 'penyiar') --}}
-                        {{-- <div x-show="role === 'penyiar'" x-transition class="mt-6 pt-6 border-t border-gray-200">
-                             <h3 class="text-lg font-medium text-gray-900 mb-4">Biodata Penyiar</h3>
-                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- NIK -->
-                                <div>
-                                    <x-input-label for="nik" :value="__('NIK')" />
-                                    <x-text-input id="nik" class="block mt-1 w-full" type="text" name="nik" :value="old('nik')" />
-                                    <x-input-error :messages="$errors->get('nik')" class="mt-2" />
-                                </div>
-                                
-                                <!-- Tempat Lahir -->
-                                <div>
-                                    <x-input-label for="tempat_lahir" :value="__('Tempat Lahir')" />
-                                    <x-text-input id="tempat_lahir" class="block mt-1 w-full" type="text" name="tempat_lahir" :value="old('tempat_lahir')" />
-                                    <x-input-error :messages="$errors->get('tempat_lahir')" class="mt-2" />
-                                </div>
-
-                                <!-- Tanggal Lahir -->
-                                <div>
-                                    <x-input-label for="tanggal_lahir" :value="__('Tanggal Lahir')" />
-                                    <x-text-input id="tanggal_lahir" class="block mt-1 w-full" type="date" name="tanggal_lahir" :value="old('tanggal_lahir')" />
-                                    <x-input-error :messages="$errors->get('tanggal_lahir')" class="mt-2" />
-                                </div>
-
-                                <!-- Agama -->
-                                <div>
-                                    <x-input-label for="agama" :value="__('Agama')" />
-                                    <select id="agama" name="agama" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                        <option value="Islam" {{ old('agama') == 'Islam' ? 'selected' : '' }}>Islam</option>
-                                        <option value="Kristen" {{ old('agama') == 'Kristen' ? 'selected' : '' }}>Kristen</option>
-                                        <option value="Katolik" {{ old('agama') == 'Katolik' ? 'selected' : '' }}>Katolik</option>
-                                        <option value="Hindu" {{ old('agama') == 'Hindu' ? 'selected' : '' }}>Hindu</option>
-                                        <option value="Buddha" {{ old('agama') == 'Buddha' ? 'selected' : '' }}>Buddha</option>
-                                        <option value="Khonghucu" {{ old('agama') == 'Khonghucu' ? 'selected' : '' }}>Khonghucu</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('agama')" class="mt-2" />
-                                </div>
-
-                                <!-- Jenis Kelamin -->
-                                <div>
-                                    <x-input-label for="jenis_kelamin" :value="__('Jenis Kelamin')" />
-                                    <select id="jenis_kelamin" name="jenis_kelamin" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                        <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>Laki-laki</option>
-                                        <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>Perempuan</option>
-                                    </select>
-                                    <x-input-error :messages="$errors->get('jenis_kelamin')" class="mt-2" />
-                                </div>
-
-                                <!-- Nomor Telepon -->
-                                <div>
-                                    <x-input-label for="no_telp" :value="__('Nomor Telepon')" />
-                                    <x-text-input id="no_telp" class="block mt-1 w-full" type="text" name="no_telp" :value="old('no_telp')" />
-                                    <x-input-error :messages="$errors->get('no_telp')" class="mt-2" />
-                                </div>
-                             </div>
-                        </div> --}}
+                            <div>
+                                <x-input-label for="studio_id" value="Asal Studio (Opsional)" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">-- Tidak Terikat Studio --</option>
+                                    @foreach($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(old('studio_id') == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
+                            </div>
+                            </div>
 
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
@@ -3612,7 +3627,20 @@ class Studio extends Model
                                 </select>
                                 <x-input-error :messages="$errors->get('role')" class="mt-2" />
                             </div>
-                        </div>
+                            
+                            <div>
+                                <x-input-label for="studio_id" value="Asal Studio (Opsional)" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">-- Tidak Terikat Studio --</option>
+                                    @foreach($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(old('studio_id', $user->studio_id) == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
+                            </div>
+                            </div>
 
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
@@ -4775,121 +4803,121 @@ $classes = ($active ?? false)
             {{ config('app.name', 'DAFTAR ACARA SIARAN') }}
         </a>
     </div>
-    
+
     <nav class="flex-1 px-4 py-6 space-y-2">
+        {{-- ... (sisa konten navigation.blade.php tidak berubah) ... --}}
+        {{-- referensi: resources/views/layouts/navigation.blade.php baris 11-133 --}}
         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                stroke="currentColor" class="size-4">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                    d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-            </svg>
-            <span>{{ __('Dashboard') }}</span>
-        </x-nav-link>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+            stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        <span>{{ __('Dashboard') }}</span>
+    </x-nav-link>
 
-        {{-- @role('admin') --}}
-        @if(Auth::check() && Auth::user()->role === 'admin')
-        <div class="pt-4">
-            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Admin
-            </h3>
-            <div class="mt-2 space-y-2">
-                <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-                    </svg>
-                    <span>Kelola Pengguna</span>
-                </x-nav-link>
-                <x-nav-link :href="route('admin.programs.index')" :active="request()->routeIs('admin.programs.*')">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
-                    </svg>
-                    <span>Kelola Daftar Acara Siaran</span>
-                </x-nav-link>
-                <x-nav-link :href="route('laporan.jadwal.harian')" :active="request()->routeIs('laporan.jadwal.*')">
-                    
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+    {{-- @role('admin') --}}
+    @if(Auth::check() && Auth::user()->role === 'admin')
+    <div class="pt-4">
+        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Admin
+        </h3>
+        <div class="mt-2 space-y-2">
+            <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
                 </svg>
-                   <span>Laporan</span>
-               </x-nav-link>
-            </div>
-        </div>
-        @endif
+                <span>Kelola Pengguna</span>
+            </x-nav-link>
+            <x-nav-link :href="route('admin.programs.index')" :active="request()->routeIs('admin.programs.*')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6a7.5 7.5 0 1 0 7.5 7.5h-7.5V6Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5H21A7.5 7.5 0 0 0 13.5 3v7.5Z" />
+                </svg>
+                <span>Kelola Daftar Acara Siaran</span>
+            </x-nav-link>
+            <x-nav-link :href="route('laporan.jadwal.harian')" :active="request()->routeIs('laporan.jadwal.*')">
 
-        
-
-        @if(Auth::check() && Auth::user()->role === 'penyiar')
-        <div class="pt-4">
-            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Penyiar
-            </h3>
-            <div class="mt-2 space-y-2">
-                <x-nav-link :href="route('penyiar.jadwal.index')" :active="request()->routeIs('penyiar.jadwal.*', 'admin.items.*')">
-                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 15.75h.008v.008H12v-.008Z" />
-                    </svg>
-                    <span>Daftar Acara Siaran Saya</span>
-                </x-nav-link>
-            </div>
-        </div>
-        @endif
-        @if(Auth::check() && in_array(Auth::user()->role, ['katim', 'kepsta']))
-        <div class="pt-4">
-            <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Laporan
-            </h3>
-            <div class="mt-2 space-y-2">
-                <x-nav-link :href="route('laporan.jadwal.harian')" :active="request()->routeIs('laporan.jadwal.*')">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
-                    </svg>
-                    <span>Laporan</span>
-                </x-nav-link>
-            </div>
-        </div>
-        @endif
-
-        @if(Auth::check() && in_array(Auth::user()->role, ['katim']))
-        <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
             </svg>
-            <span>Kelola Studio</span>
-        </x-nav-link>
-        @endif
-        {{-- @endrole --}}
-
-    </nav>
-    <div x-data="{ open: false }" class="px-4 py-4 border-t border-gray-200">
-        <button @click="open = !open"
-            class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-left 
-                   bg-gray-50 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 
-                   transition-colors">
-            <span>{{ Auth::user()->name }}</span>
-            <svg :class="{ 'rotate-180': open }" class="w-4 h-4 transform transition-transform" fill="none"
-                stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-            </svg>
-        </button>
-    
-        <div x-show="open" x-cloak class="mt-2 space-y-1 bg-white border border-gray-200 rounded-lg shadow-md text-sm">
-            <a href="{{ route('profile.edit') }}"
-               class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
-                {{ __('Profile') }}
-            </a>
-    
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit"
-                    class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors">
-                    {{ __('Log Out') }}
-                </button>
-            </form>
+               <span>Laporan</span>
+           </x-nav-link>
         </div>
     </div>
-    
-</aside>
+    @endif
+
+
+
+    @if(Auth::check() && Auth::user()->role === 'penyiar')
+    <div class="pt-4">
+        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Penyiar
+        </h3>
+        <div class="mt-2 space-y-2">
+            <x-nav-link :href="route('penyiar.jadwal.index')" :active="request()->routeIs('penyiar.jadwal.*', 'admin.items.*')">
+                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0h18M12 15.75h.008v.008H12v-.008Z" />
+                </svg>
+                <span>Daftar Acara Siaran Saya</span>
+            </x-nav-link>
+        </div>
+    </div>
+    @endif
+    @if(Auth::check() && in_array(Auth::user()->role, ['katim', 'kepsta']))
+    <div class="pt-4">
+        <h3 class="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+            Laporan
+        </h3>
+        <div class="mt-2 space-y-2">
+            <x-nav-link :href="route('laporan.jadwal.harian')" :active="request()->routeIs('laporan.jadwal.*')">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 7.5h1.5m-1.5 3h1.5m-7.5 3h7.5m-7.5 3h7.5m3-9h3.375c.621 0 1.125.504 1.125 1.125V18a2.25 2.25 0 0 1-2.25 2.25M16.5 7.5V18a2.25 2.25 0 0 0 2.25 2.25M16.5 7.5V4.875c0-.621-.504-1.125-1.125-1.125H4.125C3.504 3.75 3 4.254 3 4.875V18a2.25 2.25 0 0 0 2.25 2.25h13.5M6 7.5h3v3H6v-3Z" />
+                </svg>
+                <span>Laporan</span>
+            </x-nav-link>
+        </div>
+    </div>
+    @endif
+
+    @if(Auth::check() && in_array(Auth::user()->role, ['katim']))
+    <x-nav-link :href="route('admin.studios.index')" :active="request()->routeIs('admin.studios.*')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        <span>Kelola Studio</span>
+    </x-nav-link>
+    @endif
+    {{-- @endrole --}}
+
+</nav>
+<div x-data="{ open: false }" class="px-4 py-4 border-t border-gray-200">
+    <button @click="open = !open"
+        class="w-full flex items-center justify-between px-4 py-2 text-sm font-medium text-left 
+               bg-gray-50 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 
+               transition-colors">
+        <span>{{ Auth::user()->name }}</span>
+        <svg :class="{ 'rotate-180': open }" class="w-4 h-4 transform transition-transform" fill="none"
+            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+        </svg>
+    </button>
+
+    <div x-show="open" x-cloak class="mt-2 space-y-1 bg-white border border-gray-200 rounded-lg shadow-md text-sm">
+        <a href="{{ route('profile.edit') }}"
+           class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-colors">
+            {{ __('Profile') }}
+        </a>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit"
+                class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 hover:text-red-700 rounded-lg transition-colors">
+                {{ __('Log Out') }}
+            </button>
+        </form>
+    </div>
+</div>
 
 ===== resources\views\penyiar\jadwal\index.blade.php =====
 <x-app-layout>
@@ -5202,9 +5230,56 @@ $classes = ($active ?? false)
 ===== resources\views\dashboard.blade.php =====
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Dashboard') }}
+            </h2>
+
+            @if(Auth::user()->role === 'penyiar' && isset($unreadNotifications))
+            <div x-data="{ open: false }" class="relative">
+                <button @click="open = !open" class="relative text-gray-500 hover:text-blue-600 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    @if($unreadNotifications->count() > 0)
+                        <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-4 w-4 bg-red-500 text-white text-xs items-center justify-center">{{ $unreadNotifications->count() }}</span>
+                        </span>
+                    @endif
+                </button>
+    
+                <div x-show="open" @click.away="open = false" x-cloak
+                     x-transition:enter="transition ease-out duration-200"
+                     x-transition:enter-start="opacity-0 scale-95"
+                     x-transition:enter-end="opacity-100 scale-100"
+                     x-transition:leave="transition ease-in duration-75"
+                     x-transition:leave-start="opacity-100 scale-100"
+                     x-transition:leave-end="opacity-0 scale-95"
+                     class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl border z-50">
+                    <div class="p-3 font-bold text-sm border-b">Notifikasi</div>
+                    <div class="divide-y max-h-96 overflow-y-auto">
+                        @forelse($unreadNotifications as $notification)
+                            <a href="{{ $notification->data['url'] ?? '#' }}" class="block px-4 py-3 hover:bg-gray-50">
+                                <p class="text-sm text-gray-700">{{ $notification->data['message'] }}</p>
+                                <p class="text-xs text-gray-500 mt-1">{{ $notification->created_at->diffForHumans() }}</p>
+                            </a>
+                        @empty
+                            <p class="text-center text-sm text-gray-500 py-6">Tidak ada notifikasi baru.</p>
+                        @endforelse
+                    </div>
+                    @if($unreadNotifications->count() > 0)
+                    <div class="p-2 border-t text-center">
+                         <form method="POST" action="{{ route('notifications.markAsRead') }}">
+                            @csrf
+                            <button type="submit" class="text-xs text-blue-600 hover:underline">Tandai semua sudah dibaca</button>
+                        </form>
+                    </div>
+                    @endif
+                </div>
+            </div>
+            @endif
+        </div>
     </x-slot>
 
     <div class="py-12">

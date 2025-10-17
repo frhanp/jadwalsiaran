@@ -15,6 +15,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Penyiar\PendengarController;
 
 
 
@@ -61,7 +62,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('items/{item}/materi-details', [MateriDetailController::class, 'update'])->name('items.materi-details.update-all');
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
-        Route::patch('sequences/{sequence}/pendengar', [SequenceController::class, 'updatePendengar'])->name('sequences.pendengar.update');
+        Route::post('jadwal-petugas/{jadwalPetugas}/pendengars', [PendengarController::class, 'store'])->name('pendengars.store');
+        Route::delete('pendengars/{pendengar}', [PendengarController::class, 'destroy'])->name('pendengars.destroy');
+
     });
 
     // Grup untuk Kepsta dan Katim (hanya laporan)

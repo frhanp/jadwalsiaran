@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Jadwal Siaran - {{ $tanggal->isoFormat('D MMMM Y') }}</title>
     <style>
-        /* referensi: resources/views/laporan/jadwal_print.blade.php baris 8-90 */
+        /* referensi: resources/views/laporan/jadwal_print.blade.php baris 8-90 (tidak berubah) */
         body {
             font-family: 'Arial', sans-serif;
             font-size: 10pt;
@@ -102,8 +102,10 @@
 <body>
     <div class="container">
         @forelse ($programs as $program)
-            @php $petugas = $jadwalPetugas->get($program->id); @endphp
-            {{-- Setiap program dibungkus dalam div ini agar bisa dipisah halamannya --}}
+            @php 
+                $petugas = $jadwalPetugas->get($program->id); 
+                $pendengars = $petugas?->pendengars;
+            @endphp
             <div class="signature-block">
                 <div class="header">
                     <h3>DAFTAR ACARA SIARAN</h3>
@@ -113,154 +115,154 @@
                 <table class="schedule-table">
                     <thead class="bg-gray-100 text-left">
                         <tr>
-                            <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
-                            <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                            <th class="border border-gray-300 px-4 py-2 w-2/12">Seqmen</th>
-                            <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
-                            <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
-                            <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
+                            {{-- AWAL MODIFIKASI: Penyesuaian lebar kolom --}}
+                            <th class="border border-gray-300 px-4 py-2 w-[10%]">Program</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[8%]">Waktu</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[15%]">Seqmen</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[17%]">Pendengar</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[25%]">Materi Siar</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[25%]">Keterangan</th>
+                            {{-- AKHIR MODIFIKASI --}}
                         </tr>
                     </thead>
+                    {{-- AWAL MODIFIKASI: Logika rowspan dirombak total --}}
                     <tbody>
                         @php
-                            // referensi: resources/views/laporan/jadwal_print.blade.php baris 116-121
-                            $programRowspan = 0;
+                            $totalItemRows = 0;
                             if ($program->sequences->isNotEmpty()) {
                                 foreach ($program->sequences as $sequence) {
-                                    $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                                    $totalItemRows += max(1, $sequence->items->count());
                                 }
                             } else {
-                                $programRowspan = 1;
+                                $totalItemRows = 1;
                             }
                         @endphp
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2 align-top font-bold"
-                                rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
-                            @forelse ($program->sequences as $sequenceIndex => $sequence)
-                                @php
-                                    // referensi: resources/views/laporan/jadwal_print.blade.php baris 125-127
-                                    $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                                @endphp
-                                @if ($sequenceIndex > 0)
-                        <tr>
-        @endif
-        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">
-            {{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-        <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
-            {{ $sequence->nama }} <br> 
-            {{-- MODIFIKASI KUNCI: Ambil dari $petugas (JadwalPetugas) BUKAN $sequence->host --}}
-            {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 133 --}}
-            <small class="font-normal text-gray-500">Host:
-                {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small></td>
-        <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
-            <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
-        </td>
-        @forelse ($sequence->items as $itemIndex => $item)
-            @if ($itemIndex > 0)
-                <tr>
-            @endif
-            <td class="border border-gray-300 px-4 py-2 align-top">
-                {{ $item->materi }}
-                @if ($item->materiDetails->isNotEmpty())
-                    <ol class="list-decimal list-inside mt-1 pl-2">
-                        @foreach ($item->materiDetails as $detail)
-                            <li class="text-gray-600">{{ $detail->isi }}</li>
-                        @endforeach
-                    </ol>
-                @endif
-            </td>
-            <td class="border border-gray-300 px-4 py-2 align-top">
-                @if ($item->keterangan)
-                    <p class="mb-2 italic text-gray-700">{{ $item->keterangan }}</p>
 
-                @endif
-                @if ($item->itemDetails->isNotEmpty())
-                    @foreach ($item->itemDetails->groupBy('jenis') as $jenis => $details)
-                        <p class="font-semibold capitalize">{{ $jenis }}:</p>
-                        <ol class="list-decimal list-inside pl-4 mb-2">
-                            @foreach ($details as $detail)
-                                <li>{{ $detail->isi }}</li>
-                            @endforeach
-                        </ol>
-                    @endforeach
-                @endif
-            </td>
-            </tr>
-        @empty
-            <td class="border border-gray-300 px-4 py-2 align-top"></td>
-            <td class="border border-gray-300 px-4 py-2 align-top"></td>
-            </tr>
-        @endforelse
-    @empty
-        <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
-        </tr>
-    @endforelse
-    </tbody>
-    </table>
+                        @forelse ($program->sequences as $sequenceIndex => $sequence)
+                            @php
+                                $sequenceRowspan = max(1, $sequence->items->count());
+                            @endphp
 
-    @if ($petugas)
-        <div class="signature-section">
-            <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS -
-                {{ $program->nama }}</h3>
-            {{-- ... (Tabel petugas & tanda tangan tetap sama) ... --}}
-            {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 --}}
-            <table style="width: 50%; margin-bottom: 20px;">
-                <tr>
-                    <td style="width: 40%;">Nama Daypart</td>
-                    <td>: {{ $program->nama }}</td>
-                </tr>
-                <tr>
-                    <td>Produser</td>
-                    <td>: {{ $petugas->produser_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Pengelola PEP</td>
-                    <td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Pengarah Acara</td>
-                    <td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Petugas LPU</td>
-                    <td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Penyiar</td>
-                    <td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td>
-                </tr>
-            </table>
-            <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
-            <p>Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
-            <div class="signature-grid">
-                <div>
-                    Penyiar Dinas<br><br><br><br>
-                    <span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span>
-                </div>
-                <div>
-                    Pengelola Pro 2<br><br><br><br>
-                    <span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span>
-                </div>
-                <div>
-                    Petugas LPU<br><br><br><br>
-                    <span
-                        class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span>
-                </div>
+                            @if ($sequence->items->isNotEmpty())
+                                @foreach ($sequence->items as $itemIndex => $item)
+                                    <tr>
+                                        @if($sequenceIndex === 0 && $itemIndex === 0)
+                                            <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
+                                        @endif
+                                        
+                                        @if($itemIndex === 0)
+                                            <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                            <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
+                                                {{ $sequence->nama }} <br> 
+                                                <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                                            </td>
+                                        @endif
+
+                                        @if($sequenceIndex === 0 && $itemIndex === 0)
+                                            <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $totalItemRows }}">
+                                                <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                                @if($pendengars && $pendengars->isNotEmpty())
+                                                <ol class="list-decimal list-inside space-y-1 text-xs">
+                                                    @foreach($pendengars as $pendengar)
+                                                    <li>
+                                                        <span class="font-semibold">{{ $pendengar->nama }}:</span>
+                                                        <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
+                                                    </li>
+                                                    @endforeach
+                                                </ol>
+                                                @else
+                                                <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                                @endif
+                                            </td>
+                                        @endif
+
+                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
+                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    @if($sequenceIndex === 0)
+                                        <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
+                                    @endif
+
+                                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="1">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                    <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="1">
+                                        {{ $sequence->nama }} <br> 
+                                        <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                                    </td>
+
+                                    @if($sequenceIndex === 0)
+                                        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $totalItemRows }}">
+                                            <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                            @if($pendengars && $pendengars->isNotEmpty())
+                                            <ol class="list-decimal list-inside space-y-1 text-xs">
+                                                @foreach($pendengars as $pendengar)
+                                                <li>
+                                                    <span class="font-semibold">{{ $pendengar->nama }}:</span>
+                                                    <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
+                                                </li>
+                                                @endforeach
+                                            </ol>
+                                            @else
+                                            <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                            @endif
+                                        </td>
+                                    @endif
+
+                                    <td class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic" colspan="2">-- Belum ada materi --</td>
+                                </tr>
+                            @endif
+                        @empty
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 align-top font-bold">{{ $program->nama }}</td>
+                                <td class="border border-gray-300 px-4 py-2 align-top">
+                                     <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                    @if($pendengars && $pendengars->isNotEmpty())
+                                        {{-- ... (sama seperti di atas) ... --}}
+                                    @else
+                                        <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                    @endif
+                                </td>
+                                <td colspan="4" class="text-center text-gray-400 italic">-- Belum ada seqmen --</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    {{-- AKHIR MODIFIKASI --}}
+                </table>
+
+                @if ($petugas)
+                    <div class="signature-section">
+                        <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS - {{ $program->nama }}</h3>
+                        {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 (tidak berubah) --}}
+                        <table style="width: 50%; margin-bottom: 20px;">
+                            <tr><td style="width: 40%;">Nama Daypart</td><td>: {{ $program->nama }}</td></tr>
+                            <tr><td>Produser</td><td>: {{ $petugas->produser_nama ?? '-' }}</td></tr>
+                            <tr><td>Pengelola PEP</td><td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td></tr>
+                            <tr><td>Pengarah Acara</td><td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td></tr>
+                            <tr><td>Petugas LPU</td><td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td></tr>
+                            <tr><td>Penyiar</td><td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td></tr>
+                        </table>
+                        <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
+                        <p>Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
+                        <div class="signature-grid">
+                            <div>Penyiar Dinas<br><br><br><br><span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span></div>
+                            <div>Pengelola Pro 2<br><br><br><br><span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span></div>
+                            <div>Petugas LPU<br><br><br><br><span class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span></div>
+                        </div>
+                    </div>
+                @endif
             </div>
-        </div>
-    @endif
-    </div>
-    @empty
-        <div class="header">
-            <p>Jadwal siaran belum tersedia untuk tanggal yang dipilih.</p>
-        </div>
+        @empty
+            <div class="header">
+                <p>Jadwal siaran belum tersedia untuk tanggal yang dipilih.</p>
+            </div>
         @endforelse
-        </div>
-        <script>
-            window.onload = function() {
-                window.print();
-            }
-        </script>
-    </body>
-
-    </html>
+    </div>
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>

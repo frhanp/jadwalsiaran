@@ -33,7 +33,7 @@ class LaporanController extends Controller
         $jadwalPerStudio = $programs->groupBy('studio.nama');
         $studios = Studio::whereIn('id', $programs->pluck('studio_id')->unique())->orderBy('nama')->get();
         
-        $jadwalPetugas = JadwalPetugas::with('penyiars')
+        $jadwalPetugas = JadwalPetugas::with(['penyiars', 'pendengars'])
             ->whereDate('tanggal', $tanggal)
             ->get()->keyBy('program_id');
 
@@ -64,7 +64,7 @@ class LaporanController extends Controller
         ->whereHas('jadwalPetugas', fn ($q) => $q->whereDate('tanggal', $tanggal))
         ->get();
         
-        $jadwalPetugas = JadwalPetugas::with('penyiars')
+        $jadwalPetugas = JadwalPetugas::with(['penyiars', 'pendengars'])
             ->whereDate('tanggal', $tanggal)
             ->get()->keyBy('program_id');
         

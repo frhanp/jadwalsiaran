@@ -1,101 +1,118 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Daftar Acara Siaran Saya') }}
+            {{ __('Daftar Acara Siaran Saya (Hari Ini)') }}
         </h2>
     </x-slot>
 
     <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 space-y-4">
+            @if (session('success'))
+                <div class="mb-4 rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
+                    ✔ {{ session('success') }}
+                </div>
+            @endif
 
-                    @if (session('success'))
-                        <div class="rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
-                            ✅ {{ session('success') }}
+            <div class="space-y-8">
+                @forelse ($jadwalPetugasList as $jadwal)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" x-data="{ modalOpen: false }">
+                    <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                        <div>
+                            <h3 class="text-lg font-bold text-gray-900">{{ $jadwal->program->nama }}</h3>
+                            <p class="text-sm text-gray-500">{{ $jadwal->program->studio->nama ?? '' }}</p>
                         </div>
-                    @endif
-
-                    <div class="overflow-x-auto rounded-lg border border-gray-200">
-                        <table class="min-w-full text-sm text-gray-700">
-                            <thead class="bg-gray-100">
+                        {{-- AWAL MODIFIKASI: Tombol Kelola Pendengar per Program --}}
+                        <div>
+                            <button @click="modalOpen = true" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                <span>Kelola Pendengar ({{ $jadwal->pendengars_count }})</span>
+                            </button>
+                        </div>
+                        {{-- AKHIR MODIFIKASI --}}
+                    </div>
+                    
+                    <div class="p-6 text-gray-900">
+                        <table class="min-w-full text-sm">
+                            <thead class="text-left text-gray-500">
                                 <tr>
-                                    <th class="px-4 py-3 text-left font-semibold">Studio</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Program</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Nama Sequence</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Waktu</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Jumlah Pendengar</th>
-                                    <th class="px-4 py-3 text-center font-semibold w-40">Aksi</th>
+                                    <th class="pb-3 font-normal w-1/3">Seqmen</th>
+                                    <th class="pb-3 font-normal w-1/4">Waktu</th>
+                                    <th class="pb-3 font-normal">Aksi</th>
                                 </tr>
                             </thead>
-
-                            <tbody class="divide-y divide-gray-200 bg-white">
-                                @forelse ($sequences as $sequence)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-4 py-3 font-medium text-gray-900">
-                                            {{ $sequence->program->studio->nama ?? '-' }}
-                                        </td>
-                                        <td class="px-4 py-3 font-medium text-gray-900">
-                                            {{ $sequence->program->nama ?? 'N/A' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-700">{{ $sequence->nama }}</td>
-                                        <td class="px-4 py-3 text-gray-700">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                                        <td class="px-4 py-3">
-                                            <form action="{{ route('penyiar.sequences.pendengar.update', $sequence) }}" 
-                                                  method="POST" class="flex items-center gap-2">
-                                                @csrf
-                                                @method('PATCH')
-                                        
-                                                <div class="relative">
-                                                    <input type="number" name="jumlah_pendengar" 
-                                                           value="{{ $sequence->jumlah_pendengar }}"
-                                                           class="w-28 pl-8 pr-2 py-1.5 text-sm border-gray-300 rounded-md 
-                                                                  focus:border-indigo-500 focus:ring-indigo-500">
-                                                                  
-                                                             
-                                                </div>
-                                        
-                                                <button type="submit"
-                                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white 
-                                                               text-xs font-medium rounded-md hover:bg-indigo-700 transition">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                              d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    Simpan
-                                                </button>
-                                            </form>
-                                        </td>
-                                        
-                                        <td class="px-4 py-3 text-center">
-                                            <a href="{{ route('penyiar.sequences.items.index', $sequence) }}"
-                                               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium 
-                                                      text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-800 
-                                                      transition-all duration-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                                </svg>
-                                                Isi Materi
-                                            </a>
-                                        </td>
-                                        
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-6 text-gray-500">
-                                            Anda belum memiliki jadwal siaran yang ditugaskan.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                            <tbody>
+                                @foreach($jadwal->program->sequences as $sequence)
+                                <tr class="border-t border-gray-200">
+                                    <td class="py-3 font-semibold">{{ $sequence->nama }}</td>
+                                    <td class="py-3">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                    <td class="py-3">
+                                        <a href="{{ route('penyiar.sequences.items.index', $sequence) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                                            Isi Materi &raquo;
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
 
-                    <div class="mt-4">
-                        {{ $sequences->links() }}
+                    <div x-show="modalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+                        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            <div x-show="modalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="modalOpen = false" aria-hidden="true"></div>
+                            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                            <div x-show="modalOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Kelola Pendengar - {{ $jadwal->program->nama }}</h3>
+                                    <div class="mt-4">
+                                        <form action="{{ route('penyiar.pendengars.store', $jadwal) }}" method="POST" class="space-y-4 bg-gray-50 p-4 rounded-md">
+                                            @csrf
+                                            <div>
+                                                <label for="nama-{{$jadwal->id}}" class="text-sm font-medium">Nama</label>
+                                                <input type="text" name="nama" id="nama-{{$jadwal->id}}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                            </div>
+                                            <div>
+                                                <label for="komentar-{{$jadwal->id}}" class="text-sm font-medium">Komentar/Pesan</label>
+                                                <textarea name="komentar" id="komentar-{{$jadwal->id}}" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+                                            </div>
+                                            <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700">Tambah</button>
+                                        </form>
+                                        
+                                        <div class="mt-6 max-h-60 overflow-y-auto pr-2">
+                                            <h4 class="font-semibold mb-2">Daftar Tercatat</h4>
+                                            <ul class="space-y-3">
+                                                @forelse($jadwal->pendengars as $pendengar)
+                                                <li class="flex justify-between items-start text-sm border-b pb-2">
+                                                    <div>
+                                                        <p class="font-semibold text-gray-800">{{ $pendengar->nama }}</p>
+                                                        <p class="text-gray-600">{{ $pendengar->komentar }}</p>
+                                                    </div>
+                                                    <form action="{{ route('penyiar.pendengars.destroy', $pendengar) }}" method="POST" onsubmit="return confirm('Hapus data ini?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-500 hover:text-red-700">&times;</button>
+                                                    </form>
+                                                </li>
+                                                @empty
+                                                <p class="text-center text-gray-500 text-sm py-4">Belum ada data pendengar.</p>
+                                                @endforelse
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                    <button type="button" @click="modalOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                @empty
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-center text-gray-500">
+                        Anda tidak memiliki jadwal siaran yang ditugaskan untuk hari ini.
+                    </div>
+                </div>
+                @endforelse
             </div>
         </div>
     </div>
