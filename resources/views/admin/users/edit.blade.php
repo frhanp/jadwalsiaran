@@ -47,7 +47,20 @@
                                 </select>
                                 <x-input-error :messages="$errors->get('role')" class="mt-2" />
                             </div>
-                        </div>
+                            
+                            <div>
+                                <x-input-label for="studio_id" value="Asal Studio (Opsional)" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                    <option value="">-- Tidak Terikat Studio --</option>
+                                    @foreach($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(old('studio_id', $user->studio_id) == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
+                            </div>
+                            </div>
 
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">

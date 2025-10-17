@@ -20,7 +20,16 @@ class JadwalPetugasController extends Controller
 
     public function create(Program $program)
     {
-        $penyiars = User::where('role', 'penyiar')->orderBy('name')->get();
+        $admin = Auth::user();
+        $penyiarsQuery = User::where('role', 'penyiar');
+
+        // Jika admin terikat pada studio, filter penyiar dari studio yang sama
+        if ($admin->studio_id) {
+            $penyiarsQuery->where('studio_id', $admin->studio_id);
+        }
+
+        $penyiars = $penyiarsQuery->orderBy('name')->get();
+        
         return view('admin.petugas.create', compact('program', 'penyiars'));
     }
 
@@ -56,7 +65,16 @@ class JadwalPetugasController extends Controller
 
     public function edit(Program $program, JadwalPetugas $jadwalPetugas)
     {
-        $penyiars = User::where('role', 'penyiar')->orderBy('name')->get();
+        $admin = Auth::user();
+        $penyiarsQuery = User::where('role', 'penyiar');
+
+        // Jika admin terikat pada studio, filter penyiar dari studio yang sama
+        if ($admin->studio_id) {
+            $penyiarsQuery->where('studio_id', $admin->studio_id);
+        }
+        
+        $penyiars = $penyiarsQuery->orderBy('name')->get();
+        
         $jadwalPetugas->load('penyiars');
         return view('admin.petugas.edit', compact('program', 'jadwalPetugas', 'penyiars'));
     }
