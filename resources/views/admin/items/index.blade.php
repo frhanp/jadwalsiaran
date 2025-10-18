@@ -68,7 +68,7 @@
                                 <tr>
                                     <th class="px-4 py-3 font-semibold text-left">Materi</th>
                                     <th class="px-4 py-3 font-semibold text-left">Frame</th>
-                                    <th class="px-4 py-3 font-semibold text-left">Durasi (Menit)</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Durasi</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -77,7 +77,18 @@
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ $item->materi }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $item->frame ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-gray-600">{{ $item->durasi ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-gray-600 font-mono">
+                                        @if($item->durasi > 0)
+                                            @php
+                                                $totalSeconds = $item->durasi * 60;
+                                                $menit = floor($totalSeconds / 60);
+                                                $detik = round($totalSeconds % 60);
+                                            @endphp
+                                            {{ $menit }}:{{ $detik }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3">
                                         @php 
                                             $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; 
