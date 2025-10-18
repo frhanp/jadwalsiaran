@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\JadwalPetugas;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\JadwalDitolakPenyiar;
 
 class TugasController extends Controller
 {
@@ -26,20 +27,33 @@ class TugasController extends Controller
     public function tolak(Request $request, JadwalPetugas $jadwalPetugas)
     {
         $request->validate(['alasan_penolakan' => 'required|string|min:10']);
+        $alasan = $request->alasan_penolakan; // Simpan alasan
+
+       
+        $jadwalPetugas->load('pembuat'); // Eager load admin pembuat
+        $adminPembuat = $jadwalPetugas->pembuat;
+        $penyiar = Auth::user();
+       
 
         DB::table('jadwal_penyiar')
             ->where('jadwal_petugas_id', $jadwalPetugas->id)
-            ->where('penyiar_id', Auth::id())
+            ->where('penyiar_id', $penyiar->id)
             ->update([
                 'status' => 'ditolak',
-                'alasan_penolakan' => $request->alasan_penolakan,
+                'alasan_penolakan' => $alasan,
             ]);
 
         // Hapus akses penyiar dari sequence terkait
-        $jadwalPetugas->program->sequences()->where('host_id', Auth::id())->update(['host_id' => null]);
+        $jadwalPetugas->program->sequences()->where('host_id', $penyiar->id)->update(['host_id' => null]);
         
-        // Kirim notifikasi ke Admin (akan diimplementasikan nanti jika diperlukan)
+        
+        if ($adminPembuat) {
+             $adminPembuat->notify(new JadwalDitolakPenyiar($jadwalPetugas, $penyiar, $alasan));
+        }
+        
 
         return back()->with('success', 'Jadwal siaran berhasil ditolak.');
     }
+
+
 }

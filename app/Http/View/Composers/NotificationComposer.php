@@ -15,6 +15,9 @@ class NotificationComposer
             // Ambil 5 notifikasi terbaru yang belum dibaca
             $unreadNotifications = $user->unreadNotifications()->take(5)->get();
             $view->with('unreadNotifications', $unreadNotifications);
+        } else {
+            // Jika user belum login, kirim collection kosong
+            $view->with('unreadNotifications', collect());
         }
     }
 }

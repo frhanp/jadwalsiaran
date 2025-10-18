@@ -5,7 +5,7 @@
                 {{ __('Dashboard') }}
             </h2>
 
-            @if(Auth::user()->role === 'penyiar' && isset($unreadNotifications))
+            @if(in_array(Auth::user()->role, ['penyiar', 'admin']) && isset($unreadNotifications))
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" class="relative text-gray-500 hover:text-blue-600 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
