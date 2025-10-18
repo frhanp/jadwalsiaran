@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-17 09:16:00_
+_Generated: 2025-10-18 18:10:47_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -70,6 +70,8 @@ app\Http\Controllers\Auth\PasswordResetLinkController.php
 app\Http\Controllers\Auth\RegisteredUserController.php
 app\Http\Controllers\Auth\VerifyEmailController.php
 app\Http\Controllers\Penyiar\JadwalController.php
+app\Http\Controllers\Penyiar\PendengarController.php
+app\Http\Controllers\Penyiar\TugasController.php
 app\Http\Middleware\RoleMiddleware.php
 app\Http\Requests\Auth
 app\Http\Requests\ProfileUpdateRequest.php
@@ -79,11 +81,13 @@ app\Http\View\Composers\NotificationComposer.php
 app\Models\ItemDetail.php
 app\Models\JadwalPetugas.php
 app\Models\MateriDetail.php
+app\Models\Pendengar.php
 app\Models\Program.php
 app\Models\Sequence.php
 app\Models\SequenceItem.php
 app\Models\Studio.php
 app\Models\User.php
+app\Notifications\JadwalDitolakPenyiar.php
 app\Notifications\JadwalSiaranDitugaskan.php
 app\Providers\AppServiceProvider.php
 app\View\Components
@@ -126,6 +130,8 @@ database\migrations\2025_10_10_171922_create_studios_table.php
 database\migrations\2025_10_10_171944_add_studio_id_to_programs_table.php
 database\migrations\2025_10_16_235716_add_studio_id_to_users_table.php
 database\migrations\2025_10_17_002651_create_notifications_table.php
+database\migrations\2025_10_17_011837_create_pendengars_table.php
+database\migrations\2025_10_17_022005_add_status_to_jadwal_penyiar_table.php
 database\seeders\DatabaseSeeder.php
 database\seeders\JadwalPetugasSeeder.php
 database\seeders\ProgramSeeder.php
@@ -366,11 +372,11 @@ Branch:
 main
 
 Last 5 commits:
-0ea4f1a add lonceng
-8dee9ff penyiar per studio
-4001db1 ubah nama DAS
-4514f79 fixing raw
-f33fabb change icon
+ac9ebf0 add lonceng di admin
+d31e831 fix tampilan putih
+d78b3e4 add stopwatch di durasi materi siaran
+8467dbc acc tolak penyiar
+644410a modif pendengar
 ```
 
 
@@ -479,6 +485,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Admin\StudioController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\Penyiar\PendengarController;
+use App\Http\Controllers\Penyiar\TugasController;
 
 
 
@@ -525,7 +533,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::put('items/{item}/materi-details', [MateriDetailController::class, 'update'])->name('items.materi-details.update-all');
         Route::get('items/{item}/item-details', [ItemDetailController::class, 'edit'])->name('items.item-details.manage');
         Route::put('items/{item}/item-details', [ItemDetailController::class, 'update'])->name('items.item-details.update-all');
-        Route::patch('sequences/{sequence}/pendengar', [SequenceController::class, 'updatePendengar'])->name('sequences.pendengar.update');
+        Route::post('jadwal-petugas/{jadwalPetugas}/pendengars', [PendengarController::class, 'store'])->name('pendengars.store');
+        Route::delete('pendengars/{pendengar}', [PendengarController::class, 'destroy'])->name('pendengars.destroy');
+        Route::post('tugas/{jadwalPetugas}/terima', [TugasController::class, 'terima'])->name('tugas.terima');
+        Route::post('tugas/{jadwalPetugas}/tolak', [TugasController::class, 'tolak'])->name('tugas.tolak');
+
     });
 
     // Grup untuk Kepsta dan Katim (hanya laporan)
@@ -558,95 +570,98 @@ require __DIR__ . '/auth.php';
 ## Routes (from command)
 ```
 
-  GET|HEAD        / ............................................................................................... 
-  GET|HEAD        _debugbar/assets/javascript ......... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
-  GET|HEAD        _debugbar/assets/stylesheets ...... debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
-  DELETE          _debugbar/cache/{key}/{tags?} debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
-  GET|HEAD        _debugbar/clockwork/{id} debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
-  GET|HEAD        _debugbar/open .......... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
-  POST            _debugbar/queries/explain debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explaΓÇª
-  PUT|PATCH       admin/items/{item} ..................... admin.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          admin/items/{item} ................... admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        admin/items/{item}/edit .................... admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        admin/items/{item}/item-details admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
-  PUT             admin/items/{item}/item-details admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailControllerΓÇª
-  GET|HEAD        admin/items/{item}/materi-details admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailControllΓÇª
-  PUT             admin/items/{item}/materi-details admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailContΓÇª
-  GET|HEAD        admin/programs ............................. admin.programs.index ΓÇ║ Admin\ProgramController@index
-  POST            admin/programs ............................. admin.programs.store ΓÇ║ Admin\ProgramController@store
-  GET|HEAD        admin/programs/create .................... admin.programs.create ΓÇ║ Admin\ProgramController@create
-  GET|HEAD        admin/programs/{program} ..................... admin.programs.show ΓÇ║ Admin\ProgramController@show
-  PUT|PATCH       admin/programs/{program} ................. admin.programs.update ΓÇ║ Admin\ProgramController@update
-  DELETE          admin/programs/{program} ............... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
-  GET|HEAD        admin/programs/{program}/edit ................ admin.programs.edit ΓÇ║ Admin\ProgramController@edit
-  GET|HEAD        admin/programs/{program}/petugas admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@inΓÇª
-  POST            admin/programs/{program}/petugas admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@stΓÇª
-  GET|HEAD        admin/programs/{program}/petugas/create admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasContrΓÇª
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugΓÇª
-  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.update ΓÇ║ Admin\JadwalPetΓÇª
-  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPeΓÇª
-  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit admin.programs.petugas.edit ΓÇ║ Admin\JadwalΓÇª
-  GET|HEAD        admin/programs/{program}/sequences admin.programs.sequences.index ΓÇ║ Admin\SequenceController@indΓÇª
-  POST            admin/programs/{program}/sequences admin.programs.sequences.store ΓÇ║ Admin\SequenceController@stoΓÇª
-  GET|HEAD        admin/programs/{program}/sequences/create admin.programs.sequences.create ΓÇ║ Admin\SequenceControΓÇª
-  PUT|PATCH       admin/sequences/{sequence} ............. admin.sequences.update ΓÇ║ Admin\SequenceController@update
-  DELETE          admin/sequences/{sequence} ........... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
-  GET|HEAD        admin/sequences/{sequence}/edit ............ admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
-  GET|HEAD        admin/sequences/{sequence}/items admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
-  POST            admin/sequences/{sequence}/items admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
-  GET|HEAD        admin/sequences/{sequence}/items/create admin.sequences.items.create ΓÇ║ Admin\SequenceItemControlΓÇª
-  GET|HEAD        admin/studios ................................ admin.studios.index ΓÇ║ Admin\StudioController@index
-  POST            admin/studios ................................ admin.studios.store ΓÇ║ Admin\StudioController@store
-  GET|HEAD        admin/studios/create ....................... admin.studios.create ΓÇ║ Admin\StudioController@create
-  GET|HEAD        admin/studios/{studio} ......................... admin.studios.show ΓÇ║ Admin\StudioController@show
-  PUT|PATCH       admin/studios/{studio} ..................... admin.studios.update ΓÇ║ Admin\StudioController@update
-  DELETE          admin/studios/{studio} ................... admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
-  GET|HEAD        admin/studios/{studio}/edit .................... admin.studios.edit ΓÇ║ Admin\StudioController@edit
-  GET|HEAD        admin/users ...................................... admin.users.index ΓÇ║ Admin\UserController@index
-  POST            admin/users ...................................... admin.users.store ΓÇ║ Admin\UserController@store
-  GET|HEAD        admin/users/create ............................. admin.users.create ΓÇ║ Admin\UserController@create
-  GET|HEAD        admin/users/{user} ................................. admin.users.show ΓÇ║ Admin\UserController@show
-  PUT|PATCH       admin/users/{user} ............................. admin.users.update ΓÇ║ Admin\UserController@update
-  DELETE          admin/users/{user} ........................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
-  GET|HEAD        admin/users/{user}/edit ............................ admin.users.edit ΓÇ║ Admin\UserController@edit
-  GET|HEAD        confirm-password ..................... password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
-  POST            confirm-password ....................................... Auth\ConfirmablePasswordController@store
-  GET|HEAD        dashboard ................................................. dashboard ΓÇ║ DashboardController@index
-  POST            email/verification-notification verification.send ΓÇ║ Auth\EmailVerificationNotificationControllerΓÇª
-  GET|HEAD        forgot-password ...................... password.request ΓÇ║ Auth\PasswordResetLinkController@create
-  POST            forgot-password ......................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
-  GET|HEAD        laporan/jadwal-harian ........................... laporan.jadwal.harian ΓÇ║ LaporanController@index
-  GET|HEAD        laporan/jadwal-harian/cetak ...................... laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
-  GET|HEAD        login ........................................ login ΓÇ║ Auth\AuthenticatedSessionController@create
-  POST            login ................................................. Auth\AuthenticatedSessionController@store
-  POST            logout ..................................... logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
-  POST            notifications/mark-as-read ......... notifications.markAsRead ΓÇ║ NotificationController@markAsRead
-  PUT             password ....................................... password.update ΓÇ║ Auth\PasswordController@update
-  PUT|PATCH       penyiar/items/{item} ................. penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
-  DELETE          penyiar/items/{item} ............... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
-  GET|HEAD        penyiar/items/{item}/edit ................ penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
-  GET|HEAD        penyiar/items/{item}/item-details penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailControllerΓÇª
-  PUT             penyiar/items/{item}/item-details penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailControΓÇª
-  GET|HEAD        penyiar/items/{item}/materi-details penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailContΓÇª
-  PUT             penyiar/items/{item}/materi-details penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailΓÇª
-  GET|HEAD        penyiar/jadwal ............................ penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
-  GET|HEAD        penyiar/sequences/{sequence}/items penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@ΓÇª
-  POST            penyiar/sequences/{sequence}/items penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@ΓÇª
-  GET|HEAD        penyiar/sequences/{sequence}/items/create penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemConΓÇª
-  PATCH           penyiar/sequences/{sequence}/pendengar penyiar.sequences.pendengar.update ΓÇ║ Admin\SequenceControΓÇª
-  GET|HEAD        profile ................................................... profile.edit ΓÇ║ ProfileController@edit
-  PATCH           profile ............................................... profile.update ΓÇ║ ProfileController@update
-  DELETE          profile ............................................. profile.destroy ΓÇ║ ProfileController@destroy
-  GET|HEAD        register ........................................ register ΓÇ║ Auth\RegisteredUserController@create
-  POST            register .................................................... Auth\RegisteredUserController@store
-  POST            reset-password ................................ password.store ΓÇ║ Auth\NewPasswordController@store
-  GET|HEAD        reset-password/{token} ....................... password.reset ΓÇ║ Auth\NewPasswordController@create
-  GET|HEAD        storage/{path} .................................................................... storage.local
-  GET|HEAD        up .............................................................................................. 
-  GET|HEAD        verify-email ....................... verification.notice ΓÇ║ Auth\EmailVerificationPromptController
-  GET|HEAD        verify-email/{id}/{hash} ....................... verification.verify ΓÇ║ Auth\VerifyEmailController
+  GET|HEAD        / .......................................................................................................... 
+  GET|HEAD        _debugbar/assets/javascript .................... debugbar.assets.js ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@js
+  GET|HEAD        _debugbar/assets/stylesheets ................. debugbar.assets.css ΓÇ║ Barryvdh\Debugbar ΓÇ║ AssetController@css
+  DELETE          _debugbar/cache/{key}/{tags?} ........... debugbar.cache.delete ΓÇ║ Barryvdh\Debugbar ΓÇ║ CacheController@delete
+  GET|HEAD        _debugbar/clockwork/{id} .......... debugbar.clockwork ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@clockwork
+  GET|HEAD        _debugbar/open ..................... debugbar.openhandler ΓÇ║ Barryvdh\Debugbar ΓÇ║ OpenHandlerController@handle
+  POST            _debugbar/queries/explain ......... debugbar.queries.explain ΓÇ║ Barryvdh\Debugbar ΓÇ║ QueriesController@explain
+  PUT|PATCH       admin/items/{item} ................................ admin.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          admin/items/{item} .............................. admin.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        admin/items/{item}/edit ............................... admin.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        admin/items/{item}/item-details .......... admin.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             admin/items/{item}/item-details .... admin.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        admin/items/{item}/materi-details .... admin.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             admin/items/{item}/materi-details admin.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@updaΓÇª
+  GET|HEAD        admin/programs ........................................ admin.programs.index ΓÇ║ Admin\ProgramController@index
+  POST            admin/programs ........................................ admin.programs.store ΓÇ║ Admin\ProgramController@store
+  GET|HEAD        admin/programs/create ............................... admin.programs.create ΓÇ║ Admin\ProgramController@create
+  GET|HEAD        admin/programs/{program} ................................ admin.programs.show ΓÇ║ Admin\ProgramController@show
+  PUT|PATCH       admin/programs/{program} ............................ admin.programs.update ΓÇ║ Admin\ProgramController@update
+  DELETE          admin/programs/{program} .......................... admin.programs.destroy ΓÇ║ Admin\ProgramController@destroy
+  GET|HEAD        admin/programs/{program}/edit ........................... admin.programs.edit ΓÇ║ Admin\ProgramController@edit
+  GET|HEAD        admin/programs/{program}/petugas ........ admin.programs.petugas.index ΓÇ║ Admin\JadwalPetugasController@index
+  POST            admin/programs/{program}/petugas ........ admin.programs.petugas.store ΓÇ║ Admin\JadwalPetugasController@store
+  GET|HEAD        admin/programs/{program}/petugas/create admin.programs.petugas.create ΓÇ║ Admin\JadwalPetugasController@create
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.show ΓÇ║ Admin\JadwalPetugasControlleΓÇª
+  PUT|PATCH       admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.update ΓÇ║ Admin\JadwalPetugasControlΓÇª
+  DELETE          admin/programs/{program}/petugas/{jadwalPetugas} admin.programs.petugas.destroy ΓÇ║ Admin\JadwalPetugasControΓÇª
+  GET|HEAD        admin/programs/{program}/petugas/{jadwalPetugas}/edit admin.programs.petugas.edit ΓÇ║ Admin\JadwalPetugasContΓÇª
+  GET|HEAD        admin/programs/{program}/sequences ......... admin.programs.sequences.index ΓÇ║ Admin\SequenceController@index
+  POST            admin/programs/{program}/sequences ......... admin.programs.sequences.store ΓÇ║ Admin\SequenceController@store
+  GET|HEAD        admin/programs/{program}/sequences/create admin.programs.sequences.create ΓÇ║ Admin\SequenceController@create
+  PUT|PATCH       admin/sequences/{sequence} ........................ admin.sequences.update ΓÇ║ Admin\SequenceController@update
+  DELETE          admin/sequences/{sequence} ...................... admin.sequences.destroy ΓÇ║ Admin\SequenceController@destroy
+  GET|HEAD        admin/sequences/{sequence}/edit ....................... admin.sequences.edit ΓÇ║ Admin\SequenceController@edit
+  GET|HEAD        admin/sequences/{sequence}/items .......... admin.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            admin/sequences/{sequence}/items .......... admin.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        admin/sequences/{sequence}/items/create . admin.sequences.items.create ΓÇ║ Admin\SequenceItemController@create
+  GET|HEAD        admin/studios ........................................... admin.studios.index ΓÇ║ Admin\StudioController@index
+  POST            admin/studios ........................................... admin.studios.store ΓÇ║ Admin\StudioController@store
+  GET|HEAD        admin/studios/create .................................. admin.studios.create ΓÇ║ Admin\StudioController@create
+  GET|HEAD        admin/studios/{studio} .................................... admin.studios.show ΓÇ║ Admin\StudioController@show
+  PUT|PATCH       admin/studios/{studio} ................................ admin.studios.update ΓÇ║ Admin\StudioController@update
+  DELETE          admin/studios/{studio} .............................. admin.studios.destroy ΓÇ║ Admin\StudioController@destroy
+  GET|HEAD        admin/studios/{studio}/edit ............................... admin.studios.edit ΓÇ║ Admin\StudioController@edit
+  GET|HEAD        admin/users ................................................. admin.users.index ΓÇ║ Admin\UserController@index
+  POST            admin/users ................................................. admin.users.store ΓÇ║ Admin\UserController@store
+  GET|HEAD        admin/users/create ........................................ admin.users.create ΓÇ║ Admin\UserController@create
+  GET|HEAD        admin/users/{user} ............................................ admin.users.show ΓÇ║ Admin\UserController@show
+  PUT|PATCH       admin/users/{user} ........................................ admin.users.update ΓÇ║ Admin\UserController@update
+  DELETE          admin/users/{user} ...................................... admin.users.destroy ΓÇ║ Admin\UserController@destroy
+  GET|HEAD        admin/users/{user}/edit ....................................... admin.users.edit ΓÇ║ Admin\UserController@edit
+  GET|HEAD        confirm-password ................................ password.confirm ΓÇ║ Auth\ConfirmablePasswordController@show
+  POST            confirm-password .................................................. Auth\ConfirmablePasswordController@store
+  GET|HEAD        dashboard ............................................................ dashboard ΓÇ║ DashboardController@index
+  POST            email/verification-notification ..... verification.send ΓÇ║ Auth\EmailVerificationNotificationController@store
+  GET|HEAD        forgot-password ................................. password.request ΓÇ║ Auth\PasswordResetLinkController@create
+  POST            forgot-password .................................... password.email ΓÇ║ Auth\PasswordResetLinkController@store
+  GET|HEAD        laporan/jadwal-harian ...................................... laporan.jadwal.harian ΓÇ║ LaporanController@index
+  GET|HEAD        laporan/jadwal-harian/cetak ................................. laporan.jadwal.cetak ΓÇ║ LaporanController@cetak
+  GET|HEAD        login ................................................... login ΓÇ║ Auth\AuthenticatedSessionController@create
+  POST            login ............................................................ Auth\AuthenticatedSessionController@store
+  POST            logout ................................................ logout ΓÇ║ Auth\AuthenticatedSessionController@destroy
+  POST            notifications/mark-as-read .................... notifications.markAsRead ΓÇ║ NotificationController@markAsRead
+  PUT             password .................................................. password.update ΓÇ║ Auth\PasswordController@update
+  PUT|PATCH       penyiar/items/{item} ............................ penyiar.items.update ΓÇ║ Admin\SequenceItemController@update
+  DELETE          penyiar/items/{item} .......................... penyiar.items.destroy ΓÇ║ Admin\SequenceItemController@destroy
+  GET|HEAD        penyiar/items/{item}/edit ........................... penyiar.items.edit ΓÇ║ Admin\SequenceItemController@edit
+  GET|HEAD        penyiar/items/{item}/item-details ...... penyiar.items.item-details.manage ΓÇ║ Admin\ItemDetailController@edit
+  PUT             penyiar/items/{item}/item-details penyiar.items.item-details.update-all ΓÇ║ Admin\ItemDetailController@update
+  GET|HEAD        penyiar/items/{item}/materi-details penyiar.items.materi-details.manage ΓÇ║ Admin\MateriDetailController@edit
+  PUT             penyiar/items/{item}/materi-details penyiar.items.materi-details.update-all ΓÇ║ Admin\MateriDetailController@ΓÇª
+  GET|HEAD        penyiar/jadwal ....................................... penyiar.jadwal.index ΓÇ║ Penyiar\JadwalController@index
+  POST            penyiar/jadwal-petugas/{jadwalPetugas}/pendengars penyiar.pendengars.store ΓÇ║ Penyiar\PendengarController@stΓÇª
+  DELETE          penyiar/pendengars/{pendengar} ............ penyiar.pendengars.destroy ΓÇ║ Penyiar\PendengarController@destroy
+  GET|HEAD        penyiar/sequences/{sequence}/items ...... penyiar.sequences.items.index ΓÇ║ Admin\SequenceItemController@index
+  POST            penyiar/sequences/{sequence}/items ...... penyiar.sequences.items.store ΓÇ║ Admin\SequenceItemController@store
+  GET|HEAD        penyiar/sequences/{sequence}/items/create penyiar.sequences.items.create ΓÇ║ Admin\SequenceItemController@creΓÇª
+  POST            penyiar/tugas/{jadwalPetugas}/terima ................. penyiar.tugas.terima ΓÇ║ Penyiar\TugasController@terima
+  POST            penyiar/tugas/{jadwalPetugas}/tolak .................... penyiar.tugas.tolak ΓÇ║ Penyiar\TugasController@tolak
+  GET|HEAD        profile .............................................................. profile.edit ΓÇ║ ProfileController@edit
+  PATCH           profile .......................................................... profile.update ΓÇ║ ProfileController@update
+  DELETE          profile ........................................................ profile.destroy ΓÇ║ ProfileController@destroy
+  GET|HEAD        register ................................................... register ΓÇ║ Auth\RegisteredUserController@create
+  POST            register ............................................................... Auth\RegisteredUserController@store
+  POST            reset-password ........................................... password.store ΓÇ║ Auth\NewPasswordController@store
+  GET|HEAD        reset-password/{token} .................................. password.reset ΓÇ║ Auth\NewPasswordController@create
+  GET|HEAD        storage/{path} ............................................................................... storage.local
+  GET|HEAD        up ......................................................................................................... 
+  GET|HEAD        verify-email .................................. verification.notice ΓÇ║ Auth\EmailVerificationPromptController
+  GET|HEAD        verify-email/{id}/{hash} .................................. verification.verify ΓÇ║ Auth\VerifyEmailController
 
-                                                                                                Showing [87] routes
+                                                                                                           Showing [90] routes
 
 ```
 
@@ -1653,22 +1668,137 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Sequence;
 use Illuminate\Support\Facades\Auth;
+use App\Models\JadwalPetugas;
+use Carbon\Carbon;
 
 class JadwalController extends Controller
 {
-    /**
-     * Menampilkan daftar sequence yang ditugaskan untuk penyiar yang sedang login.
-     */
     public function index()
     {
-        $sequences = Sequence::with('program.studio')
+        $today = Carbon::today();
+        
+        $jadwalPetugasList = JadwalPetugas::whereHas('penyiars', function ($query) {
+                $query->where('penyiar_id', Auth::id());
+            })
+            // ->whereDate('tanggal', $today) // Sementara kita tampilkan semua untuk development
+            ->with([
+                'program.studio',
+                'program.sequences' => fn($q) => $q->orderBy('waktu', 'asc'),
+                'penyiars', // Pastikan relasi penyiars termuat
+                'pendengars' => fn($q) => $q->orderBy('created_at', 'desc')
+            ])
+            ->withCount('pendengars')
+            ->orderBy('tanggal', 'desc')
+            ->paginate(10);
 
-            ->where('host_id', Auth::id())
-            ->orderBy('waktu', 'asc')
-            ->paginate(15);
-
-        return view('penyiar.jadwal.index', compact('sequences'));
+        return view('penyiar.jadwal.index', compact('jadwalPetugasList'));
     }
+}
+
+===== app\Http\Controllers\Penyiar\PendengarController.php =====
+<?php
+
+namespace App\Http\Controllers\Penyiar;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\JadwalPetugas;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Pendengar;
+
+class PendengarController extends Controller
+{
+    private function authorizePenyiar(JadwalPetugas $jadwalPetugas)
+    {
+        // Memastikan penyiar yang login memang bertugas di jadwal tersebut
+        if (! $jadwalPetugas->penyiars()->where('penyiar_id', Auth::id())->exists()) {
+            abort(403, 'AKSES DITOLAK.');
+        }
+    }
+
+    public function store(Request $request, JadwalPetugas $jadwalPetugas)
+    {
+        $this->authorizePenyiar($jadwalPetugas);
+
+        $validated = $request->validate([
+            'nama' => 'required|string|max:255',
+            'komentar' => 'required|string',
+        ]);
+
+        $jadwalPetugas->pendengars()->create($validated);
+
+        return back()->with('success', 'Data pendengar berhasil ditambahkan.');
+    }
+
+    public function destroy(Pendengar $pendengar)
+    {
+        $this->authorizePenyiar($pendengar->jadwalPetugas);
+
+        $pendengar->delete();
+
+        return back()->with('success', 'Data pendengar berhasil dihapus.');
+    }
+}
+
+===== app\Http\Controllers\Penyiar\TugasController.php =====
+<?php
+
+namespace App\Http\Controllers\Penyiar;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\JadwalPetugas;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use App\Notifications\JadwalDitolakPenyiar;
+
+class TugasController extends Controller
+{
+    public function terima(JadwalPetugas $jadwalPetugas)
+    {
+        DB::table('jadwal_penyiar')
+            ->where('jadwal_petugas_id', $jadwalPetugas->id)
+            ->where('penyiar_id', Auth::id())
+            ->update(['status' => 'diterima']);
+        
+        // Pastikan host_id di-set kembali jika sebelumnya pernah ditolak
+        $jadwalPetugas->program->sequences()->update(['host_id' => Auth::id()]);
+
+        return back()->with('success', 'Jadwal siaran berhasil Anda terima.');
+    }
+
+    public function tolak(Request $request, JadwalPetugas $jadwalPetugas)
+    {
+        $request->validate(['alasan_penolakan' => 'required|string|min:10']);
+        $alasan = $request->alasan_penolakan; // Simpan alasan
+
+       
+        $jadwalPetugas->load('pembuat'); // Eager load admin pembuat
+        $adminPembuat = $jadwalPetugas->pembuat;
+        $penyiar = Auth::user();
+       
+
+        DB::table('jadwal_penyiar')
+            ->where('jadwal_petugas_id', $jadwalPetugas->id)
+            ->where('penyiar_id', $penyiar->id)
+            ->update([
+                'status' => 'ditolak',
+                'alasan_penolakan' => $alasan,
+            ]);
+
+        // Hapus akses penyiar dari sequence terkait
+        $jadwalPetugas->program->sequences()->where('host_id', $penyiar->id)->update(['host_id' => null]);
+        
+        
+        if ($adminPembuat) {
+             $adminPembuat->notify(new JadwalDitolakPenyiar($jadwalPetugas, $penyiar, $alasan));
+        }
+        
+
+        return back()->with('success', 'Jadwal siaran berhasil ditolak.');
+    }
+
+
 }
 
 ===== app\Http\Controllers\Controller.php =====
@@ -1767,7 +1897,7 @@ class LaporanController extends Controller
         $jadwalPerStudio = $programs->groupBy('studio.nama');
         $studios = Studio::whereIn('id', $programs->pluck('studio_id')->unique())->orderBy('nama')->get();
         
-        $jadwalPetugas = JadwalPetugas::with('penyiars')
+        $jadwalPetugas = JadwalPetugas::with(['penyiars', 'pendengars'])
             ->whereDate('tanggal', $tanggal)
             ->get()->keyBy('program_id');
 
@@ -1798,7 +1928,7 @@ class LaporanController extends Controller
         ->whereHas('jadwalPetugas', fn ($q) => $q->whereDate('tanggal', $tanggal))
         ->get();
         
-        $jadwalPetugas = JadwalPetugas::with('penyiars')
+        $jadwalPetugas = JadwalPetugas::with(['penyiars', 'pendengars'])
             ->whereDate('tanggal', $tanggal)
             ->get()->keyBy('program_id');
         
@@ -1935,6 +2065,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class JadwalPetugas extends Model
 {
@@ -1959,12 +2090,19 @@ class JadwalPetugas extends Model
     
     public function penyiars(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'jadwal_penyiar', 'jadwal_petugas_id', 'penyiar_id');
+        return $this->belongsToMany(User::class, 'jadwal_penyiar', 'jadwal_petugas_id', 'penyiar_id')
+                    ->withPivot('status', 'alasan_penolakan')
+                    ->withTimestamps();
     }
 
     public function pembuat(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+
+    public function pendengars(): HasMany
+    {
+        return $this->hasMany(Pendengar::class);
     }
 }
 
@@ -1994,6 +2132,31 @@ class MateriDetail extends Model
     public function pembuat(): BelongsTo
     {
         return $this->belongsTo(User::class, 'dibuat_oleh');
+    }
+}
+
+===== app\Models\Pendengar.php =====
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Pendengar extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'jadwal_petugas_id',
+        'nama',
+        'komentar',
+    ];
+
+    public function jadwalPetugas(): BelongsTo
+    {
+        return $this->belongsTo(JadwalPetugas::class);
     }
 }
 
@@ -2269,36 +2432,86 @@ class Studio extends Model
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @php $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; @endphp
-                    <form method="POST" action="{{ route($prefix.'sequences.items.store', $sequence) }}">
+                    <form method="POST" action="{{ route($prefix . 'sequences.items.store', $sequence) }}">
                         @csrf
                         <div class="space-y-6">
                             <div>
                                 <x-input-label for="materi" :value="__('Materi Siar')" />
-                                <x-text-input id="materi" class="block mt-1 w-full" type="text" name="materi" :value="old('materi')" required autofocus />
+                                <x-text-input id="materi" class="block mt-1 w-full" type="text" name="materi"
+                                    :value="old('materi')" required autofocus />
                                 <x-input-error :messages="$errors->get('materi')" class="mt-2" />
                             </div>
 
-                            <div>
+                            <div x-data="stopwatch('{{ old('durasi', 0) }}')">
+                                <x-input-label value="Durasi" />
+                                
+                                {{-- Input asli (decimal minutes) disembunyikan --}}
+                                <input type="hidden" name="durasi" x-model="durationInMinutes" />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+
+                                {{-- Stopwatch Controls --}}
+                                <div class="mt-1 flex items-center gap-4 p-4 bg-gray-50 rounded-lg border">
+                                    <div class="flex-grow text-center">
+                                        <span class="text-4xl font-mono font-bold text-gray-800 tracking-wider" x-text="formatStopwatchDisplay()"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" @click="start()" x-show="!isRunning" class="px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-md hover:bg-green-700 transition">Mulai</button>
+                                        <button type="button" @click="stop()" x-show="isRunning" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition">Stop</button>
+                                        <button type="button" @click="reset()" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">Reset</button>
+                                    </div>
+                                </div>
+                                
+                                {{-- Input Manual MM:SS (Visible) --}}
+                                <div class="mt-3">
+                                    <x-input-label value="Durasi Manual (MM:SS, isi jika perlu koreksi)" class="text-xs text-gray-500" />
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <x-text-input 
+                                            id="durasi_manual_menit" 
+                                            class="block w-20 text-center" 
+                                            type="number" 
+                                            min="0"
+                                            placeholder="MM"
+                                            x-model.number="manualMinutes"
+                                            @input="updateFromManualInput"
+                                        />
+                                        <span class="font-bold text-gray-500">:</span>
+                                        <x-text-input 
+                                            id="durasi_manual_detik" 
+                                            class="block w-20 text-center" 
+                                            type="number" 
+                                            min="0" max="59"
+                                            placeholder="SS"
+                                            x-model.number="manualSeconds"
+                                            @input="updateFromManualInput"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {{-- <div>
                                 <x-input-label for="durasi" :value="__('Durasi (menit)')" />
                                 <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi')" />
                                 <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
-                            </div>
+                            </div> --}}
 
                             <div>
                                 <x-input-label for="frame" :value="__('Frame (Opsional override)')" />
-                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame" :value="old('frame')" />
+                                <x-text-input id="frame" class="block mt-1 w-full" type="text" name="frame"
+                                    :value="old('frame')" />
                                 <x-input-error :messages="$errors->get('frame')" class="mt-2" />
                             </div>
 
                             <div>
                                 <x-input-label for="keterangan" :value="__('Keterangan')" />
-                                <textarea id="keterangan" name="keterangan" rows="3" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan') }}</textarea>
+                                <textarea id="keterangan" name="keterangan" rows="3"
+                                    class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">{{ old('keterangan') }}</textarea>
                                 <x-input-error :messages="$errors->get('keterangan')" class="mt-2" />
                             </div>
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            <a href="{{ route($prefix.'sequences.items.index', $sequence) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
+                            <a href="{{ route($prefix . 'sequences.items.index', $sequence) }}"
+                                class="text-sm text-gray-600 hover:text-gray-900 mr-4">
                                 Batal
                             </a>
                             <x-primary-button>
@@ -2310,6 +2523,89 @@ class Studio extends Model
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('stopwatch', (initialMinutes = 0) => ({
+                isRunning: false,
+                seconds: 0, // Stopwatch selalu mulai dari 0 di create form
+                timer: null,
+                durationInMinutes: parseFloat(initialMinutes).toFixed(2), // Hidden input value (decimal)
+                manualMinutes: 0,
+                manualSeconds: 0,
+
+                init() {
+                    // Inisialisasi manual input dari old value jika ada
+                    let initialTotalSeconds = parseFloat(initialMinutes) * 60;
+                    this.manualMinutes = Math.floor(initialTotalSeconds / 60);
+                    this.manualSeconds = Math.round(initialTotalSeconds % 60);
+                    if (this.manualSeconds >= 60) { // Handle rounding edge case like 0.99 minutes
+                        this.manualMinutes += 1;
+                        this.manualSeconds = 0;
+                    }
+                    this.seconds = this.manualMinutes * 60 + this.manualSeconds; // Update internal seconds too
+                    this.updateHiddenInput(); // Update hidden input initially
+                },
+
+                formatStopwatchDisplay() { // Format HH:MM:SS untuk display stopwatch
+                    const h = Math.floor(this.seconds / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((this.seconds % 3600) / 60).toString().padStart(2, '0');
+                    const s = Math.floor(this.seconds % 60).toString().padStart(2, '0');
+                    return `${h}:${m}:${s}`;
+                },
+                
+                updateManualDisplay() { // Update input MM dan SS dari state `seconds`
+                    this.manualMinutes = Math.floor(this.seconds / 60);
+                    this.manualSeconds = Math.round(this.seconds % 60);
+                     if (this.manualSeconds >= 60) {
+                        this.manualMinutes += 1;
+                        this.manualSeconds = 0;
+                    }
+                },
+
+                updateHiddenInput() { // Update hidden input (decimal minutes) dari state `seconds`
+                    this.durationInMinutes = (this.seconds / 60).toFixed(2);
+                },
+
+                updateFromManualInput() { // Dipanggil saat user ketik di input MM atau SS
+                    // Pastikan nilai tidak negatif
+                    this.manualMinutes = Math.max(0, parseInt(this.manualMinutes) || 0);
+                    this.manualSeconds = Math.max(0, Math.min(59, parseInt(this.manualSeconds) || 0)); // Max 59 detik
+
+                    this.seconds = this.manualMinutes * 60 + this.manualSeconds;
+                    this.updateHiddenInput(); // Update nilai desimal yang akan disimpan
+                },
+
+                start() {
+                    if (this.isRunning) return;
+                    this.isRunning = true;
+                    // Mulai hitung dari nilai manual yang mungkin sudah diisi
+                    this.seconds = this.manualMinutes * 60 + this.manualSeconds; 
+                    this.timer = setInterval(() => {
+                        this.seconds++;
+                        this.updateManualDisplay(); // Update input MM:SS secara live
+                        this.updateHiddenInput(); // Update hidden input juga
+                    }, 1000);
+                },
+
+                stop() {
+                    if (!this.isRunning) return;
+                    this.isRunning = false;
+                    clearInterval(this.timer);
+                    // Final update setelah stop
+                    this.updateManualDisplay(); 
+                    this.updateHiddenInput();
+                },
+
+                reset() {
+                    this.stop();
+                    this.seconds = 0;
+                    this.updateManualDisplay();
+                    this.updateHiddenInput();
+                }
+            }))
+        })
+    </script>
 </x-app-layout>
 
 ===== resources\views\admin\items\edit.blade.php =====
@@ -2325,9 +2621,7 @@ class Studio extends Model
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     @php $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; @endphp
-                    {{-- AWAL MODIFIKASI --}}
                     <form method="POST" action="{{ route($prefix.'items.update', $item) }}">
-                    {{-- AKHIR MODIFIKASI --}}
                         @csrf
                         @method('PUT')
                         <div class="space-y-6">
@@ -2337,11 +2631,58 @@ class Studio extends Model
                                 <x-input-error :messages="$errors->get('materi')" class="mt-2" />
                             </div>
 
-                            <div>
+                            <div x-data="stopwatch('{{ old('durasi', $item->durasi ?? 0) }}')">
+                                <x-input-label value="Durasi" />
+                                
+                                {{-- Input asli (decimal minutes) disembunyikan --}}
+                                <input type="hidden" name="durasi" x-model="durationInMinutes" />
+                                <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
+
+                                {{-- Stopwatch Controls --}}
+                                <div class="mt-1 flex items-center gap-4 p-4 bg-gray-50 rounded-lg border">
+                                    <div class="flex-grow text-center">
+                                        <span class="text-4xl font-mono font-bold text-gray-800 tracking-wider" x-text="formatStopwatchDisplay()"></span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" @click="start()" x-show="!isRunning" class="px-4 py-2 text-sm font-semibold text-white bg-green-600 rounded-md hover:bg-green-700 transition">Mulai</button>
+                                        <button type="button" @click="stop()" x-show="isRunning" class="px-4 py-2 text-sm font-semibold text-white bg-red-600 rounded-md hover:bg-red-700 transition">Stop</button>
+                                        <button type="button" @click="reset()" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition">Reset</button>
+                                    </div>
+                                </div>
+                                
+                                {{-- Input Manual MM:SS (Visible) --}}
+                                <div class="mt-3">
+                                    <x-input-label value="Durasi Manual (MM:SS, isi jika perlu koreksi)" class="text-xs text-gray-500" />
+                                    <div class="flex items-center gap-2 mt-1">
+                                        <x-text-input 
+                                            id="durasi_manual_menit" 
+                                            class="block w-20 text-center" 
+                                            type="number" 
+                                            min="0"
+                                            placeholder="MM"
+                                            x-model.number="manualMinutes"
+                                            @input="updateFromManualInput"
+                                        />
+                                        <span class="font-bold text-gray-500">:</span>
+                                        <x-text-input 
+                                            id="durasi_manual_detik" 
+                                            class="block w-20 text-center" 
+                                            type="number" 
+                                            min="0" max="59"
+                                            placeholder="SS"
+                                            x-model.number="manualSeconds"
+                                            @input="updateFromManualInput"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {{-- <div>
                                 <x-input-label for="durasi" :value="__('Durasi (menit)')" />
                                 <x-text-input id="durasi" class="block mt-1 w-full" type="number" step="0.01" name="durasi" :value="old('durasi', $item->durasi)" />
                                 <x-input-error :messages="$errors->get('durasi')" class="mt-2" />
-                            </div>
+                            </div> --}}
 
                             <div>
                                 <x-input-label for="frame" :value="__('Frame (Opsional override)')" />
@@ -2357,11 +2698,10 @@ class Studio extends Model
                         </div>
 
                         <div class="flex items-center justify-end mt-6">
-                            {{-- AWAL MODIFIKASI --}}
                             <a href="{{ route($prefix.'sequences.items.index', $item->sequence_id) }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
                                 Batal
                             </a>
-                            {{-- AKHIR MODIFIKASI --}}
+                            
                             <x-primary-button>
                                 {{ __('Simpan Perubahan') }}
                             </x-primary-button>
@@ -2371,6 +2711,87 @@ class Studio extends Model
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('stopwatch', (initialMinutes = 0) => ({
+                isRunning: false,
+                seconds: 0, 
+                timer: null,
+                durationInMinutes: parseFloat(initialMinutes).toFixed(2), // Hidden input value (decimal)
+                manualMinutes: 0,
+                manualSeconds: 0,
+
+                init() {
+                    // Inisialisasi manual input dari initialMinutes (nilai $item->durasi)
+                    let initialTotalSeconds = parseFloat(initialMinutes) * 60;
+                    this.manualMinutes = Math.floor(initialTotalSeconds / 60);
+                    this.manualSeconds = Math.round(initialTotalSeconds % 60);
+                     if (this.manualSeconds >= 60) {
+                        this.manualMinutes += 1;
+                        this.manualSeconds = 0;
+                    }
+                    this.seconds = this.manualMinutes * 60 + this.manualSeconds; // Update internal seconds 
+                    this.updateHiddenInput(); // Update hidden input initially
+                },
+
+                formatStopwatchDisplay() { // Format HH:MM:SS untuk display stopwatch
+                    const h = Math.floor(this.seconds / 3600).toString().padStart(2, '0');
+                    const m = Math.floor((this.seconds % 3600) / 60).toString().padStart(2, '0');
+                    const s = Math.floor(this.seconds % 60).toString().padStart(2, '0');
+                    return `${h}:${m}:${s}`;
+                },
+                
+                updateManualDisplay() { // Update input MM dan SS dari state `seconds`
+                    this.manualMinutes = Math.floor(this.seconds / 60);
+                    this.manualSeconds = Math.round(this.seconds % 60);
+                     if (this.manualSeconds >= 60) {
+                        this.manualMinutes += 1;
+                        this.manualSeconds = 0;
+                    }
+                },
+
+                updateHiddenInput() { // Update hidden input (decimal minutes) dari state `seconds`
+                     // Gunakan floor untuk konsistensi dengan index
+                    let currentMinutes = this.seconds / 60;
+                    this.durationInMinutes = (Math.floor(currentMinutes * 100) / 100).toFixed(2);
+                },
+
+                updateFromManualInput() { // Dipanggil saat user ketik di input MM atau SS
+                    this.manualMinutes = Math.max(0, parseInt(this.manualMinutes) || 0);
+                    this.manualSeconds = Math.max(0, Math.min(59, parseInt(this.manualSeconds) || 0)); 
+                    this.seconds = this.manualMinutes * 60 + this.manualSeconds;
+                    this.updateHiddenInput(); 
+                },
+
+                start() {
+                    if (this.isRunning) return;
+                    this.isRunning = true;
+                    this.seconds = this.manualMinutes * 60 + this.manualSeconds; 
+                    this.timer = setInterval(() => {
+                        this.seconds++;
+                        this.updateManualDisplay(); 
+                        this.updateHiddenInput(); 
+                    }, 1000);
+                },
+
+                stop() {
+                    if (!this.isRunning) return;
+                    this.isRunning = false;
+                    clearInterval(this.timer);
+                    this.updateManualDisplay(); 
+                    this.updateHiddenInput();
+                },
+
+                reset() {
+                    this.stop();
+                    this.seconds = 0;
+                    this.updateManualDisplay();
+                    this.updateHiddenInput();
+                }
+            }))
+        })
+    </script>
 </x-app-layout>
 
 ===== resources\views\admin\items\index.blade.php =====
@@ -2444,7 +2865,7 @@ class Studio extends Model
                                 <tr>
                                     <th class="px-4 py-3 font-semibold text-left">Materi</th>
                                     <th class="px-4 py-3 font-semibold text-left">Frame</th>
-                                    <th class="px-4 py-3 font-semibold text-left">Durasi (Menit)</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Durasi</th>
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
@@ -2453,7 +2874,18 @@ class Studio extends Model
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-4 py-3 font-medium text-gray-900">{{ $item->materi }}</td>
                                     <td class="px-4 py-3 text-gray-600">{{ $item->frame ?? '-' }}</td>
-                                    <td class="px-4 py-3 text-gray-600">{{ $item->durasi ?? '-' }}</td>
+                                    <td class="px-4 py-3 text-gray-600 font-mono">
+                                        @if($item->durasi > 0)
+                                            @php
+                                                $totalSeconds = $item->durasi * 60;
+                                                $menit = floor($totalSeconds / 60);
+                                                $detik = round($totalSeconds % 60);
+                                            @endphp
+                                            {{ $menit }}:{{ $detik }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="px-4 py-3">
                                         @php 
                                             $prefix = Auth::user()->role === 'admin' ? 'admin.' : 'penyiar.'; 
@@ -2738,6 +3170,7 @@ class Studio extends Model
                             <thead class="bg-gray-100">
                                 <tr>
                                     <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
+                                    <th class="px-4 py-3 text-left font-semibold">Penyiar Bertugas</th>
                                     <th class="px-4 py-3 text-left font-semibold">Produser</th>
                                     <th class="px-4 py-3 text-left font-semibold">Pengarah Acara</th>
                                     <th class="px-4 py-3 text-center font-semibold w-32">Aksi</th>
@@ -2749,6 +3182,22 @@ class Studio extends Model
                                     <tr class="hover:bg-gray-50 transition">
                                         <td class="px-4 py-3 font-medium text-gray-900">
                                             {{ \Carbon\Carbon::parse($petugas->tanggal)->isoFormat('dddd, D MMMM Y') }}
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-700">
+                                            @forelse($petugas->penyiars as $penyiar)
+                                                <div class="flex items-center gap-2">
+                                                    <span>{{ $penyiar->name }}</span>
+                                                    @if($penyiar->pivot->status == 'pending')
+                                                        <span title="Menunggu Konfirmasi" class="px-2 py-0.5 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">Menunggu Konfirmasi</span>
+                                                    @elseif($penyiar->pivot->status == 'diterima')
+                                                        <span title="Diterima" class="px-2 py-0.5 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Diterima</span>
+                                                    @elseif($penyiar->pivot->status == 'ditolak')
+                                                        <span title="Ditolak: {{ $penyiar->pivot->alasan_penolakan }}" class="px-2 py-0.5 text-xs font-semibold text-red-800 bg-red-100 rounded-full cursor-help">Ditolak</span>
+                                                    @endif
+                                                </div>
+                                            @empty
+                                                -
+                                            @endforelse
                                         </td>
                                         <td class="px-4 py-3 text-gray-700">{{ $petugas->produser_nama ?? '-' }}</td>
                                         <td class="px-4 py-3 text-gray-700">{{ $petugas->pengarah_acara_nama ?? '-' }}
@@ -3844,11 +4293,11 @@ class Studio extends Model
                  class="object-contain h-full w-auto" />
         </div>
     </div>
-    
-    
 
     <!-- Title -->
-    <h2 class="text-center text-2xl font-bold text-white mb-6">Login ke Daftar Acara Siaran</h2>
+    <h2 class="text-center text-2xl font-bold text-slate-800 mb-6">
+        Login ke Daftar Acara Siaran
+    </h2>
 
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
@@ -3858,38 +4307,38 @@ class Studio extends Model
 
         <!-- Email Address -->
         <div>
-            <x-input-label for="email" :value="__('Email')" class="text-slate-300" />
+            <x-input-label for="email" :value="__('Email')" class="text-slate-700" />
             <x-text-input id="email"
-                          class="block mt-1 w-full rounded-lg border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                          class="block mt-1 w-full rounded-lg border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                           type="email"
                           name="email"
                           :value="old('email')"
                           required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-400" />
+            <x-input-error :messages="$errors->get('email')" class="mt-2 text-red-500" />
         </div>
 
         <!-- Password -->
         <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" class="text-slate-300" />
+            <x-input-label for="password" :value="__('Password')" class="text-slate-700" />
             <x-text-input id="password"
-                          class="block mt-1 w-full rounded-lg border-slate-700 bg-slate-800 text-white placeholder-slate-400 focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                          class="block mt-1 w-full rounded-lg border-slate-300 bg-white text-slate-800 placeholder-slate-400 focus:border-blue-500 focus:ring focus:ring-blue-300 focus:ring-opacity-50"
                           type="password"
                           name="password"
                           required autocomplete="current-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-400" />
+            <x-input-error :messages="$errors->get('password')" class="mt-2 text-red-500" />
         </div>
 
         <!-- Remember Me -->
         <div class="flex items-center justify-between mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox"
-                       class="rounded border-slate-700 bg-slate-800 text-blue-500 focus:ring-blue-500"
+                       class="rounded border-slate-300 text-blue-600 focus:ring-blue-400"
                        name="remember">
-                <span class="ms-2 text-sm text-slate-300">{{ __('Remember me') }}</span>
+                <span class="ms-2 text-sm text-slate-700">{{ __('Remember me') }}</span>
             </label>
 
             @if (Route::has('password.request'))
-                <a class="text-sm text-slate-400 hover:text-blue-400 transition-colors"
+                <a class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                    href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
@@ -3898,7 +4347,8 @@ class Studio extends Model
 
         <!-- Submit -->
         <div class="mt-6">
-            <x-primary-button class="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-105">
+            <x-primary-button
+                class="w-full bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold py-3 rounded-xl shadow-md hover:shadow-blue-300/50 transition-all duration-300 transform hover:-translate-y-0.5 hover:scale-105">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
@@ -4364,7 +4814,7 @@ $classes = ($active ?? false)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cetak Jadwal Siaran - {{ $tanggal->isoFormat('D MMMM Y') }}</title>
     <style>
-        /* referensi: resources/views/laporan/jadwal_print.blade.php baris 8-90 */
+        /* referensi: resources/views/laporan/jadwal_print.blade.php baris 8-90 (tidak berubah) */
         body {
             font-family: 'Arial', sans-serif;
             font-size: 10pt;
@@ -4460,8 +4910,10 @@ $classes = ($active ?? false)
 <body>
     <div class="container">
         @forelse ($programs as $program)
-            @php $petugas = $jadwalPetugas->get($program->id); @endphp
-            {{-- Setiap program dibungkus dalam div ini agar bisa dipisah halamannya --}}
+            @php 
+                $petugas = $jadwalPetugas->get($program->id); 
+                $pendengars = $petugas?->pendengars;
+            @endphp
             <div class="signature-block">
                 <div class="header">
                     <h3>DAFTAR ACARA SIARAN</h3>
@@ -4471,202 +4923,240 @@ $classes = ($active ?? false)
                 <table class="schedule-table">
                     <thead class="bg-gray-100 text-left">
                         <tr>
-                            <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
-                            <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                            <th class="border border-gray-300 px-4 py-2 w-2/12">Seqmen</th>
-                            <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
-                            <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
-                            <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
+                            {{-- AWAL MODIFIKASI: Penyesuaian lebar kolom --}}
+                            <th class="border border-gray-300 px-4 py-2 w-[10%]">Program</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[8%]">Waktu</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[15%]">Seqmen</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[17%]">Pendengar</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[25%]">Materi Siar</th>
+                            <th class="border border-gray-300 px-4 py-2 w-[25%]">Keterangan</th>
+                            {{-- AKHIR MODIFIKASI --}}
                         </tr>
                     </thead>
+                    {{-- AWAL MODIFIKASI: Logika rowspan dirombak total --}}
                     <tbody>
                         @php
-                            // referensi: resources/views/laporan/jadwal_print.blade.php baris 116-121
-                            $programRowspan = 0;
+                            $totalItemRows = 0;
                             if ($program->sequences->isNotEmpty()) {
                                 foreach ($program->sequences as $sequence) {
-                                    $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                                    $totalItemRows += max(1, $sequence->items->count());
                                 }
                             } else {
-                                $programRowspan = 1;
+                                $totalItemRows = 1;
                             }
                         @endphp
-                        <tr>
-                            <td class="border border-gray-300 px-4 py-2 align-top font-bold"
-                                rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
-                            @forelse ($program->sequences as $sequenceIndex => $sequence)
-                                @php
-                                    // referensi: resources/views/laporan/jadwal_print.blade.php baris 125-127
-                                    $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                                @endphp
-                                @if ($sequenceIndex > 0)
-                        <tr>
-        @endif
-        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">
-            {{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-        <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
-            {{ $sequence->nama }} <br> 
-            {{-- MODIFIKASI KUNCI: Ambil dari $petugas (JadwalPetugas) BUKAN $sequence->host --}}
-            {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 133 --}}
-            <small class="font-normal text-gray-500">Host:
-                {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small></td>
-        <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
-            <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
-        </td>
-        @forelse ($sequence->items as $itemIndex => $item)
-            @if ($itemIndex > 0)
-                <tr>
-            @endif
-            <td class="border border-gray-300 px-4 py-2 align-top">
-                {{ $item->materi }}
-                @if ($item->materiDetails->isNotEmpty())
-                    <ol class="list-decimal list-inside mt-1 pl-2">
-                        @foreach ($item->materiDetails as $detail)
-                            <li class="text-gray-600">{{ $detail->isi }}</li>
-                        @endforeach
-                    </ol>
-                @endif
-            </td>
-            <td class="border border-gray-300 px-4 py-2 align-top">
-                @if ($item->keterangan)
-                    <p class="mb-2 italic text-gray-700">{{ $item->keterangan }}</p>
 
-                @endif
-                @if ($item->itemDetails->isNotEmpty())
-                    @foreach ($item->itemDetails->groupBy('jenis') as $jenis => $details)
-                        <p class="font-semibold capitalize">{{ $jenis }}:</p>
-                        <ol class="list-decimal list-inside pl-4 mb-2">
-                            @foreach ($details as $detail)
-                                <li>{{ $detail->isi }}</li>
-                            @endforeach
-                        </ol>
-                    @endforeach
-                @endif
-            </td>
-            </tr>
-        @empty
-            <td class="border border-gray-300 px-4 py-2 align-top"></td>
-            <td class="border border-gray-300 px-4 py-2 align-top"></td>
-            </tr>
-        @endforelse
-    @empty
-        <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
-        </tr>
-    @endforelse
-    </tbody>
-    </table>
+                        @forelse ($program->sequences as $sequenceIndex => $sequence)
+                            @php
+                                $sequenceRowspan = max(1, $sequence->items->count());
+                            @endphp
 
-    @if ($petugas)
-        <div class="signature-section">
-            <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS -
-                {{ $program->nama }}</h3>
-            {{-- ... (Tabel petugas & tanda tangan tetap sama) ... --}}
-            {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 --}}
-            <table style="width: 50%; margin-bottom: 20px;">
-                <tr>
-                    <td style="width: 40%;">Nama Daypart</td>
-                    <td>: {{ $program->nama }}</td>
-                </tr>
-                <tr>
-                    <td>Produser</td>
-                    <td>: {{ $petugas->produser_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Pengelola PEP</td>
-                    <td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Pengarah Acara</td>
-                    <td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Petugas LPU</td>
-                    <td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td>
-                </tr>
-                <tr>
-                    <td>Penyiar</td>
-                    <td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td>
-                </tr>
-            </table>
-            <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
-            <p>Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
-            <div class="signature-grid">
-                <div>
-                    Penyiar Dinas<br><br><br><br>
-                    <span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span>
-                </div>
-                <div>
-                    Pengelola Pro 2<br><br><br><br>
-                    <span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span>
-                </div>
-                <div>
-                    Petugas LPU<br><br><br><br>
-                    <span
-                        class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span>
-                </div>
+                            @if ($sequence->items->isNotEmpty())
+                                @foreach ($sequence->items as $itemIndex => $item)
+                                    <tr>
+                                        @if($sequenceIndex === 0 && $itemIndex === 0)
+                                            <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
+                                        @endif
+                                        
+                                        @if($itemIndex === 0)
+                                            <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                            <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
+                                                {{ $sequence->nama }} <br> 
+                                                <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                                            </td>
+                                        @endif
+
+                                        @if($sequenceIndex === 0 && $itemIndex === 0)
+                                            <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $totalItemRows }}">
+                                                <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                                @if($pendengars && $pendengars->isNotEmpty())
+                                                <ol class="list-decimal list-inside space-y-1 text-xs">
+                                                    @foreach($pendengars as $pendengar)
+                                                    <li>
+                                                        <span class="font-semibold">{{ $pendengar->nama }}:</span>
+                                                        <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
+                                                    </li>
+                                                    @endforeach
+                                                </ol>
+                                                @else
+                                                <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                                @endif
+                                            </td>
+                                        @endif
+
+                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
+                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
+                                    </tr>
+                                @endforeach
+                            @else
+                                <tr>
+                                    @if($sequenceIndex === 0)
+                                        <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
+                                    @endif
+
+                                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="1">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                    <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="1">
+                                        {{ $sequence->nama }} <br> 
+                                        <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                                    </td>
+
+                                    @if($sequenceIndex === 0)
+                                        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $totalItemRows }}">
+                                            <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                            @if($pendengars && $pendengars->isNotEmpty())
+                                            <ol class="list-decimal list-inside space-y-1 text-xs">
+                                                @foreach($pendengars as $pendengar)
+                                                <li>
+                                                    <span class="font-semibold">{{ $pendengar->nama }}:</span>
+                                                    <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
+                                                </li>
+                                                @endforeach
+                                            </ol>
+                                            @else
+                                            <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                            @endif
+                                        </td>
+                                    @endif
+
+                                    <td class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic" colspan="2">-- Belum ada materi --</td>
+                                </tr>
+                            @endif
+                        @empty
+                            <tr>
+                                <td class="border border-gray-300 px-4 py-2 align-top font-bold">{{ $program->nama }}</td>
+                                <td class="border border-gray-300 px-4 py-2 align-top">
+                                     <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                    @if($pendengars && $pendengars->isNotEmpty())
+                                        {{-- ... (sama seperti di atas) ... --}}
+                                    @else
+                                        <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                    @endif
+                                </td>
+                                <td colspan="4" class="text-center text-gray-400 italic">-- Belum ada seqmen --</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                    {{-- AKHIR MODIFIKASI --}}
+                </table>
+
+                @if ($petugas)
+                    <div class="signature-section">
+                        <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS - {{ $program->nama }}</h3>
+                        {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 (tidak berubah) --}}
+                        <table style="width: 50%; margin-bottom: 20px;">
+                            <tr><td style="width: 40%;">Nama Daypart</td><td>: {{ $program->nama }}</td></tr>
+                            <tr><td>Produser</td><td>: {{ $petugas->produser_nama ?? '-' }}</td></tr>
+                            <tr><td>Pengelola PEP</td><td>: {{ $petugas->pengelola_pep_nama ?? '-' }}</td></tr>
+                            <tr><td>Pengarah Acara</td><td>: {{ $petugas->pengarah_acara_nama ?? '-' }}</td></tr>
+                            <tr><td>Petugas LPU</td><td>: {{ $petugas->petugas_lpu_nama ?? '-' }}</td></tr>
+                            <tr><td>Penyiar</td><td>: {{ $petugas->penyiars->first()->name ?? '-' }}</td></tr>
+                        </table>
+                        <p>Diparaf oleh petugas LPU, sebagai tanda bahwa iklan telah terputar.</p>
+                        <p>Gorontalo, {{ $tanggal->isoFormat('D MMMM YYYY') }}</p>
+                        <div class="signature-grid">
+                            <div>Penyiar Dinas<br><br><br><br><span class="font-semibold underline">({{ $petugas->penyiars->first()->name ?? '____________________' }})</span></div>
+                            <div>Pengelola Pro 2<br><br><br><br><span class="font-semibold underline">({{ $petugas->pengelola_pep_nama ?? '____________________' }})</span></div>
+                            <div>Petugas LPU<br><br><br><br><span class="font-semibold underline">({{ $petugas->petugas_lpu_nama ?? '____________________' }})</span></div>
+                        </div>
+                    </div>
+                @endif
             </div>
-        </div>
-    @endif
-    </div>
-    @empty
-        <div class="header">
-            <p>Jadwal siaran belum tersedia untuk tanggal yang dipilih.</p>
-        </div>
+        @empty
+            <div class="header">
+                <p>Jadwal siaran belum tersedia untuk tanggal yang dipilih.</p>
+            </div>
         @endforelse
-        </div>
-        <script>
-            window.onload = function() {
-                window.print();
-            }
-        </script>
-    </body>
-
-    </html>
+    </div>
+    <script>
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
 
 ===== resources\views\laporan\_tabel_program.blade.php =====
-@php $petugas = $jadwalPetugas->get($program->id); @endphp
+@php 
+    $petugas = $jadwalPetugas->get($program->id); 
+    $pendengars = $petugas?->pendengars;
+@endphp
 <div class="overflow-x-auto">
     <table class="min-w-full border-collapse border border-gray-300 text-sm">
         <thead class="bg-gray-100 text-left">
             <tr>
-                <th class="border border-gray-300 px-4 py-2 w-1/12">Program</th>
-                <th class="border border-gray-300 px-4 py-2 w-1/12">Waktu</th>
-                <th class="border border-gray-300 px-4 py-2 w-2/12">Seqmen</th>
-                <th class="border border-gray-300 px-4 py-2 w-1/12">Pendengar</th>
-                <th class="border border-gray-300 px-4 py-2 w-3/12">Materi Siar</th>
-                <th class="border border-gray-300 px-4 py-2 w-4/12">Keterangan</th>
+                <th class="border border-gray-300 px-4 py-2 w-[10%]">Program</th>
+                <th class="border border-gray-300 px-4 py-2 w-[8%]">Waktu</th>
+                <th class="border border-gray-300 px-4 py-2 w-[15%]">Seqmen</th>
+                <th class="border border-gray-300 px-4 py-2 w-[17%]">Pendengar</th>
+                <th class="border border-gray-300 px-4 py-2 w-[25%]">Materi Siar</th>
+                <th class="border border-gray-300 px-4 py-2 w-[25%]">Keterangan</th>
             </tr>
         </thead>
         <tbody>
             @php
-                // referensi: resources/views/laporan/_tabel_program.blade.php baris 15-22
-                $programRowspan = 0;
+                $totalRowspan = $program->sequences->count() > 0 ? $program->sequences->count() : 1;
+                $itemRowspan = 0;
                 if ($program->sequences->isNotEmpty()) {
                     foreach ($program->sequences as $sequence) {
-                        $programRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                        $itemRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
                     }
                 } else {
-                    $programRowspan = 1;
+                    $itemRowspan = 1;
                 }
             @endphp
             <tr>
-                <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $programRowspan }}">{{ $program->nama }}</td>
-                @forelse ($program->sequences as $sequenceIndex => $sequence)
-                    @php
-                        // referensi: resources/views/laporan/_tabel_program.blade.php baris 26-28
-                        $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1;
-                    @endphp
-                    @if ($sequenceIndex > 0) <tr> @endif
+                <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $itemRowspan }}">{{ $program->nama }}</td>
+                
+                {{-- AWAL MODIFIKASI: Logika rowspan untuk Pendengar --}}
+                @php $firstSequence = $program->sequences->first(); @endphp
+                @if($firstSequence)
+                    @php $firstSequenceItemCount = $firstSequence->items->count() > 0 ? $firstSequence->items->count() : 1; @endphp
+                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $firstSequenceItemCount }}">{{ \Carbon\Carbon::parse($firstSequence->waktu)->format('H:i') }}</td>
+                    <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $firstSequenceItemCount }}">
+                        {{ $firstSequence->nama }} <br> 
+                        <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                    </td>
+                    
+                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $itemRowspan }}">
+                        <p class="font-bold mb-2">Total: {{ $pendengars->count() }}</p>
+                        @if($pendengars->isNotEmpty())
+                        <ol class="list-decimal list-inside space-y-1 text-xs">
+                            @foreach($pendengars as $pendengar)
+                            <li>
+                                <span class="font-semibold">{{ $pendengar->nama }}:</span>
+                                <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
+                            </li>
+                            @endforeach
+                        </ol>
+                        @else
+                        <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                        @endif
+                    </td>
+
+                    @forelse ($firstSequence->items as $itemIndex => $item)
+                        @if ($itemIndex > 0) <tr> @endif
+                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
+                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
+                        </tr>
+                    @empty
+                        <td colspan="2" class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic">-- Belum ada materi --</td>
+                        </tr>
+                    @endforelse
+                @else
+                    <td colspan="4" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
+                    </tr>
+                @endif
+                {{-- AKHIR MODIFIKASI --}}
+
+                @foreach ($program->sequences->slice(1) as $sequence)
+                    @php $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1; @endphp
+                    <tr>
                     <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                     <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
                         {{ $sequence->nama }} <br> 
-                        {{-- MODIFIKASI KUNCI: Ambil dari $petugas (JadwalPetugas) BUKAN $sequence->host --}}
-                        {{-- referensi: resources/views/laporan/_tabel_program.blade.php baris 31 --}}
                         <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
                     </td>
-                    <td class="border border-gray-300 px-4 py-2 align-top text-center" rowspan="{{ $sequenceRowspan }}">
-                        <span class="text-lg font-bold">{{ $sequence->jumlah_pendengar ?? '-' }}</span>
-                    </td>
+
                     @forelse ($sequence->items as $itemIndex => $item)
                         @if ($itemIndex > 0) <tr> @endif
                         <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
@@ -4676,10 +5166,7 @@ $classes = ($active ?? false)
                         <td colspan="2" class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic">-- Belum ada materi --</td>
                         </tr>
                     @endforelse
-                @empty
-                    <td colspan="5" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
-                    </tr>
-                @endforelse
+                @endforeach
         </tbody>
     </table>
 </div>
@@ -4780,14 +5267,14 @@ $classes = ($active ?? false)
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-200">
+    <body class="font-sans antialiased bg-gradient-to-br from-white via-slate-50 to-sky-100 text-slate-800">
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
 
             <!-- Card Container -->
             <div class="w-full sm:max-w-md mt-6 px-6 py-8 
-                        bg-slate-900/80 backdrop-blur-xl 
-                        border border-slate-800 
-                        shadow-2xl shadow-blue-500/10 
+                        bg-white/90 backdrop-blur-xl 
+                        border border-slate-200 
+                        shadow-xl shadow-blue-100/40 
                         rounded-2xl">
                 {{ $slot }}
             </div>
@@ -4929,95 +5416,167 @@ $classes = ($active ?? false)
 
     <div class="py-10">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 space-y-4">
+            @if (session('success'))
+                <div class="mb-4 rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
+                    âœ” {{ session('success') }}
+                </div>
+            @endif
 
-                    @if (session('success'))
-                        <div class="rounded-md bg-green-50 border border-green-200 text-green-800 px-4 py-3 text-sm">
-                            âœ… {{ session('success') }}
+            <div class="space-y-8">
+                @forelse ($jadwalPetugasList as $jadwal)
+                @php
+                    // Mengambil data pivot untuk penyiar yang sedang login
+                    $penyiarPivot = $jadwal->penyiars->find(Auth::id())->pivot;
+                    $status = $penyiarPivot->status;
+                @endphp
+
+                {{-- AWAL MODIFIKASI: x-data diubah untuk mengelola dua modal yang berbeda --}}
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" x-data="{ modalPendengarOpen: false, modalTolakOpen: false }">
+                    <div class="p-6 border-b border-gray-200 flex flex-wrap justify-between items-center gap-4">
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-lg font-bold text-gray-900">{{ $jadwal->program->nama }}</h3>
+                                @if($status == 'pending')
+                                    <span class="px-2 py-1 text-xs font-semibold text-yellow-800 bg-yellow-100 rounded-full">Menunggu Konfirmasi</span>
+                                @elseif($status == 'diterima')
+                                    <span class="px-2 py-1 text-xs font-semibold text-green-800 bg-green-100 rounded-full">Diterima</span>
+                                @elseif($status == 'ditolak')
+                                    <span class="px-2 py-1 text-xs font-semibold text-red-800 bg-red-100 rounded-full">Ditolak</span>
+                                @endif
+                            </div>
+                            <p class="text-sm text-gray-500">{{ $jadwal->program->studio->nama ?? '' }} - {{ \Carbon\Carbon::parse($jadwal->tanggal)->isoFormat('dddd, D MMMM Y') }}</p>
                         </div>
-                    @endif
+                        
+                        <div class="flex items-center gap-2 flex-shrink-0">
+                            @if($status == 'pending')
+                                <form action="{{ route('penyiar.tugas.terima', $jadwal) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="px-4 py-2 text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">Terima</button>
+                                </form>
+                                <button @click="modalTolakOpen = true" class="px-4 py-2 text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700">Tolak</button>
+                            @endif
 
-                    <div class="overflow-x-auto rounded-lg border border-gray-200">
-                        <table class="min-w-full text-sm text-gray-700">
-                            <thead class="bg-gray-100">
+                            @if($status == 'diterima')
+                                <button @click="modalPendengarOpen = true" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md text-slate-700 bg-slate-100 hover:bg-slate-200 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                                    <span>Kelola Pendengar ({{ $jadwal->pendengars_count }})</span>
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    @if($status == 'diterima')
+                    <div class="p-6 text-gray-900">
+                        <table class="min-w-full text-sm">
+                            <thead class="text-left text-gray-500">
                                 <tr>
-                                    <th class="px-4 py-3 text-left font-semibold">Studio</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Program</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Nama Sequence</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Waktu</th>
-                                    <th class="px-4 py-3 text-left font-semibold">Jumlah Pendengar</th>
-                                    <th class="px-4 py-3 text-center font-semibold w-40">Aksi</th>
+                                    <th class="pb-3 font-normal w-1/3">Seqmen</th>
+                                    <th class="pb-3 font-normal w-1/4">Waktu</th>
+                                    <th class="pb-3 font-normal">Aksi</th>
                                 </tr>
                             </thead>
-
-                            <tbody class="divide-y divide-gray-200 bg-white">
-                                @forelse ($sequences as $sequence)
-                                    <tr class="hover:bg-gray-50 transition">
-                                        <td class="px-4 py-3 font-medium text-gray-900">
-                                            {{ $sequence->program->studio->nama ?? '-' }}
-                                        </td>
-                                        <td class="px-4 py-3 font-medium text-gray-900">
-                                            {{ $sequence->program->nama ?? 'N/A' }}
-                                        </td>
-                                        <td class="px-4 py-3 text-gray-700">{{ $sequence->nama }}</td>
-                                        <td class="px-4 py-3 text-gray-700">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                                        <td class="px-4 py-3">
-                                            <form action="{{ route('penyiar.sequences.pendengar.update', $sequence) }}" 
-                                                  method="POST" class="flex items-center gap-2">
-                                                @csrf
-                                                @method('PATCH')
-                                        
-                                                <div class="relative">
-                                                    <input type="number" name="jumlah_pendengar" 
-                                                           value="{{ $sequence->jumlah_pendengar }}"
-                                                           class="w-28 pl-8 pr-2 py-1.5 text-sm border-gray-300 rounded-md 
-                                                                  focus:border-indigo-500 focus:ring-indigo-500">
-                                                                  
-                                                             
-                                                </div>
-                                        
-                                                <button type="submit"
-                                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-indigo-600 text-white 
-                                                               text-xs font-medium rounded-md hover:bg-indigo-700 transition">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                              d="M5 13l4 4L19 7" />
-                                                    </svg>
-                                                    Simpan
-                                                </button>
-                                            </form>
-                                        </td>
-                                        
-                                        <td class="px-4 py-3 text-center">
-                                            <a href="{{ route('penyiar.sequences.items.index', $sequence) }}"
-                                               class="inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium 
-                                                      text-indigo-600 bg-indigo-50 hover:bg-indigo-100 hover:text-indigo-800 
-                                                      transition-all duration-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                                     viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-                                                </svg>
-                                                Isi Materi
-                                            </a>
-                                        </td>
-                                        
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-6 text-gray-500">
-                                            Anda belum memiliki jadwal siaran yang ditugaskan.
-                                        </td>
-                                    </tr>
-                                @endforelse
+                            <tbody>
+                                @foreach($jadwal->program->sequences as $sequence)
+                                <tr class="border-t border-gray-200">
+                                    <td class="py-3 font-semibold">{{ $sequence->nama }}</td>
+                                    <td class="py-3">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                    <td class="py-3">
+                                        <a href="{{ route('penyiar.sequences.items.index', $sequence) }}" class="text-indigo-600 hover:text-indigo-800 font-medium">
+                                            Isi Materi &raquo;
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
+                    @endif
 
-                    <div class="mt-4">
-                        {{ $sequences->links() }}
+                    <div x-show="modalPendengarOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title-pendengar" role="dialog" aria-modal="true">
+                        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            <div x-show="modalPendengarOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="modalPendengarOpen = false" aria-hidden="true"></div>
+                            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                            <div x-show="modalPendengarOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                    <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title-pendengar">Kelola Pendengar - {{ $jadwal->program->nama }}</h3>
+                                    <div class="mt-4">
+                                        <form action="{{ route('penyiar.pendengars.store', $jadwal) }}" method="POST" class="space-y-4 bg-gray-50 p-4 rounded-md">
+                                            @csrf
+                                            <div>
+                                                <label for="nama-{{$jadwal->id}}" class="text-sm font-medium">Nama</label>
+                                                <input type="text" name="nama" id="nama-{{$jadwal->id}}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
+                                            </div>
+                                            <div>
+                                                <label for="komentar-{{$jadwal->id}}" class="text-sm font-medium">Komentar/Pesan</label>
+                                                <textarea name="komentar" id="komentar-{{$jadwal->id}}" rows="2" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required></textarea>
+                                            </div>
+                                            <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700">Tambah</button>
+                                        </form>
+                                        
+                                        <div class="mt-6 max-h-60 overflow-y-auto pr-2">
+                                            <h4 class="font-semibold mb-2">Daftar Tercatat</h4>
+                                            <ul class="space-y-3">
+                                                @forelse($jadwal->pendengars as $pendengar)
+                                                <li class="flex justify-between items-start text-sm border-b pb-2">
+                                                    <div>
+                                                        <p class="font-semibold text-gray-800">{{ $pendengar->nama }}</p>
+                                                        <p class="text-gray-600">{{ $pendengar->komentar }}</p>
+                                                    </div>
+                                                    <form action="{{ route('penyiar.pendengars.destroy', $pendengar) }}" method="POST" onsubmit="return confirm('Hapus data ini?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-red-500 hover:text-red-700">&times;</button>
+                                                    </form>
+                                                </li>
+                                                @empty
+                                                <p class="text-center text-gray-500 text-sm py-4">Belum ada data pendengar.</p>
+                                                @endforelse
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                    <button type="button" @click="modalPendengarOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Tutup</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div x-show="modalTolakOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title-tolak" role="dialog" aria-modal="true">
+                        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+                            <div x-show="modalTolakOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" @click="modalTolakOpen = false" aria-hidden="true"></div>
+                            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+                            <div x-show="modalTolakOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100" x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                                <form action="{{ route('penyiar.tugas.tolak', $jadwal) }}" method="POST">
+                                    @csrf
+                                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title-tolak">Alasan Penolakan</h3>
+                                        <p class="text-sm text-gray-500 mt-1">Mengapa Anda menolak jadwal siaran untuk program <span class="font-semibold">{{ $jadwal->program->nama }}</span>?</p>
+                                        <div class="mt-4">
+                                            <textarea name="alasan_penolakan" rows="4" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" required minlength="10" placeholder="Mohon berikan alasan yang jelas (min. 10 karakter)..."></textarea>
+                                            <x-input-error :messages="$errors->get('alasan_penolakan')" class="mt-2" />
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm">Kirim Penolakan</button>
+                                        <button type="button" @click="modalTolakOpen = false" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 sm:mt-0 sm:w-auto sm:text-sm">Batal</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                @empty
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                    <div class="p-6 text-center text-gray-500">
+                        Anda tidak memiliki jadwal siaran yang ditugaskan.
+                    </div>
+                </div>
+                @endforelse
+            </div>
+
+            <div class="mt-6">
+                {{ $jadwalPetugasList->links() }}
             </div>
         </div>
     </div>
@@ -5235,7 +5794,7 @@ $classes = ($active ?? false)
                 {{ __('Dashboard') }}
             </h2>
 
-            @if(Auth::user()->role === 'penyiar' && isset($unreadNotifications))
+            @if(in_array(Auth::user()->role, ['penyiar', 'admin']) && isset($unreadNotifications))
             <div x-data="{ open: false }" class="relative">
                 <button @click="open = !open" class="relative text-gray-500 hover:text-blue-600 focus:outline-none">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -5370,17 +5929,17 @@ $classes = ($active ?? false)
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased bg-slate-950 text-slate-200">
+<body class="font-sans antialiased bg-white text-slate-800">
     <div class="relative min-h-screen flex flex-col">
 
         <!-- HEADER -->
-        <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-slate-950/80 border-b border-slate-800">
+        <header class="sticky top-0 z-50 w-full backdrop-blur-md bg-white/90 border-b border-slate-200 shadow-sm">
             <div class="container mx-auto flex justify-between items-center p-4">
                 <a href="/" class="flex items-center gap-3 group">
                     <img src="{{ asset('images/rrilogo1.png') }}" alt="Logo RRI"
                         class="h-10 w-auto transition-transform duration-300 group-hover:scale-110">
                     <span
-                        class="text-xl font-bold text-white group-hover:text-blue-400 transition-colors hidden sm:block">
+                        class="text-xl font-bold text-slate-900 group-hover:text-blue-600 transition-colors hidden sm:block">
                         Daftar Acara Siaran
                     </span>
                 </a>
@@ -5388,19 +5947,12 @@ $classes = ($active ?? false)
                 <nav class="flex items-center space-x-4 sm:space-x-6">
                     @if (Route::has('login'))
                         <a href="{{ route('login') }}"
-                        class="bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
+                            class="relative bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-md shadow-blue-300/40 hover:shadow-lg hover:shadow-blue-400/50 transition-all duration-300 transform hover:-translate-y-1">
                             <span>Log in</span>
-                            {{-- Garis Bawah Animasi --}}
                             <span
                                 class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out origin-center"></span>
                         </a>
                     @endif
-                    {{-- @if (Route::has('register'))
-                        <a href="{{ route('register') }}"
-                            class="bg-gradient-to-r from-blue-600 to-sky-500 text-white font-semibold px-5 py-2.5 rounded-xl shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-300 transform hover:-translate-y-1">
-                            Register
-                        </a>
-                    @endif --}}
                 </nav>
             </div>
         </header>
@@ -5412,20 +5964,19 @@ $classes = ($active ?? false)
                     <!-- Background Gradient Shape -->
                     <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-72"
                         aria-hidden="true">
-                        <div class="relative left-1/2 aspect-[1155/678] w-[36rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-500 to-sky-600 opacity-30 sm:w-[72rem]"
+                        <div class="relative left-1/2 aspect-[1155/678] w-[36rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-blue-400 to-sky-300 opacity-30 sm:w-[72rem]"
                             style="clip-path: polygon(74.1% 44.1%, 100% 61.6%, 97.5% 26.9%, 85.5% 0.1%, 80.7% 2%, 72.5% 32.5%, 60.2% 62.4%, 52.4% 68.1%, 47.5% 58.3%, 45.2% 34.5%, 27.5% 76.7%, 0.1% 64.9%, 17.9% 100%, 27.6% 76.8%, 76.1% 97.7%, 74.1% 44.1%)">
                         </div>
                     </div>
 
                     <div class="mx-auto max-w-4xl">
-                        
-                        <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-white">
+                        <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-slate-900">
                             Platform Kolaboratif untuk
-                            <span class="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-sky-300">Daftar
-                                Acara
-                                Siaran RRI</span>
+                            <span
+                                class="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 to-sky-400">Daftar
+                                Acara Siaran RRI</span>
                         </h1>
-                        <p class="mt-6 max-w-2xl mx-auto text-lg leading-8 text-slate-400">
+                        <p class="mt-6 max-w-2xl mx-auto text-lg leading-8 text-slate-600">
                             Tinggalkan cara manual. Sambut era baru penjadwalan siaran yang terintegrasi, cepat, dan
                             bebas dari kesalahan.
                         </p>
@@ -5434,38 +5985,39 @@ $classes = ($active ?? false)
             </section>
 
             <!-- FITUR -->
-            <section class="bg-slate-950 py-24">
+            <section class="bg-white py-24">
                 <div class="container mx-auto px-6">
                     <div class="text-center mb-16">
-                        <h2 class="text-4xl font-bold tracking-tight text-white">Semua yang Anda Butuhkan</h2>
-                        <p class="text-slate-400 mt-4 text-lg">Dari templat master hingga laporan real-time, semua dalam
+                        <h2 class="text-4xl font-bold tracking-tight text-slate-900">Semua yang Anda Butuhkan</h2>
+                        <p class="text-slate-600 mt-4 text-lg">Dari templat master hingga laporan real-time, semua dalam
                             satu platform.</p>
                     </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
                         <!-- CARD 1 -->
                         <div
-                            class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
-                                    hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/30 
-                                    transition-all duration-500 ease-out group">
+                            class="bg-white p-8 rounded-2xl border border-slate-200 shadow-md 
+                                   hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-200/60 
+                                   transition-all duration-500 ease-out group">
                             <div
                                 class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
-                                        rounded-xl w-14 h-14 flex items-center justify-center mb-6 
-                                        group-hover:rotate-6 group-hover:scale-110 
-                                        transition-transform duration-500 ease-out">
-                                <!-- Calendar Icon -->
+                                       rounded-xl w-14 h-14 flex items-center justify-center mb-6 
+                                       group-hover:rotate-6 group-hover:scale-110 
+                                       transition-transform duration-500 ease-out">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3.75 9h16.5m-1.5
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M6.75 3v2.25M17.25 3v2.25M3.75 9h16.5m-1.5
                                           11.25h-13.5a2.25 2.25 0 01-2.25-2.25V7.5a2.25
                                           2.25 0 012.25-2.25h13.5a2.25 2.25 0 012.25
                                           2.25v10.5a2.25 2.25 0 01-2.25 2.25z" />
                                 </svg>
                             </div>
                             <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
+                                class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors duration-500">
                                 Templat Jadwal Dinamis
                             </h3>
-                            <p class="text-slate-400 group-hover:text-slate-200 transition-colors duration-500">
+                            <p class="text-slate-600 group-hover:text-slate-800 transition-colors duration-500">
                                 Admin dapat membuat templat jadwal per-Daypart yang siap digunakan penyiar setiap hari
                                 hanya dengan satu klik.
                             </p>
@@ -5473,18 +6025,18 @@ $classes = ($active ?? false)
 
                         <!-- CARD 2 -->
                         <div
-                            class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
-                                    hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/30 
-                                    transition-all duration-500 ease-out group">
+                            class="bg-white p-8 rounded-2xl border border-slate-200 shadow-md 
+                                   hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-200/60 
+                                   transition-all duration-500 ease-out group">
                             <div
                                 class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
-                                        rounded-xl w-14 h-14 flex items-center justify-center mb-6 
-                                        group-hover:rotate-6 group-hover:scale-110 
-                                        transition-transform duration-500 ease-out">
-                                <!-- Document Icon -->
+                                       rounded-xl w-14 h-14 flex items-center justify-center mb-6 
+                                       group-hover:rotate-6 group-hover:scale-110 
+                                       transition-transform duration-500 ease-out">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-7.5A2.25 2.25 0 0017.25
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M19.5 14.25v-7.5A2.25 2.25 0 0017.25
                                           4.5h-10.5A2.25 2.25 0 004.5
                                           6.75v10.5A2.25 2.25 0 006.75
                                           19.5h6.879c.414 0 .81-.165
@@ -5494,10 +6046,10 @@ $classes = ($active ?? false)
                                 </svg>
                             </div>
                             <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
+                                class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors duration-500">
                                 Input Terstruktur
                             </h3>
-                            <p class="text-slate-400 group-hover:text-slate-200 transition-colors duration-500">
+                            <p class="text-slate-600 group-hover:text-slate-800 transition-colors duration-500">
                                 Penyiar mengisi detail siaran dengan komponen yang disetujui, mengurangi kesalahan dan
                                 menjaga konsistensi.
                             </p>
@@ -5505,26 +6057,26 @@ $classes = ($active ?? false)
 
                         <!-- CARD 3 -->
                         <div
-                            class="bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-lg 
-                                    hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-500/30 
-                                    transition-all duration-500 ease-out group">
+                            class="bg-white p-8 rounded-2xl border border-slate-200 shadow-md 
+                                   hover:-translate-y-2 hover:shadow-2xl hover:shadow-blue-200/60 
+                                   transition-all duration-500 ease-out group">
                             <div
                                 class="bg-gradient-to-br from-blue-600 to-sky-500 text-white 
-                                        rounded-xl w-14 h-14 flex items-center justify-center mb-6 
-                                        group-hover:rotate-6 group-hover:scale-110 
-                                        transition-transform duration-500 ease-out">
-                                <!-- Chart Icon -->
+                                       rounded-xl w-14 h-14 flex items-center justify-center mb-6 
+                                       group-hover:rotate-6 group-hover:scale-110 
+                                       transition-transform duration-500 ease-out">
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                     stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M9 17v-4.5M15 17V9M12
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3 3v18h18M9 17v-4.5M15 17V9M12
                                           17v-2.25" />
                                 </svg>
                             </div>
                             <h3
-                                class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors duration-500">
+                                class="text-xl font-bold text-slate-900 mb-3 group-hover:text-blue-600 transition-colors duration-500">
                                 Monitoring Mudah
                             </h3>
-                            <p class="text-slate-400 group-hover:text-slate-200 transition-colors duration-500">
+                            <p class="text-slate-600 group-hover:text-slate-800 transition-colors duration-500">
                                 Kepsta & Katim dapat melihat laporan jadwal siaran final secara real-time, tanpa
                                 menunggu dokumen fisik.
                             </p>

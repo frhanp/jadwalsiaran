@@ -14,10 +14,34 @@ use App\Models\Studio;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('studio')->latest()->paginate(10); // Tambah with('studio')
-        return view('admin.users.index', compact('users'));
+        $query = User::with('studio')->latest();
+
+        // Filter berdasarkan Role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Filter berdasarkan Studio
+        if ($request->filled('studio_id')) {
+            if ($request->studio_id == 'none') {
+                $query->whereNull('studio_id');
+            } else {
+                $query->where('studio_id', $request->studio_id);
+            }
+        }
+
+        $users = $query->paginate(10)->withQueryString(); // Append filter ke pagination links
+
+        // Data untuk dropdown filter
+        $studios = Studio::orderBy('nama')->get();
+        $roles = ['admin', 'penyiar', 'katim', 'kepsta']; // Definisikan role yang mungkin
+
+        // --- AKHIR MODIFIKASI ---
+
+        // Kirim data filter ke view
+        return view('admin.users.index', compact('users', 'studios', 'roles', 'request'));
     }
 
     public function create()
