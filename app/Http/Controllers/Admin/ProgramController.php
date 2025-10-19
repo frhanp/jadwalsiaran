@@ -9,17 +9,47 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Studio;
 
 class ProgramController extends Controller
-{public function index()
+{
+
+    private function authorizeAdminStudio(Program $program)
     {
-        $programs = Program::with('pembuat')->latest()->paginate(10);
+        $admin = Auth::user();
+        // Super admin (tidak terikat studio) boleh akses semua
+        if (!$admin->studio_id) {
+            return;
+        }
+        // Admin studio hanya boleh akses program di studionya
+        if ($program->studio_id !== $admin->studio_id) {
+            abort(403, 'AKSES DITOLAK. Anda hanya dapat mengelola program dari studio Anda.');
+        }
+    }
+
+    public function index()
+    {
+        
+        $admin = Auth::user();
+        $query = Program::query(); // Mulai query builder
+
+        // Jika admin terikat pada studio, filter program dari studio tersebut
+        if ($admin->studio_id) {
+            $query->where('studio_id', $admin->studio_id);
+        }
+
+        // Ambil data program yang sudah difilter
+        $programs = $query->with(['studio', 'pembuat'])->latest()->paginate(10); 
+        
+
         return view('admin.programs.index', compact('programs'));
     }
 
-    public function create() {
-        $studios = Studio::orderBy('nama')->get(); // TAMBAHAN
-        return view('admin.programs.create', compact('studios'));
+    public function create()
+    {
+        $admin = Auth::user();
+        $studios = Studio::orderBy('nama')->get();
+        return view('admin.programs.create', compact('studios', 'admin'));
     }
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'nama' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
@@ -36,11 +66,13 @@ class ProgramController extends Controller
         return redirect()->route('admin.programs.sequences.index', $program);
     }
 
-    public function edit(Program $program) {
+    public function edit(Program $program)
+    {
         $studios = Studio::orderBy('nama')->get(); // TAMBAHAN
         return view('admin.programs.edit', compact('program', 'studios'));
     }
-    public function update(Request $request, Program $program) {
+    public function update(Request $request, Program $program)
+    {
         $request->validate([
             'nama' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',

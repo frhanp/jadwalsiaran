@@ -2,8 +2,30 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import TomSelect from 'tom-select';
+import Swal from 'sweetalert2';
 
 window.Alpine = Alpine;
+window.Swal = Swal;
+
+window.confirmDelete = function(event, title = 'Anda Yakin?', text = 'Aksi ini tidak dapat dibatalkan.') {
+    event.preventDefault(); // Mencegah form submit langsung
+    const form = event.target; // Ambil elemen form
+
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', // Merah
+        cancelButtonColor: '#6b7280', // Abu-abu
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit(); // Submit form jika dikonfirmasi
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const el = document.getElementById('penyiars');
