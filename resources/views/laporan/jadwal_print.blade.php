@@ -102,8 +102,8 @@
 <body>
     <div class="container">
         @forelse ($programs as $program)
-            @php 
-                $petugas = $jadwalPetugas->get($program->id); 
+            @php
+                $petugas = $jadwalPetugas->get($program->id);
                 $pendengars = $petugas?->pendengars;
             @endphp
             <div class="signature-block">
@@ -115,17 +115,14 @@
                 <table class="schedule-table">
                     <thead class="bg-gray-100 text-left">
                         <tr>
-                            {{-- AWAL MODIFIKASI: Penyesuaian lebar kolom --}}
                             <th class="border border-gray-300 px-4 py-2 w-[10%]">Program</th>
                             <th class="border border-gray-300 px-4 py-2 w-[8%]">Waktu</th>
                             <th class="border border-gray-300 px-4 py-2 w-[15%]">Seqmen</th>
                             <th class="border border-gray-300 px-4 py-2 w-[17%]">Pendengar</th>
                             <th class="border border-gray-300 px-4 py-2 w-[25%]">Materi Siar</th>
                             <th class="border border-gray-300 px-4 py-2 w-[25%]">Keterangan</th>
-                            {{-- AKHIR MODIFIKASI --}}
                         </tr>
                     </thead>
-                    {{-- AWAL MODIFIKASI: Logika rowspan dirombak total --}}
                     <tbody>
                         @php
                             $totalItemRows = 0;
@@ -149,11 +146,11 @@
                                         @if($sequenceIndex === 0 && $itemIndex === 0)
                                             <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
                                         @endif
-                                        
+
                                         @if($itemIndex === 0)
                                             <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                                             <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
-                                                {{ $sequence->nama }} <br> 
+                                                {{ $sequence->nama }} <br>
                                                 <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
                                             </td>
                                         @endif
@@ -176,19 +173,51 @@
                                             </td>
                                         @endif
 
-                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
-                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
+                                        {{-- Kolom Materi Siar --}}
+                                        <td class="border border-gray-300 px-4 py-2 align-top">
+                                            {{ $item->materi }}
+                                            {{-- AWAL PENAMBAHAN: Kembalikan loop Materi Detail --}}
+                                            @if ($item->materiDetails->isNotEmpty())
+                                                <ol class="list-decimal list-inside mt-1 pl-2 text-xs text-gray-600">
+                                                    @foreach ($item->materiDetails as $detail)
+                                                        <li>{{ $detail->isi }}</li>
+                                                    @endforeach
+                                                </ol>
+                                            @endif
+                                            {{-- AKHIR PENAMBAHAN --}}
+                                        </td>
+
+                                        {{-- Kolom Keterangan --}}
+                                        <td class="border border-gray-300 px-4 py-2 align-top">
+                                            @if ($item->keterangan)
+                                                <p class="mb-2 italic text-gray-700 text-xs">{{ $item->keterangan }}</p>
+                                            @endif
+                                            {{-- AWAL PENAMBAHAN: Kembalikan loop Item Detail (ILM/Spot) --}}
+                                            @if ($item->itemDetails->isNotEmpty())
+                                                @foreach ($item->itemDetails->groupBy('jenis') as $jenis => $details)
+                                                    <p class="font-semibold capitalize text-xs mt-1">{{ $jenis }}:</p>
+                                                    <ol class="list-decimal list-inside pl-4 mb-1 text-xs text-gray-600">
+                                                        @foreach ($details as $detail)
+                                                            <li>{{ $detail->isi }}</li>
+                                                        @endforeach
+                                                    </ol>
+                                                @endforeach
+                                            @endif
+                                            {{-- AKHIR PENAMBAHAN --}}
+                                        </td>
                                     </tr>
                                 @endforeach
                             @else
-                                <tr>
+                                {{-- ... (kode jika sequence tidak punya item - tidak berubah) ... --}}
+                                {{-- referensi: jadwal_print.blade.php baris 191-224 --}}
+                                 <tr>
                                     @if($sequenceIndex === 0)
                                         <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
                                     @endif
 
                                     <td class="border border-gray-300 px-4 py-2 align-top" rowspan="1">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                                     <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="1">
-                                        {{ $sequence->nama }} <br> 
+                                        {{ $sequence->nama }} <br>
                                         <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
                                     </td>
 
@@ -214,7 +243,9 @@
                                 </tr>
                             @endif
                         @empty
-                            <tr>
+                            {{-- ... (kode jika program tidak punya sequence - tidak berubah) ... --}}
+                             {{-- referensi: jadwal_print.blade.php baris 225-238 --}}
+                              <tr>
                                 <td class="border border-gray-300 px-4 py-2 align-top font-bold">{{ $program->nama }}</td>
                                 <td class="border border-gray-300 px-4 py-2 align-top">
                                      <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
@@ -228,11 +259,12 @@
                             </tr>
                         @endforelse
                     </tbody>
-                    {{-- AKHIR MODIFIKASI --}}
                 </table>
 
                 @if ($petugas)
-                    <div class="signature-section">
+                     {{-- ... (bagian tanda tangan - tidak berubah) ... --}}
+                     {{-- referensi: jadwal_print.blade.php baris 244-279 --}}
+                      <div class="signature-section">
                         <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS - {{ $program->nama }}</h3>
                         {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 (tidak berubah) --}}
                         <table style="width: 50%; margin-bottom: 20px;">
@@ -254,7 +286,9 @@
                 @endif
             </div>
         @empty
-            <div class="header">
+             {{-- ... (kode jika tidak ada program - tidak berubah) ... --}}
+             {{-- referensi: jadwal_print.blade.php baris 280-284 --}}
+              <div class="header">
                 <p>Jadwal siaran belum tersedia untuk tanggal yang dipilih.</p>
             </div>
         @endforelse
