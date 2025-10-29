@@ -13,7 +13,7 @@
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
+                              <div>
                                 <x-input-label for="name" :value="__('Nama Lengkap')" />
                                 <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $user->name)" required autofocus />
                                 <x-input-error :messages="$errors->get('name')" class="mt-2" />
@@ -37,20 +37,24 @@
                                 <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
                             </div>
 
-                             <div>
+                            <div>
                                 <x-input-label for="role" :value="__('Role')" />
-                                <select id="role" name="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                                    <option value="admin" @selected(old('role', $user->role) == 'admin')>Admin</option>
-                                    <option value="penyiar" @selected(old('role', $user->role) == 'penyiar')>Penyiar</option>
-                                    <option value="katim" @selected(old('role', $user->role) == 'katim')>Katim</option>
-                                    <option value="kepsta" @selected(old('role', $user->role) == 'kepsta')>Kepsta</option>
+                                <select id="role" name="role" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $admin->role === 'admin' ? 'bg-gray-100 text-gray-500' : '' }}" {{ $admin->role === 'admin' ? 'disabled' : '' }}>
+                                    @foreach($rolesAllowed as $roleOption) {{-- rolesAllowed dari controller --}}
+                                        <option value="{{ $roleOption }}" @selected(old('role', $user->role) == $roleOption)>
+                                            {{ Str::ucfirst($roleOption) }}
+                                        </option>
+                                    @endforeach
                                 </select>
+                                {{-- Jika admin, kirim nilai asli via hidden input agar tidak hilang saat update --}}
+                                @if($admin->role === 'admin')
+                                    <input type="hidden" name="role" value="{{ $user->role }}">
+                                @endif
                                 <x-input-error :messages="$errors->get('role')" class="mt-2" />
                             </div>
-                            
                             <div>
-                                <x-input-label for="studio_id" value="Asal Studio (Opsional)" />
-                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+                                <x-input-label for="studio_id" value="Asal Studio {{ $admin->role === 'admin' ? '(Tidak dapat diubah)' : '(Opsional)' }}" />
+                                <select id="studio_id" name="studio_id" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm {{ $admin->role === 'admin' ? 'bg-gray-100 text-gray-500' : '' }}" {{ $admin->role === 'admin' ? 'disabled' : '' }}>
                                     <option value="">-- Tidak Terikat Studio --</option>
                                     @foreach($studios as $studio)
                                         <option value="{{ $studio->id }}" @selected(old('studio_id', $user->studio_id) == $studio->id)>
@@ -58,9 +62,13 @@
                                         </option>
                                     @endforeach
                                 </select>
+                                {{-- Jika admin, kirim nilai asli via hidden input --}}
+                                @if($admin->role === 'admin')
+                                    <input type="hidden" name="studio_id" value="{{ $user->studio_id }}">
+                                @endif
                                 <x-input-error :messages="$errors->get('studio_id')" class="mt-2" />
                             </div>
-                            </div>
+                        </div>
 
                         <div class="flex items-center justify-end mt-6">
                             <a href="{{ route('admin.users.index') }}" class="text-sm text-gray-600 hover:text-gray-900 mr-4">
