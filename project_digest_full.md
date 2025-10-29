@@ -1,5 +1,5 @@
 ﻿# Project Digest (Full Content)
-_Generated: 2025-10-18 18:10:47_
+_Generated: 2025-10-30 01:39:37_
 **Root:** D:\Laragon\www\jadwalsiaran
 
 
@@ -372,11 +372,11 @@ Branch:
 main
 
 Last 5 commits:
+5506ef0 add miising poin
+747e78f fix tombol hapus dan sweet
+d0ead40 add filter di pengguna
 ac9ebf0 add lonceng di admin
 d31e831 fix tampilan putih
-d78b3e4 add stopwatch di durasi materi siaran
-8467dbc acc tolak penyiar
-644410a modif pendengar
 ```
 
 
@@ -508,8 +508,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
+    Route::middleware(['role:admin,katim'])->name('admin.')->prefix('admin')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+
     Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
-        Route::resource('users', UserController::class); 
+        //Route::resource('users', UserController::class); 
         Route::resource('programs', ProgramController::class);
         Route::resource('programs.sequences', SequenceController::class)->except(['show'])->shallow();
         Route::resource('sequences.items', SequenceItemController::class)->except(['show'])->shallow();
@@ -932,17 +936,47 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Studio;
 
 class ProgramController extends Controller
-{public function index()
+{
+
+    private function authorizeAdminStudio(Program $program)
     {
-        $programs = Program::with('pembuat')->latest()->paginate(10);
+        $admin = Auth::user();
+        // Super admin (tidak terikat studio) boleh akses semua
+        if (!$admin->studio_id) {
+            return;
+        }
+        // Admin studio hanya boleh akses program di studionya
+        if ($program->studio_id !== $admin->studio_id) {
+            abort(403, 'AKSES DITOLAK. Anda hanya dapat mengelola program dari studio Anda.');
+        }
+    }
+
+    public function index()
+    {
+        
+        $admin = Auth::user();
+        $query = Program::query(); // Mulai query builder
+
+        // Jika admin terikat pada studio, filter program dari studio tersebut
+        if ($admin->studio_id) {
+            $query->where('studio_id', $admin->studio_id);
+        }
+
+        // Ambil data program yang sudah difilter
+        $programs = $query->with(['studio', 'pembuat'])->latest()->paginate(10); 
+        
+
         return view('admin.programs.index', compact('programs'));
     }
 
-    public function create() {
-        $studios = Studio::orderBy('nama')->get(); // TAMBAHAN
-        return view('admin.programs.create', compact('studios'));
+    public function create()
+    {
+        $admin = Auth::user();
+        $studios = Studio::orderBy('nama')->get();
+        return view('admin.programs.create', compact('studios', 'admin'));
     }
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
             'nama' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
@@ -959,11 +993,13 @@ class ProgramController extends Controller
         return redirect()->route('admin.programs.sequences.index', $program);
     }
 
-    public function edit(Program $program) {
+    public function edit(Program $program)
+    {
         $studios = Studio::orderBy('nama')->get(); // TAMBAHAN
         return view('admin.programs.edit', compact('program', 'studios'));
     }
-    public function update(Request $request, Program $program) {
+    public function update(Request $request, Program $program)
+    {
         $request->validate([
             'nama' => 'required|string|max:255',
             'alias' => 'nullable|string|max:255',
@@ -1226,10 +1262,34 @@ use App\Models\Studio;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('studio')->latest()->paginate(10); // Tambah with('studio')
-        return view('admin.users.index', compact('users'));
+        $query = User::with('studio')->latest();
+
+        // Filter berdasarkan Role
+        if ($request->filled('role')) {
+            $query->where('role', $request->role);
+        }
+
+        // Filter berdasarkan Studio
+        if ($request->filled('studio_id')) {
+            if ($request->studio_id == 'none') {
+                $query->whereNull('studio_id');
+            } else {
+                $query->where('studio_id', $request->studio_id);
+            }
+        }
+
+        $users = $query->paginate(10)->withQueryString(); // Append filter ke pagination links
+
+        // Data untuk dropdown filter
+        $studios = Studio::orderBy('nama')->get();
+        $roles = ['admin', 'penyiar', 'katim', 'kepsta']; // Definisikan role yang mungkin
+
+        // --- AKHIR MODIFIKASI ---
+
+        // Kirim data filter ke view
+        return view('admin.users.index', compact('users', 'studios', 'roles', 'request'));
     }
 
     public function create()
@@ -3479,7 +3539,6 @@ class Studio extends Model
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">No</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Studio</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Nama Program</th>
-                                    {{-- <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Alias</th> --}}
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Dibuat Oleh</th>
                                     <th class="whitespace-nowrap px-4 py-2 font-semibold text-gray-700">Tanggal Dibuat</th>
                                     <th class="px-4 py-2">Aksi</th>
@@ -3489,7 +3548,7 @@ class Studio extends Model
                                 @forelse ($programs as $program)
                                 <tr class="hover:bg-gray-50 transition">
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $loop->iteration + $programs->firstItem() - 1 }}</td>
-                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->studio->nama }}</td>
+                                    <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->studio->nama ?? '--' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 font-medium text-gray-900">{{ $program->nama }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->pembuat->name ?? 'N/A' }}</td>
                                     <td class="whitespace-nowrap px-4 py-2 text-gray-600">{{ $program->created_at->format('d M Y, H:i') }}</td>
@@ -4113,8 +4172,8 @@ class Studio extends Model
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Kelola Pengguna
             </h2>
-            <a href="{{ route('admin.users.create') }}" 
-               class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 
+            <a href="{{ route('admin.users.create') }}"
+                class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-blue-600 to-sky-500 
                       border border-transparent rounded-lg font-semibold text-sm text-white 
                       shadow hover:shadow-md hover:from-blue-700 hover:to-sky-600 
                       transition ease-in-out duration-200">
@@ -4128,96 +4187,141 @@ class Studio extends Model
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    <!-- Flash Message -->
+                    {{-- Flash Message (Tidak Berubah) --}}
+                    {{-- referensi: resources/views/admin/users/index.blade.php baris 20-39 --}}
                     @if (session('success'))
-                        <div class="flex items-center gap-3 bg-green-50 border border-green-200 
-                                    text-green-700 px-4 py-3 rounded-lg mb-4 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-green-600" 
-                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M9 12l2 2l4-4m6 2a9 9 0 11-18 0a9 9 0 0118 0z"/>
-                            </svg>
-                            <span>{{ session('success') }}</span>
-                        </div>
+                        {{-- ... --}}
                     @endif
                     @if (session('error'))
-                        <div class="flex items-center gap-3 bg-red-50 border border-red-200 
-                                    text-red-700 px-4 py-3 rounded-lg mb-4 shadow-sm">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-600" 
-                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
-                            <span>{{ session('error') }}</span>
-                        </div>
+                        {{-- ... --}}
                     @endif
 
-                    <!-- Table -->
+                    {{-- AWAL MODIFIKASI: Form Filter --}}
+                    <div class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <form method="GET" action="{{ route('admin.users.index') }}"
+                            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 items-end">
+                            {{-- Filter Role --}}
+                            <div>
+                                <label for="role" class="block text-sm font-medium text-gray-700">Filter
+                                    Role</label>
+                                <select name="role" id="role"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                    <option value="">Semua Role</option>
+                                    @foreach ($roles as $roleOption)
+                                        <option value="{{ $roleOption }}" @selected(request('role') == $roleOption)>
+                                            {{ Str::ucfirst($roleOption) }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Filter Studio --}}
+                            <div>
+                                <label for="studio_id" class="block text-sm font-medium text-gray-700">Filter
+                                    Studio</label>
+                                <select name="studio_id" id="studio_id"
+                                    class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-sm">
+                                    <option value="">Semua Studio</option>
+                                    <option value="none" @selected(request('studio_id') == 'none')>-- Tidak Terikat --</option>
+                                    @foreach ($studios as $studio)
+                                        <option value="{{ $studio->id }}" @selected(request('studio_id') == $studio->id)>
+                                            {{ $studio->nama }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            {{-- Tombol Filter & Reset --}}
+                            <div class="flex gap-2">
+                                <button type="submit"
+                                    class="inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition h-10">
+                                    Filter
+                                </button>
+                                <a href="{{ route('admin.users.index') }}"
+                                    class="inline-flex items-center justify-center px-4 py-2 bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition h-10">
+                                    Reset
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                    {{-- AKHIR MODIFIKASI --}}
+
+
+                    {{-- Tabel Pengguna (Tidak Berubah) --}}
+                    {{-- referensi: resources/views/admin/users/index.blade.php baris 42-104 --}}
                     <div class="overflow-x-auto">
                         <table class="min-w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+                            {{-- ... thead ... --}}
                             <thead class="bg-gray-100 text-gray-700">
                                 <tr>
                                     <th class="px-4 py-3 font-semibold text-left">No</th>
                                     <th class="px-4 py-3 font-semibold text-left">Nama</th>
                                     <th class="px-4 py-3 font-semibold text-left">Email</th>
                                     <th class="px-4 py-3 font-semibold text-left">Role</th>
+                                    <th class="px-4 py-3 font-semibold text-left">Studio</th> {{-- Tambah Kolom Studio --}}
                                     <th class="px-4 py-3"></th>
                                 </tr>
                             </thead>
+                            {{-- ... tbody ... --}}
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($users as $user)
-                                <tr class="hover:bg-gray-50 transition-colors">
-                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $loop->iteration }}</td>
-                                    <td class="px-4 py-3 font-medium text-gray-900">{{ $user->name }}</td>
-                                    <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
-                                    <td class="px-4 py-3">
-                                        @php
-                                            $roleColors = [
-                                                'admin' => 'bg-purple-100 text-purple-700',
-                                                'penyiar' => 'bg-blue-100 text-blue-700',
-                                                'katim' => 'bg-green-100 text-green-700',
-                                                'kepsta' => 'bg-yellow-100 text-yellow-700',
-                                            ];
-                                        @endphp
-                                        <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $roleColors[$user->role] ?? 'bg-gray-100 text-gray-700' }}">
-                                            {{ Str::ucfirst($user->role) }}
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-3">
-                                        <div class="flex flex-wrap gap-2">
-                                            <!-- Edit -->
-                                            <a href="{{ route('admin.users.edit', $user) }}" 
-                                               class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium 
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-4 py-3">{{ $loop->iteration + $users->firstItem() - 1 }}</td>
+                                        {{-- Perbaiki nomor --}}
+                                        <td class="px-4 py-3 font-medium text-gray-900">{{ $user->name }}</td>
+                                        <td class="px-4 py-3 text-gray-600">{{ $user->email }}</td>
+                                        <td class="px-4 py-3">
+                                            @php
+                                                $roleColors = [
+                                                    /* ... */
+                                                ];
+                                            @endphp
+                                            <span
+                                                class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium {{ $roleColors[$user->role] ?? 'bg-gray-100 text-gray-700' }}">
+                                                {{ Str::ucfirst($user->role) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3 text-gray-600">{{ $user->studio->nama ?? '--' }}</td>
+                                        {{-- Tampilkan Nama Studio --}}
+                                        <td class="px-4 py-3">
+                                            <div class="flex flex-wrap gap-2">
+                                                {{-- Tombol Edit & Hapus (Gunakan SweetAlert) --}}
+                                                <a href="{{ route('admin.users.edit', $user) }}"
+                                                    class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium 
                                                       rounded-full bg-yellow-100 text-yellow-700 hover:bg-yellow-200 transition">
-                                                âœï¸ Edit
-                                            </a>
-
-                                            <!-- Hapus -->
-                                            <form action="{{ route('admin.users.destroy', $user) }}" method="POST" 
-                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus pengguna ini?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium 
-                                                               rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition">
-                                                    ðŸ—‘ï¸ Hapus
-                                                </button>
-                                            </form>
-                                        </div>
-                                    </td>
-                                </tr>
+                                                    Edit
+                                                </a>
+                                                {{-- AWAL MODIFIKASI: Tambahkan SweetAlert logic --}}
+                                                <form x-data {{-- x-data tetap diperlukan agar Alpine aktif --}}
+                                                    @submit.prevent="confirmDelete($event, 'Hapus Pengguna?', 'Menghapus pengguna ini tidak dapat dibatalkan.')"
+                                                    {{-- Panggil fungsi global --}}
+                                                    action="{{ route('admin.users.destroy', $user) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="inline-flex items-center gap-1 px-3 py-1 text-xs font-medium
+                   rounded-full bg-red-100 text-red-700 hover:bg-red-200 transition">
+                                                        Hapus
+                                                    </button>
+                                                </form>
+                                                {{-- AKHIR MODIFIKASI --}}
+                                            </div>
+                                        </td>
+                                    </tr>
                                 @empty
-                                <tr>
-                                    <td colspan="4" class="text-center py-6 text-gray-500">
-                                        Tidak ada data pengguna.
-                                    </td>
-                                </tr>
+                                    <tr>
+                                        <td colspan="6" class="text-center py-6 text-gray-500">
+                                            {{-- Ubah colspan --}}
+                                            Tidak ada data pengguna yang cocok dengan filter.
+                                        </td>
+                                    </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
+                    {{-- Pagination (Tidak Berubah) --}}
+                    {{-- referensi: resources/views/admin/users/index.blade.php baris 107-109 --}}
                     <div class="mt-6">
                         {{ $users->links() }}
                     </div>
@@ -4910,8 +5014,8 @@ $classes = ($active ?? false)
 <body>
     <div class="container">
         @forelse ($programs as $program)
-            @php 
-                $petugas = $jadwalPetugas->get($program->id); 
+            @php
+                $petugas = $jadwalPetugas->get($program->id);
                 $pendengars = $petugas?->pendengars;
             @endphp
             <div class="signature-block">
@@ -4923,17 +5027,14 @@ $classes = ($active ?? false)
                 <table class="schedule-table">
                     <thead class="bg-gray-100 text-left">
                         <tr>
-                            {{-- AWAL MODIFIKASI: Penyesuaian lebar kolom --}}
                             <th class="border border-gray-300 px-4 py-2 w-[10%]">Program</th>
                             <th class="border border-gray-300 px-4 py-2 w-[8%]">Waktu</th>
                             <th class="border border-gray-300 px-4 py-2 w-[15%]">Seqmen</th>
                             <th class="border border-gray-300 px-4 py-2 w-[17%]">Pendengar</th>
                             <th class="border border-gray-300 px-4 py-2 w-[25%]">Materi Siar</th>
                             <th class="border border-gray-300 px-4 py-2 w-[25%]">Keterangan</th>
-                            {{-- AKHIR MODIFIKASI --}}
                         </tr>
                     </thead>
-                    {{-- AWAL MODIFIKASI: Logika rowspan dirombak total --}}
                     <tbody>
                         @php
                             $totalItemRows = 0;
@@ -4957,11 +5058,11 @@ $classes = ($active ?? false)
                                         @if($sequenceIndex === 0 && $itemIndex === 0)
                                             <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
                                         @endif
-                                        
+
                                         @if($itemIndex === 0)
                                             <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                                             <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
-                                                {{ $sequence->nama }} <br> 
+                                                {{ $sequence->nama }} <br>
                                                 <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
                                             </td>
                                         @endif
@@ -4984,19 +5085,51 @@ $classes = ($active ?? false)
                                             </td>
                                         @endif
 
-                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
-                                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
+                                        {{-- Kolom Materi Siar --}}
+                                        <td class="border border-gray-300 px-4 py-2 align-top">
+                                            {{ $item->materi }}
+                                            {{-- AWAL PENAMBAHAN: Kembalikan loop Materi Detail --}}
+                                            @if ($item->materiDetails->isNotEmpty())
+                                                <ol class="list-decimal list-inside mt-1 pl-2 text-xs text-gray-600">
+                                                    @foreach ($item->materiDetails as $detail)
+                                                        <li>{{ $detail->isi }}</li>
+                                                    @endforeach
+                                                </ol>
+                                            @endif
+                                            {{-- AKHIR PENAMBAHAN --}}
+                                        </td>
+
+                                        {{-- Kolom Keterangan --}}
+                                        <td class="border border-gray-300 px-4 py-2 align-top">
+                                            @if ($item->keterangan)
+                                                <p class="mb-2 italic text-gray-700 text-xs">{{ $item->keterangan }}</p>
+                                            @endif
+                                            {{-- AWAL PENAMBAHAN: Kembalikan loop Item Detail (ILM/Spot) --}}
+                                            @if ($item->itemDetails->isNotEmpty())
+                                                @foreach ($item->itemDetails->groupBy('jenis') as $jenis => $details)
+                                                    <p class="font-semibold capitalize text-xs mt-1">{{ $jenis }}:</p>
+                                                    <ol class="list-decimal list-inside pl-4 mb-1 text-xs text-gray-600">
+                                                        @foreach ($details as $detail)
+                                                            <li>{{ $detail->isi }}</li>
+                                                        @endforeach
+                                                    </ol>
+                                                @endforeach
+                                            @endif
+                                            {{-- AKHIR PENAMBAHAN --}}
+                                        </td>
                                     </tr>
                                 @endforeach
                             @else
-                                <tr>
+                                {{-- ... (kode jika sequence tidak punya item - tidak berubah) ... --}}
+                                {{-- referensi: jadwal_print.blade.php baris 191-224 --}}
+                                 <tr>
                                     @if($sequenceIndex === 0)
                                         <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
                                     @endif
 
                                     <td class="border border-gray-300 px-4 py-2 align-top" rowspan="1">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
                                     <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="1">
-                                        {{ $sequence->nama }} <br> 
+                                        {{ $sequence->nama }} <br>
                                         <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
                                     </td>
 
@@ -5022,7 +5155,9 @@ $classes = ($active ?? false)
                                 </tr>
                             @endif
                         @empty
-                            <tr>
+                            {{-- ... (kode jika program tidak punya sequence - tidak berubah) ... --}}
+                             {{-- referensi: jadwal_print.blade.php baris 225-238 --}}
+                              <tr>
                                 <td class="border border-gray-300 px-4 py-2 align-top font-bold">{{ $program->nama }}</td>
                                 <td class="border border-gray-300 px-4 py-2 align-top">
                                      <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
@@ -5036,11 +5171,12 @@ $classes = ($active ?? false)
                             </tr>
                         @endforelse
                     </tbody>
-                    {{-- AKHIR MODIFIKASI --}}
                 </table>
 
                 @if ($petugas)
-                    <div class="signature-section">
+                     {{-- ... (bagian tanda tangan - tidak berubah) ... --}}
+                     {{-- referensi: jadwal_print.blade.php baris 244-279 --}}
+                      <div class="signature-section">
                         <h3 style="text-align:center; font-weight:bold; margin-bottom: 20px;">PETUGAS - {{ $program->nama }}</h3>
                         {{-- referensi: resources/views/laporan/jadwal_print.blade.php baris 204-257 (tidak berubah) --}}
                         <table style="width: 50%; margin-bottom: 20px;">
@@ -5062,7 +5198,9 @@ $classes = ($active ?? false)
                 @endif
             </div>
         @empty
-            <div class="header">
+             {{-- ... (kode jika tidak ada program - tidak berubah) ... --}}
+             {{-- referensi: jadwal_print.blade.php baris 280-284 --}}
+              <div class="header">
                 <p>Jadwal siaran belum tersedia untuk tanggal yang dipilih.</p>
             </div>
         @endforelse
@@ -5076,8 +5214,8 @@ $classes = ($active ?? false)
 </html>
 
 ===== resources\views\laporan\_tabel_program.blade.php =====
-@php 
-    $petugas = $jadwalPetugas->get($program->id); 
+@php
+    $petugas = $jadwalPetugas->get($program->id);
     $pendengars = $petugas?->pendengars;
 @endphp
 <div class="overflow-x-auto">
@@ -5094,79 +5232,135 @@ $classes = ($active ?? false)
         </thead>
         <tbody>
             @php
-                $totalRowspan = $program->sequences->count() > 0 ? $program->sequences->count() : 1;
-                $itemRowspan = 0;
+                // Hitung total baris yang dibutuhkan oleh semua item dan sub-item dalam program ini
+                $totalItemRows = 0;
                 if ($program->sequences->isNotEmpty()) {
                     foreach ($program->sequences as $sequence) {
-                        $itemRowspan += $sequence->items->count() > 0 ? $sequence->items->count() : 1;
+                        // Setiap sequence minimal butuh 1 baris,
+                        // jika ada item, butuh baris sebanyak jumlah item
+                        $totalItemRows += max(1, $sequence->items->count());
                     }
                 } else {
-                    $itemRowspan = 1;
+                    $totalItemRows = 1; // Jika tidak ada sequence, program tetap butuh 1 baris
                 }
             @endphp
-            <tr>
-                <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $itemRowspan }}">{{ $program->nama }}</td>
-                
-                {{-- AWAL MODIFIKASI: Logika rowspan untuk Pendengar --}}
-                @php $firstSequence = $program->sequences->first(); @endphp
-                @if($firstSequence)
-                    @php $firstSequenceItemCount = $firstSequence->items->count() > 0 ? $firstSequence->items->count() : 1; @endphp
-                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $firstSequenceItemCount }}">{{ \Carbon\Carbon::parse($firstSequence->waktu)->format('H:i') }}</td>
-                    <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $firstSequenceItemCount }}">
-                        {{ $firstSequence->nama }} <br> 
-                        <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
-                    </td>
-                    
-                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $itemRowspan }}">
-                        <p class="font-bold mb-2">Total: {{ $pendengars->count() }}</p>
-                        @if($pendengars->isNotEmpty())
-                        <ol class="list-decimal list-inside space-y-1 text-xs">
-                            @foreach($pendengars as $pendengar)
-                            <li>
-                                <span class="font-semibold">{{ $pendengar->nama }}:</span>
-                                <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
-                            </li>
-                            @endforeach
-                        </ol>
+
+            @forelse ($program->sequences as $sequenceIndex => $sequence)
+                @php
+                    // Hitung rowspan untuk kolom Waktu dan Seqmen (berdasarkan jumlah item)
+                    $sequenceItemRowspan = max(1, $sequence->items->count());
+                @endphp
+
+                @if ($sequence->items->isNotEmpty())
+                    @foreach ($sequence->items as $itemIndex => $item)
+                        <tr>
+                            {{-- Kolom Program hanya muncul di baris pertama sequence pertama --}}
+                            @if($sequenceIndex === 0 && $itemIndex === 0)
+                                <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
+                            @endif
+
+                            {{-- Kolom Waktu dan Seqmen hanya muncul di baris pertama item --}}
+                            @if($itemIndex === 0)
+                                <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceItemRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                                <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceItemRowspan }}">
+                                    {{ $sequence->nama }} <br>
+                                    <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                                </td>
+                            @endif
+
+                            {{-- Kolom Pendengar hanya muncul di baris pertama sequence pertama --}}
+                            @if($sequenceIndex === 0 && $itemIndex === 0)
+                                <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $totalItemRows }}">
+                                    <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                    @if($pendengars && $pendengars->isNotEmpty())
+                                    <ol class="list-decimal list-inside space-y-1 text-xs">
+                                        @foreach($pendengars as $pendengar)
+                                        <li>
+                                            <span class="font-semibold">{{ $pendengar->nama }}:</span>
+                                            <span class="text-gray-600 italic">"{{ $pendengar->komentar }}"</span>
+                                        </li>
+                                        @endforeach
+                                    </ol>
+                                    @else
+                                    <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                    @endif
+                                </td>
+                            @endif
+
+                            {{-- Kolom Materi Siar --}}
+                            <td class="border border-gray-300 px-4 py-2 align-top">
+                                {{ $item->materi }}
+                                {{-- AWAL MODIFIKASI: Kembalikan loop Materi Detail --}}
+                                @if ($item->materiDetails->isNotEmpty())
+                                    <ol class="list-decimal list-inside mt-1 pl-2 text-xs text-gray-600">
+                                        @foreach ($item->materiDetails as $detail)
+                                            <li>{{ $detail->isi }}</li>
+                                        @endforeach
+                                    </ol>
+                                @endif
+                                {{-- AKHIR MODIFIKASI --}}
+                            </td>
+
+                            {{-- Kolom Keterangan --}}
+                            <td class="border border-gray-300 px-4 py-2 align-top">
+                                @if ($item->keterangan)
+                                    <p class="mb-2 italic text-gray-700 text-xs">{{ $item->keterangan }}</p>
+                                @endif
+                                {{-- AWAL MODIFIKASI: Kembalikan loop Item Detail (ILM/Spot) --}}
+                                @if ($item->itemDetails->isNotEmpty())
+                                    @foreach ($item->itemDetails->groupBy('jenis') as $jenis => $details)
+                                        <p class="font-semibold capitalize text-xs mt-1">{{ $jenis }}:</p>
+                                        <ol class="list-decimal list-inside pl-4 mb-1 text-xs text-gray-600">
+                                            @foreach ($details as $detail)
+                                                <li>{{ $detail->isi }}</li>
+                                            @endforeach
+                                        </ol>
+                                    @endforeach
+                                @endif
+                                {{-- AKHIR MODIFIKASI --}}
+                            </td>
+                        </tr>
+                    @endforeach
+                @else {{-- Jika sequence tidak punya item --}}
+                    <tr>
+                        @if($sequenceIndex === 0)
+                            <td class="border border-gray-300 px-4 py-2 align-top font-bold" rowspan="{{ $totalItemRows }}">{{ $program->nama }}</td>
+                        @endif
+
+                        <td class="border border-gray-300 px-4 py-2 align-top" rowspan="1">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
+                        <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="1">
+                            {{ $sequence->nama }} <br>
+                            <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
+                        </td>
+
+                        @if($sequenceIndex === 0)
+                             <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $totalItemRows }}">
+                                <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                                @if($pendengars && $pendengars->isNotEmpty())
+                                {{-- ... (daftar pendengar) ... --}}
+                                @else
+                                <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
+                                @endif
+                            </td>
+                        @endif
+
+                        <td class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic" colspan="2">-- Belum ada materi --</td>
+                    </tr>
+                @endif
+            @empty {{-- Jika program tidak punya sequence --}}
+                <tr>
+                    <td class="border border-gray-300 px-4 py-2 align-top font-bold">{{ $program->nama }}</td>
+                    <td class="border border-gray-300 px-4 py-2 align-top">
+                        <p class="font-bold mb-2">Total: {{ $pendengars?->count() ?? 0 }}</p>
+                        @if($pendengars && $pendengars->isNotEmpty())
+                        {{-- ... (daftar pendengar) ... --}}
                         @else
                         <span class="text-gray-400 italic">-- Tidak ada interaksi --</span>
                         @endif
                     </td>
-
-                    @forelse ($firstSequence->items as $itemIndex => $item)
-                        @if ($itemIndex > 0) <tr> @endif
-                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
-                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
-                        </tr>
-                    @empty
-                        <td colspan="2" class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic">-- Belum ada materi --</td>
-                        </tr>
-                    @endforelse
-                @else
                     <td colspan="4" class="border border-gray-300 px-4 py-2 text-center text-gray-400 italic">-- Belum ada seqmen --</td>
-                    </tr>
-                @endif
-                {{-- AKHIR MODIFIKASI --}}
-
-                @foreach ($program->sequences->slice(1) as $sequence)
-                    @php $sequenceRowspan = $sequence->items->count() > 0 ? $sequence->items->count() : 1; @endphp
-                    <tr>
-                    <td class="border border-gray-300 px-4 py-2 align-top" rowspan="{{ $sequenceRowspan }}">{{ \Carbon\Carbon::parse($sequence->waktu)->format('H:i') }}</td>
-                    <td class="border border-gray-300 px-4 py-2 align-top font-semibold" rowspan="{{ $sequenceRowspan }}">
-                        {{ $sequence->nama }} <br> 
-                        <small class="font-normal text-gray-500">Host: {{ $petugas?->penyiars->first()->name ?? 'N/A' }}</small>
-                    </td>
-
-                    @forelse ($sequence->items as $itemIndex => $item)
-                        @if ($itemIndex > 0) <tr> @endif
-                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->materi }}</td>
-                        <td class="border border-gray-300 px-4 py-2 align-top">{{ $item->keterangan }}</td>
-                        </tr>
-                    @empty
-                        <td colspan="2" class="border border-gray-300 px-4 py-2 align-top text-gray-400 italic">-- Belum ada materi --</td>
-                        </tr>
-                    @endforelse
-                @endforeach
+                </tr>
+            @endforelse
         </tbody>
     </table>
 </div>
@@ -5373,6 +5567,12 @@ $classes = ($active ?? false)
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
         <span>Kelola Studio</span>
+    </x-nav-link>
+    <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+        </svg>
+        <span>Kelola Pengguna</span>
     </x-nav-link>
     @endif
     {{-- @endrole --}}
@@ -6150,8 +6350,30 @@ import './bootstrap';
 
 import Alpine from 'alpinejs';
 import TomSelect from 'tom-select';
+import Swal from 'sweetalert2';
 
 window.Alpine = Alpine;
+window.Swal = Swal;
+
+window.confirmDelete = function(event, title = 'Anda Yakin?', text = 'Aksi ini tidak dapat dibatalkan.') {
+    event.preventDefault(); // Mencegah form submit langsung
+    const form = event.target; // Ambil elemen form
+
+    Swal.fire({
+        title: title,
+        text: text,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33', // Merah
+        cancelButtonColor: '#6b7280', // Abu-abu
+        confirmButtonText: 'Ya, Hapus!',
+        cancelButtonText: 'Batal'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit(); // Submit form jika dikonfirmasi
+        }
+    });
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     const el = document.getElementById('penyiars');

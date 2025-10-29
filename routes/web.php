@@ -38,8 +38,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/notifications/mark-as-read', [NotificationController::class, 'markAsRead'])->name('notifications.markAsRead');
 
+    Route::middleware(['role:admin,katim'])->name('admin.')->prefix('admin')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+
     Route::middleware(['role:admin'])->name('admin.')->prefix('admin')->group(function () {
-        Route::resource('users', UserController::class); 
+        //Route::resource('users', UserController::class); 
         Route::resource('programs', ProgramController::class);
         Route::resource('programs.sequences', SequenceController::class)->except(['show'])->shallow();
         Route::resource('sequences.items', SequenceItemController::class)->except(['show'])->shallow();
