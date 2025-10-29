@@ -72,6 +72,49 @@
             </main>
         </div>
     </div>
+
+    @if (session('success') || session('error') || session('warning') || session('info'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if ($message = session('success'))
+                Swal.fire({ // Langsung panggil Swal.fire
+                    icon: 'success',
+                    title: 'Berhasil!', // Judul bisa lebih jelas
+                    text: '{{ $message }}', // Pesan di bagian teks
+                    confirmButtonColor: '#3085d6', // Warna tombol OK (biru)
+                    // timer: 2000 // Opsional: hilangkan otomatis setelah 2 detik
+                });
+            @endif
+
+            @if ($message = session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops... Terjadi Kesalahan',
+                    text: '{{ $message }}',
+                    confirmButtonColor: '#d33', // Warna tombol OK (merah)
+                });
+            @endif
+
+            @if ($message = session('warning'))
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Peringatan',
+                    text: '{{ $message }}',
+                    confirmButtonColor: '#ffbb33', // Warna tombol OK (kuning)
+                });
+            @endif
+
+            @if ($message = session('info'))
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Informasi',
+                    text: '{{ $message }}',
+                    confirmButtonColor: '#3085d6', // Warna tombol OK (biru)
+                });
+            @endif
+        });
+    </script>
+    @endif
 </body>
 
 </html>

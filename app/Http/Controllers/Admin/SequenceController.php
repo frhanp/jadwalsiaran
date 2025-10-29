@@ -8,6 +8,7 @@ use App\Models\Program;
 use App\Models\Sequence;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class SequenceController extends Controller
 {
@@ -27,10 +28,18 @@ class SequenceController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'waktu' => 'required|date_format:H:i',
-            //'host_id' => 'required|exists:users,id',
+            'waktu' => [
+                'required',
+                'date_format:H:i',
+                Rule::unique('sequences')->where(function ($query) use ($program) {
+                    return $query->where('program_id', $program->id);
+                }),
+            ],
             'frame' => 'nullable|string|max:255',
             'durasi' => 'nullable|numeric|min:0',
+        ], [
+            // Pesan error kustom untuk unique rule
+            'waktu.unique' => 'Waktu mulai sequence untuk program ini sudah digunakan.',
         ]);
 
         $program->sequences()->create($request->all() + [
@@ -54,10 +63,17 @@ class SequenceController extends Controller
     {
         $request->validate([
             'nama' => 'required|string|max:255',
-            'waktu' => 'required|date_format:H:i',
-            //'host_id' => 'required|exists:users,id',
+             'waktu' => [
+                'required',
+                'date_format:H:i',
+                Rule::unique('sequences')->where(function ($query) use ($program) {
+                    return $query->where('program_id', $program->id);
+                })->ignore($sequence->id), // Abaikan sequence saat ini
+            ],
             'frame' => 'nullable|string|max:255',
             'durasi' => 'nullable|numeric|min:0',
+        ],[
+            'waktu.unique' => 'Waktu mulai sequence untuk program ini sudah digunakan oleh sequence lain.',
         ]);
 
         $sequence->update($request->all());
