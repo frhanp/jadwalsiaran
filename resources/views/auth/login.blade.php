@@ -51,12 +51,12 @@
                 <span class="ms-2 text-sm text-slate-700">{{ __('Remember me') }}</span>
             </label>
 
-            @if (Route::has('password.request'))
+            {{-- @if (Route::has('password.request'))
                 <a class="text-sm text-blue-600 hover:text-blue-800 transition-colors"
                    href="{{ route('password.request') }}">
                     {{ __('Forgot your password?') }}
                 </a>
-            @endif
+            @endif --}}
         </div>
 
         <!-- Submit -->

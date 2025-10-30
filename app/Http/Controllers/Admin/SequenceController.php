@@ -61,6 +61,7 @@ class SequenceController extends Controller
 
     public function update(Request $request, Sequence $sequence)
     {
+        $program = $sequence->program;
         $request->validate([
             'nama' => 'required|string|max:255',
              'waktu' => [
