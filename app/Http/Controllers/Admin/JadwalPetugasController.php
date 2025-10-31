@@ -30,7 +30,7 @@ class JadwalPetugasController extends Controller
         }
 
         $penyiars = $penyiarsQuery->orderBy('name')->get();
-        
+
         return view('admin.petugas.create', compact('program', 'penyiars'));
     }
 
@@ -38,16 +38,25 @@ class JadwalPetugasController extends Controller
     {
         $validatedData = $request->validate([
             'tanggal' => [
-                'required', 'date',
-                Rule::unique('jadwal_petugas')->where(fn ($query) => $query->where('program_id', $program->id)),
+                'required',
+                'date',
+                Rule::unique('jadwal_petugas')->where(fn($query) => $query->where('program_id', $program->id)),
             ],
-            'produser_nama' => 'nullable|string|max:255',
-            'pengelola_pep_nama' => 'nullable|string|max:255',
-            'pengarah_acara_nama' => 'nullable|string|max:255',
-            'petugas_lpu_nama' => 'nullable|string|max:255',
+            'produser_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
+            'pengelola_pep_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
+            'pengarah_acara_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
+            'petugas_lpu_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
             'penyiars' => 'nullable|array',
             'penyiars.*' => 'exists:users,id',
-        ], ['tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.']);
+        ], [
+            'tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.',
+            // Pesan error regex custom
+            'produser_nama.regex' => 'Nama Produser hanya boleh huruf, tidak boleh angka.',
+            'pengelola_pep_nama.regex' => 'Nama Pengelola PEP hanya boleh huruf, tidak boleh angka.',
+            'pengarah_acara_nama.regex' => 'Nama Pengarah Acara hanya boleh huruf, tidak boleh angka.',
+            'petugas_lpu_nama.regex' => 'Nama Petugas LPU hanya boleh huruf, tidak boleh angka.',
+        ]);
+
 
 
         $jadwalPetugas = $program->jadwalPetugas()->create($validatedData + ['dibuat_oleh' => Auth::id()]);
@@ -66,7 +75,6 @@ class JadwalPetugasController extends Controller
 
         return redirect()->route('admin.programs.petugas.index', $program)
             ->with('success', 'Jadwal petugas berhasil ditambahkan. Host di sequence terkait telah diperbarui.');
-        
     }
 
     public function edit(Program $program, JadwalPetugas $jadwalPetugas)
@@ -78,9 +86,9 @@ class JadwalPetugasController extends Controller
         if ($admin->studio_id) {
             $penyiarsQuery->where('studio_id', $admin->studio_id);
         }
-        
+
         $penyiars = $penyiarsQuery->orderBy('name')->get();
-        
+
         $jadwalPetugas->load('penyiars');
         return view('admin.petugas.edit', compact('program', 'jadwalPetugas', 'penyiars'));
     }
@@ -89,22 +97,30 @@ class JadwalPetugasController extends Controller
     {
         $validatedData = $request->validate([
             'tanggal' => [
-                'required', 'date',
-                Rule::unique('jadwal_petugas')->where(fn ($query) => $query->where('program_id', $program->id))->ignore($jadwalPetugas->id),
+                'required',
+                'date',
+                Rule::unique('jadwal_petugas')
+                    ->where(fn($query) => $query->where('program_id', $program->id))
+                    ->ignore($jadwalPetugas->id),
             ],
-            'produser_nama' => 'nullable|string|max:255',
-            'pengelola_pep_nama' => 'nullable|string|max:255',
-            'pengarah_acara_nama' => 'nullable|string|max:255',
-            'petugas_lpu_nama' => 'nullable|string|max:255',
+            'produser_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
+            'pengelola_pep_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
+            'pengarah_acara_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
+            'petugas_lpu_nama' => 'nullable|string|max:255|regex:/^[^0-9]*$/',
             'penyiars' => 'nullable|array',
             'penyiars.*' => 'exists:users,id',
-        ], ['tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.']);
-        
+        ], [
+            'tanggal.unique' => 'Jadwal petugas untuk program ini di tanggal tersebut sudah ada.',
+            'produser_nama.regex' => 'Nama Produser hanya boleh huruf, tidak boleh angka.',
+            'pengelola_pep_nama.regex' => 'Nama Pengelola PEP hanya boleh huruf, tidak boleh angka.',
+            'pengarah_acara_nama.regex' => 'Nama Pengarah Acara hanya boleh huruf, tidak boleh angka.',
+            'petugas_lpu_nama.regex' => 'Nama Petugas LPU hanya boleh huruf, tidak boleh angka.',
+        ]);
 
         $jadwalPetugas->update($validatedData);
         $penyiarIds = $request->input('penyiars', []);
         $jadwalPetugas->penyiars()->sync($penyiarIds);
-        
+
         // Panggil fungsi untuk update host_id di semua sequence terkait program ini
         $this->updateProgramSequencesHost($program, $penyiarIds);
 
@@ -119,6 +135,7 @@ class JadwalPetugasController extends Controller
             ->with('success', 'Jadwal petugas berhasil diperbarui. Host di sequence terkait telah diperbarui.');
     }
 
+
     public function destroy(Program $program, JadwalPetugas $jadwalPetugas)
     {
         $jadwalPetugas->delete();
@@ -130,7 +147,7 @@ class JadwalPetugasController extends Controller
     {
         // Ambil ID penyiar pertama, atau null jika tidak ada penyiar yang dipilih
         // Ini sesuai logika di LaporanController
-        $hostId = $penyiarIds[0] ?? null; 
+        $hostId = $penyiarIds[0] ?? null;
 
         // Update semua sequence yang dimiliki oleh program ini
         $program->sequences()->update(['host_id' => $hostId]);
